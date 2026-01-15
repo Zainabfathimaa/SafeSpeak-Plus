@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Shield, Lock, Mail, Key } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { cn } from '../lib/utils';
 
 export default function LoginPage() {
+    const navigate = useNavigate();
     const [loginMethod, setLoginMethod] = useState('code'); // 'code' or 'email'
     const [formData, setFormData] = useState({
         accessCode: '',
@@ -20,6 +21,8 @@ export default function LoginPage() {
     const handleSubmit = (e) => {
         e.preventDefault();
         console.log('Login submitted:', { method: loginMethod, data: formData });
+        // Simulate successful login
+        navigate('/dashboard');
     };
 
     return (
