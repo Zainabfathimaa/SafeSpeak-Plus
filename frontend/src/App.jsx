@@ -5,6 +5,7 @@ import { Footer } from './components/Footer';
 import LandingPage from './pages/LandingPage';
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
+import UserDashboard from './pages/UserDashboard';
 import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/dashboard" element={<UserDashboard />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
