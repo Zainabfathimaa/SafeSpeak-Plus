@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Shield, Lock, Mail, Key } from 'lucide-react';
+import { Shield, Lock, Mail, Key, AlertCircle } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { cn } from '../lib/utils';
+import { loginUser, anonymousLogin, saveToken } from '../services/authService';
 
 export default function LoginPage() {
     const navigate = useNavigate();
@@ -13,16 +14,51 @@ export default function LoginPage() {
         email: '',
         password: ''
     });
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+        setError(''); // Clear error when user starts typing
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log('Login submitted:', { method: loginMethod, data: formData });
-        // Simulate successful login
-        navigate('/dashboard');
+        setError('');
+        setLoading(true);
+
+        try {
+            let response;
+
+            if (loginMethod === 'code') {
+                // Anonymous code login
+                response = await anonymousLogin(formData.accessCode);
+            } else {
+                // Email & password login
+                response = await loginUser(formData.email, formData.password);
+            }
+
+            // Check if login was successful
+            if (response.success) {
+                // Save token to localStorage
+                saveToken(response.token);
+                
+                // Show success message
+                console.log('Login successful!');
+                
+                // Redirect to dashboard
+                navigate('/dashboard');
+            } else {
+                // Login failed, show error message
+                setError(response.message || 'Login failed. Please try again.');
+            }
+        } catch (err) {
+            // Handle unexpected errors
+            setError('An error occurred. Please check your connection and try again.');
+            console.error('Login error:', err);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -74,6 +110,17 @@ export default function LoginPage() {
 
                 {/* Form Container */}
                 <div className="px-8 pb-8">
+                    {/* Error Message Display */}
+                    {error && (
+                        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex gap-3 items-start">
+                            <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                            <div>
+                                <p className="text-sm font-semibold text-red-800">Login Error</p>
+                                <p className="text-sm text-red-700 mt-1">{error}</p>
+                            </div>
+                        </div>
+                    )}
+
                     <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
 
                         {loginMethod === 'code' ? (
@@ -94,6 +141,7 @@ export default function LoginPage() {
                                     required
                                     value={formData.accessCode}
                                     onChange={handleChange}
+                                    disabled={loading}
                                     className="text-lg tracking-wide font-mono"
                                 />
                             </div>
@@ -107,6 +155,7 @@ export default function LoginPage() {
                                     required
                                     value={formData.email}
                                     onChange={handleChange}
+                                    disabled={loading}
                                 />
                                 <Input
                                     label="Password"
@@ -116,6 +165,7 @@ export default function LoginPage() {
                                     required
                                     value={formData.password}
                                     onChange={handleChange}
+                                    disabled={loading}
                                 />
                                 <div className="flex justify-end">
                                     <a href="#" className="text-xs text-primary hover:underline font-medium">
@@ -125,8 +175,12 @@ export default function LoginPage() {
                             </div>
                         )}
 
-                        <Button type="submit" className="w-full h-12 text-lg shadow-lg shadow-primary/20 hover:shadow-xl transition-all">
-                            {loginMethod === 'code' ? 'Enter Securely' : 'Sign In'}
+                        <Button 
+                            type="submit" 
+                            className="w-full h-12 text-lg shadow-lg shadow-primary/20 hover:shadow-xl transition-all"
+                            disabled={loading}
+                        >
+                            {loading ? 'Signing in...' : (loginMethod === 'code' ? 'Enter Securely' : 'Sign In')}
                         </Button>
                     </form>
 
