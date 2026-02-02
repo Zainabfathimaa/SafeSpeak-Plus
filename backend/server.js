@@ -103,23 +103,20 @@ const app = express();
 // origin: List of allowed domains
 // credentials: Allow sending cookies
 // methods: HTTP methods allowed (GET, POST, etc.)
-const allowedOrigins = [
-  'https://safespeakplus.vercel.app', // production domain
-  'https://safespeakplus-qm4svb1rl-zainabfathima-1691s-projects.vercel.app' // Vercel preview URL
-];
-
 app.use(cors({
-  origin: function(origin, callback) {
-    if (!origin) return callback(null, true); // allow Postman, mobile apps, etc.
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+
+    if (
+      origin.endsWith(".vercel.app") ||
+      origin.startsWith("http://localhost")
+    ) {
+      return callback(null, true);
     }
-    return callback(null, true);
+
+    return callback(new Error("Not allowed by CORS"));
   },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  credentials: true
 }));
 
 // JSON Parser Middleware
