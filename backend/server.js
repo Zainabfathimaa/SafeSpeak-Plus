@@ -103,15 +103,26 @@ const app = express();
 // origin: List of allowed domains
 // credentials: Allow sending cookies
 // methods: HTTP methods allowed (GET, POST, etc.)
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
+// Build allowed origins from environment variables for flexible deployments.
+// Set FRONTEND_URL to your production frontend (Vercel) URL, and optionally
+// ADDITIONAL_FRONTEND_ORIGINS as a comma-separated list for preview URLs.
+const envOrigins = [];
+if (process.env.FRONTEND_URL) envOrigins.push(process.env.FRONTEND_URL);
+if (process.env.ADDITIONAL_FRONTEND_ORIGINS) {
+  envOrigins.push(...process.env.ADDITIONAL_FRONTEND_ORIGINS.split(',').map(s => s.trim()).filter(Boolean));
+}
 
-    if (
-      origin.endsWith(".vercel.app") ||
-      origin.startsWith("http://localhost")
-    ) {
-      return callback(null, true);
+// Always allow requests from tools (no origin) and local dev by default
+const defaultOrigins = ['http://localhost:5173', 'http://localhost:3000'];
+
+const allowedOrigins = [...new Set([...envOrigins, ...defaultOrigins])];
+
+app.use(cors({
+  origin: function(origin, callback) {
+    if (!origin) return callback(null, true); // allow Postman, mobile apps, server-to-server
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
     }
 
     return callback(new Error("Not allowed by CORS"));

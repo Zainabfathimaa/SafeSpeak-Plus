@@ -132,17 +132,7 @@ const userSchema = new mongoose.Schema({
   },
 
   // GMAIL CREDENTIALS (for sending verification email)
-  gmailAddress: {
-    type: String,
-    default: null,
-    select: false                                          // Don't return by default
-  },
-
-  gmailPassword: {
-    type: String,
-    default: null,
-    select: false                                          // Don't return by default
-  },
+  // Note: Do not store user's Gmail credentials. Server uses its own SMTP config.
 
   lastLogin: {
     type: Date,

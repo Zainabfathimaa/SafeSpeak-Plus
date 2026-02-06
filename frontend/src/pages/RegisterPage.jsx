@@ -9,10 +9,7 @@ export default function RegisterPage() {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: '',
-        password: '',
-        confirmPassword: '',
-        gmailAddress: '',
-        gmailPassword: '',
+        password: ''
     });
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
@@ -32,23 +29,13 @@ export default function RegisterPage() {
             return;
         }
 
-        // Validation: Check if passwords match
-        if (formData.password !== formData.confirmPassword) {
-            setError('Passwords do not match. Please re-enter.');
-            return;
-        }
-
         // Validation: Check minimum password length
         if (formData.password.length < 6) {
             setError('Password must be at least 6 characters long.');
             return;
         }
 
-        // Validation: Check Gmail fields
-        if (!formData.gmailAddress || !formData.gmailPassword) {
-            setError('Please provide your Gmail address and app password.');
-            return;
-        }
+        // Note: Do not collect user's Gmail credentials on frontend.
 
         // Start loading
         setLoading(true);
@@ -58,10 +45,7 @@ export default function RegisterPage() {
             // Call backend API to register user
             const response = await registerUser(
                 formData.email,
-                formData.password,
-                formData.confirmPassword,
-                formData.gmailAddress,
-                formData.gmailPassword
+                formData.password
             );
 
             // Check if registration was successful
@@ -193,47 +177,9 @@ export default function RegisterPage() {
                         disabled={loading}
                     />
 
-                    <Input
-                        label="Confirm Password"
-                        type="password"
-                        name="confirmPassword"
-                        placeholder="••••••••"
-                        required
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        disabled={loading}
-                    />
+                    
 
-                    <div className="border-t border-gray-200 pt-4">
-                        <p className="text-sm font-semibold text-gray-700 mb-3">📧 Gmail Information</p>
-                        <p className="text-xs text-gray-500 mb-4">We'll send your anonymous code to your personal Gmail</p>
-                        
-                        <Input
-                            label="Your Gmail Address"
-                            type="email"
-                            name="gmailAddress"
-                            placeholder="yourname@gmail.com"
-                            required
-                            value={formData.gmailAddress}
-                            onChange={handleChange}
-                            disabled={loading}
-                        />
-
-                        <Input
-                            label="Gmail App Password"
-                            type="password"
-                            name="gmailPassword"
-                            placeholder="Your 16-character app password"
-                            required
-                            value={formData.gmailPassword}
-                            onChange={handleChange}
-                            disabled={loading}
-                        />
-                        
-                        <p className="text-xs text-gray-500 mt-2">
-                            🔒 Get it from: <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">myaccount.google.com/apppasswords</a>
-                        </p>
-                    </div>
+                    
 
                     <Button 
                         type="submit" 
