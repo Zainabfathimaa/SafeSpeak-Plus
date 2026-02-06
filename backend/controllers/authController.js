@@ -115,31 +115,16 @@ export const register = async (req, res) => {
   try {
     // Step 1: Extract data from request body
     // req.body contains JSON sent by frontend
-    const { email, password, confirmPassword, gmailAddress, gmailPassword } = req.body;
+    const { email, password } = req.body;
 
     // ===================================
     // VALIDATION: Check required fields
     // ===================================
     
-    if (!email || !password || !confirmPassword) {
+    if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide email, password, and confirm password'
-      });
-    }
-
-    if (!gmailAddress || !gmailPassword) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide Gmail address and app password'
-      });
-    }
-
-    // Check if passwords match
-    if (password !== confirmPassword) {
-      return res.status(400).json({
-        success: false,
-        message: 'Passwords do not match'
+        message: 'Please provide email and password'
       });
     }
 
@@ -202,8 +187,7 @@ export const register = async (req, res) => {
       fullName: req.body.fullName || null,
       isEmailVerified: false,  // Not verified until email link clicked
       anonymousCode: anonymousCode,  // Store anonymous code
-      gmailAddress: gmailAddress,  // Store user's Gmail
-      gmailPassword: gmailPassword  // Store user's Gmail app password
+      // Do not store user Gmail credentials. Server will send verification email.
     });
 
     // Generate verification token (random string)
@@ -224,9 +208,7 @@ export const register = async (req, res) => {
     
     const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
     const emailResult = await sendVerificationEmail(
-      gmailAddress,  // Send to user's Gmail
-      gmailAddress,  // From user's Gmail
-      gmailPassword, // With user's Gmail app password
+      email, // Send to user's college email using server SMTP
       verificationToken,
       anonymousCode,
       baseUrl
@@ -238,13 +220,13 @@ export const register = async (req, res) => {
       
       return res.status(500).json({
         success: false,
-        message: emailResult.message || 'Failed to send verification email. Please check your Gmail credentials.'
+        message: emailResult.message || 'Failed to send verification email.'
       });
     }
 
     console.log('✓ User registered successfully:', email);
     console.log('✓ Anonymous Code:', anonymousCode);
-    console.log('✓ Verification email sent to:', gmailAddress);
+    console.log('✓ Verification email sent to:', email);
     
     res.status(201).json({
       success: true,

@@ -39,33 +39,20 @@ const transporter = nodemailer.createTransport({
 });
 
 /**
- * SEND VERIFICATION EMAIL using user's Gmail
+ * SEND VERIFICATION EMAIL using server SMTP configuration
  * 
- * @param {string} toEmail - Recipient email address (user's Gmail)
- * @param {string} gmailAddress - User's Gmail address
- * @param {string} gmailPassword - User's Gmail app password
+ * @param {string} toEmail - Recipient email address (user's college email)
  * @param {string} verificationToken - Token for verification link
  * @param {string} anonymousCode - Anonymous access code
  * @param {string} baseUrl - Base URL of your app
  */
-export const sendVerificationEmail = async (toEmail, gmailAddress, gmailPassword, verificationToken, anonymousCode, baseUrl) => {
+export const sendVerificationEmail = async (toEmail, verificationToken, anonymousCode, baseUrl) => {
   try {
-    // Create transporter using USER's Gmail credentials
-    const userTransporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
-      auth: {
-        user: gmailAddress,
-        pass: gmailPassword
-      }
-    });
-
-    // DEBUG: Log attempt
-    console.log('📧 Attempting to send email...');
-    console.log('   From:', gmailAddress);
+    // Use server SMTP transporter (configured via .env)
+    console.log('📧 Sending verification email via server SMTP');
+    console.log('   From:', process.env.SMTP_EMAIL);
     console.log('   To:', toEmail);
-    
+
     // CREATE VERIFICATION LINK
     const verificationLink = `${baseUrl}/verify-email?token=${verificationToken}`;
 
@@ -128,9 +115,9 @@ export const sendVerificationEmail = async (toEmail, gmailAddress, gmailPassword
       </html>
     `;
 
-    // SEND EMAIL
-    const info = await userTransporter.sendMail({
-      from: gmailAddress,
+    // SEND EMAIL using server transporter
+    const info = await transporter.sendMail({
+      from: process.env.SMTP_EMAIL,
       to: toEmail,
       subject: '✓ Email Verification - SafeSpeak-Plus | Your Anonymous Code Inside',
       html: htmlContent
