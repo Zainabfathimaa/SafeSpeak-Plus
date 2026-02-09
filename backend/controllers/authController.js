@@ -102,23 +102,92 @@ const generateToken = (userId, email) => {
  *     "id": "507f1f77bcf86cd799439011",
  *     "email": "student@college.edu",
  *     "anonymousCode": "A7X-992-B4Q"
- *   }
- * }
+/**
+ * ===================================
+ * CONTROLLER FUNCTION 6: Forgot Code
+ * ===================================
  * 
- * Error (400):
- * {
- *   "success": false,
- *   "message": "Email already registered"
- * }
+ * Route: POST /api/auth/forgot-code
+ * 
+ * User forgot their anonymous code?
+ * Send it to their registered email again
  */
-export const register = async (req, res) => {
+export const forgotCode = async (req, res) => {
   try {
-    // Step 1: Extract data from request body
-    // req.body contains JSON sent by frontend
-    const { email, password } = req.body;
+    const { email } = req.body;
 
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide your email address'
+      });
+    }
+export const register = async (req, res) => {
+    // Find user by email
+    const user = await User.findOne({ email: email.toLowerCase() });
+  try {
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Email not registered. Please register first.'
+      });
+    }
+    // Step 1: Extract data from request body
+    if (!user.anonymousCode) {
+      return res.status(400).json({
+        success: false,
+        message: 'No anonymous code found for this account'
+      });
+    }
+    // req.body contains JSON sent by frontend
+    // Send anonymous code via email
+    const emailResult = await sendVerificationEmail(
+      email,
+      null, // no verification token needed
+      user.anonymousCode,
+      process.env.FRONTEND_URL || 'http://localhost:5173'
+    );
+
+    // Actually use the new sendAnonymousCodeEmail function instead
+    const { sendAnonymousCodeEmail } = await import('../utils/emailService.js');
+    const codeEmailResult = await sendAnonymousCodeEmail(
+      email,
+      user.anonymousCode,
+      process.env.FRONTEND_URL || 'http://localhost:5173'
+    );
+    const { email, password } = req.body;
+    if (!codeEmailResult.success) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to send anonymous code. Please try again.'
+      });
+    }
+
+    console.log('✓ Anonymous code resent to:', email);
     // ===================================
+    res.status(200).json({
+      success: true,
+      message: 'Your anonymous code has been sent to your email'
+    });
     // VALIDATION: Check required fields
+  } catch (error) {
+    console.error('Forgot code error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred. Please try again.'
+    });
+  }
+};
+
+/**
+ * Error Codes:
+ * 200: Success (OK)
+ * 201: Success (Created - for registration)
+ * 400: Bad Request (client error)
+ * 401: Unauthorized (invalid credentials/token)
+ * 404: Not Found
+ * 500: Server Error
+ */
     // ===================================
     
     if (!email || !password) {
@@ -699,5 +768,6 @@ export default {
   login,
   anonymousLogin,
   verifyEmail,
-  getCurrentUser
+  getCurrentUser,
+  forgotCode
 };

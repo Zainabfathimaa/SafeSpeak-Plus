@@ -6,6 +6,7 @@ import LandingPage from './pages/LandingPage';
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
 import VerificationPage from './pages/VerificationPage';
+import ForgotCodePage from './pages/ForgotCodePage';
 import UserDashboard from './pages/UserDashboard';
 import NotFoundPage from './pages/NotFoundPage';
 
@@ -20,6 +21,7 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/verify-email" element={<VerificationPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/forgot-code" element={<ForgotCodePage />} />
             <Route path="/dashboard" element={<UserDashboard />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
