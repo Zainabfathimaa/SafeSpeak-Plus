@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Shield, AlertCircle, CheckCircle, Mail } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { registerUser } from '../services/authService';
+import { registerUser, anonymousLogin, saveToken } from '../services/authService';
 
 export default function RegisterPage() {
     const navigate = useNavigate();
@@ -50,10 +50,27 @@ export default function RegisterPage() {
 
             // Check if registration was successful
             if (response.success) {
-                // Show success message
+                // Try to auto-login using anonymous code if provided
+                const code = response.user?.anonymousCode;
+
+                if (code) {
+                    try {
+                        const loginResp = await anonymousLogin(code);
+                        if (loginResp.success) {
+                            saveToken(loginResp.token);
+                            const userSession = { email: response.user.email, token: loginResp.token, loginMethod: 'code', loginTime: new Date().toISOString() };
+                            sessionStorage.setItem('safespeak_session', JSON.stringify(userSession));
+                            navigate('/dashboard');
+                            return;
+                        }
+                    } catch (err) {
+                        console.error('Auto-login failed:', err);
+                    }
+                }
+
+                // Fallback: show success and redirect to login
                 setSuccess(true);
 
-                // Redirect to login after 5 seconds
                 setTimeout(() => {
                     navigate('/login');
                 }, 5000);

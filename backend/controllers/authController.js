@@ -302,7 +302,8 @@ export const register = async (req, res) => {
       message: 'Registration successful! Please check your email to verify your account and receive your anonymous access code.',
       user: {
         id: newUser._id,
-        email: newUser.email
+        email: newUser.email,
+        anonymousCode: anonymousCode
       }
     });
 
