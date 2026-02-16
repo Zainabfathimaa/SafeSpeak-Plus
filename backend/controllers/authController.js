@@ -110,5 +110,43 @@ export const anonymousLogin = async (req, res) => {
 
 /* Verify Email */
 export const verifyEmail = async (req, res) => {
-  tr
+  try {
+    const { token } = req.body;
 
+    const user = await User.findOne({
+      verificationToken: token,
+      verificationTokenExpiry: { $gt: new Date() }
+    });
+
+    if (!user) {
+      return res.status(400).json({ success: false, message: 'Invalid or expired token' });
+    }
+
+    user.isEmailVerified = true;
+    user.verificationToken = null;
+    user.verificationTokenExpiry = null;
+
+    await user.save();
+
+    res.status(200).json({ success: true, message: 'Email verified successfully' });
+
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Verification failed' });
+  }
+};
+
+/* Get Current User */
+export const getCurrentUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    res.status(200).json({ success: true, user });
+
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error fetching user' });
+  }
+};
