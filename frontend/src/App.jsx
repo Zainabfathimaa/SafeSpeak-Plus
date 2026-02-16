@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
@@ -8,6 +7,7 @@ import LoginPage from './pages/LoginPage';
 import VerificationPage from './pages/VerificationPage';
 import ForgotCodePage from './pages/ForgotCodePage';
 import UserDashboard from './pages/UserDashboard';
+import NewReport from './pages/NewReport';
 import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
@@ -23,6 +23,7 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/forgot-code" element={<ForgotCodePage />} />
             <Route path="/dashboard" element={<UserDashboard />} />
+            <Route path="/report-incident" element={<NewReport />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
