@@ -223,4 +223,5 @@ export const getCurrentUser = async (req, res) => {
     });
   }
 };
+export default router;
 
