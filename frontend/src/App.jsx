@@ -1,4 +1,3 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
@@ -7,6 +6,7 @@ import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
 import VerificationPage from './pages/VerificationPage';
 import UserDashboard from './pages/UserDashboard';
+import NewReport from './pages/NewReport';
 import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
@@ -21,6 +21,7 @@ function App() {
             <Route path="/verify-email" element={<VerificationPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/dashboard" element={<UserDashboard />} />
+            <Route path="/report-incident" element={<NewReport />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
