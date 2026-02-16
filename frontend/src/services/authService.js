@@ -129,8 +129,8 @@ const makeRequest = async (endpoint, options = {}) => {
  * Creates new user account with college email
  * 
  * FLOW:
- * 1. Frontend has: email (@cmr.edu.in), password, confirmPassword
- * 2. Call registerUser(email, password, confirmPassword)
+ * 1. Frontend has: email (@cmr.edu.in) and password
+ * 2. Call registerUser(email, password)
  * 3. Function sends POST to /api/auth/register
  * 4. Backend validates college email
  * 5. Backend creates user and sends verification email with code
@@ -139,7 +139,6 @@ const makeRequest = async (endpoint, options = {}) => {
  * 
  * @param {string} email - User's college email (@cmr.edu.in)
  * @param {string} password - User's password
- * @param {string} confirmPassword - Confirmation password
  * @returns {Promise<Object>} - Response with user data
  * 
  * EXAMPLE RESPONSE:
@@ -158,15 +157,12 @@ const makeRequest = async (endpoint, options = {}) => {
  *   "message": "You must register with your college email (@cmr.edu.in)"
  * }
  */
-export const registerUser = async (email, password, confirmPassword, gmailAddress, gmailPassword) => {
+export const registerUser = async (email, password) => {
   return makeRequest('/auth/register', {
     method: 'POST',
     body: JSON.stringify({
       email,
-      password,
-      confirmPassword,
-      gmailAddress,
-      gmailPassword
+      password
     })
   });
 };

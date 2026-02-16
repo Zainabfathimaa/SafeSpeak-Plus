@@ -25,47 +25,56 @@ import nodemailer from 'nodemailer';
 /**
  * CREATE TRANSPORTER
  * This connects to your email service
- * Uses SMTP configuration from .env
+ * Uses SMTP configuration from .env - works with any provider
+ * 
+ * ENVIRONMENT VARIABLES (all optional with defaults):
+ * - SMTP_HOST: SMTP server (default: smtp.gmail.com)
+ * - SMTP_PORT: SMTP port (default: 587)
+ * - SMTP_SECURE: 'true' for SSL/465, 'false' for TLS/587 (default: false)
+ * - SMTP_EMAIL: Sender email address
+ * - SMTP_PASSWORD: Sender password or app password
+ * 
+ * EXAMPLES:
+ * Gmail: SMTP_HOST=smtp.gmail.com, SMTP_PORT=587, SMTP_SECURE=false
+ * Office365: SMTP_HOST=smtp.office365.com, SMTP_PORT=587, SMTP_SECURE=false
+ * SendGrid: SMTP_HOST=smtp.sendgrid.net, SMTP_PORT=587, SMTP_SECURE=false
  */
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // true for 465, false for other ports
-  auth: {
-    user: process.env.SMTP_EMAIL || '',
-    pass: process.env.SMTP_PASSWORD || ''
-  }
-});
+const createTransporter = () => {
+  const host = process.env.SMTP_HOST || 'smtp.gmail.com';
+  const port = parseInt(process.env.SMTP_PORT || '587');
+  const secure = process.env.SMTP_SECURE === 'true';
+  
+  console.log(`📧 SMTP Transporter: ${host}:${port} (secure: ${secure})`);
+  
+  return nodemailer.createTransport({
+    host: host,
+    port: port,
+    secure: secure,
+    auth: {
+      user: process.env.SMTP_EMAIL || '',
+      pass: process.env.SMTP_PASSWORD || ''
+    }
+  });
+};
+
+const transporter = createTransporter();
 
 /**
- * SEND VERIFICATION EMAIL using user's Gmail
+ * SEND VERIFICATION EMAIL using server SMTP configuration
  * 
- * @param {string} toEmail - Recipient email address (user's Gmail)
- * @param {string} gmailAddress - User's Gmail address
- * @param {string} gmailPassword - User's Gmail app password
+ * @param {string} toEmail - Recipient email address (user's college email)
  * @param {string} verificationToken - Token for verification link
  * @param {string} anonymousCode - Anonymous access code
  * @param {string} baseUrl - Base URL of your app
  */
-export const sendVerificationEmail = async (toEmail, gmailAddress, gmailPassword, verificationToken, anonymousCode, baseUrl) => {
+export const sendVerificationEmail = async (toEmail, verificationToken, anonymousCode, baseUrl) => {
   try {
-    // Create transporter using USER's Gmail credentials
-    const userTransporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
-      auth: {
-        user: gmailAddress,
-        pass: gmailPassword
-      }
-    });
-
-    // DEBUG: Log attempt
-    console.log('📧 Attempting to send email...');
-    console.log('   From:', gmailAddress);
+    // Use server SMTP transporter (configured via .env)
+    console.log('📧 Sending verification email via server SMTP');
+    console.log('   From:', process.env.SMTP_EMAIL);
     console.log('   To:', toEmail);
-    
+
     // CREATE VERIFICATION LINK
     const verificationLink = `${baseUrl}/verify-email?token=${verificationToken}`;
 
@@ -128,9 +137,9 @@ export const sendVerificationEmail = async (toEmail, gmailAddress, gmailPassword
       </html>
     `;
 
-    // SEND EMAIL
-    const info = await userTransporter.sendMail({
-      from: gmailAddress,
+    // SEND EMAIL using server transporter
+    const info = await transporter.sendMail({
+      from: process.env.SMTP_EMAIL,
       to: toEmail,
       subject: '✓ Email Verification - SafeSpeak-Plus | Your Anonymous Code Inside',
       html: htmlContent
@@ -149,6 +158,86 @@ export const sendVerificationEmail = async (toEmail, gmailAddress, gmailPassword
         ? 'Invalid Gmail credentials. Please check your Gmail app password.'
         : 'Failed to send email. ' + error.message
     };
+  }
+};
+
+/**
+ * SEND ANONYMOUS CODE EMAIL (for forgot-code feature)
+ * 
+ * User forgot their anonymous code, so we resend it
+ * 
+ * @param {string} toEmail - Recipient email address
+ * @param {string} anonymousCode - The anonymous access code
+ * @param {string} baseUrl - Base URL of your app
+ */
+export const sendAnonymousCodeEmail = async (toEmail, anonymousCode, baseUrl) => {
+  try {
+    console.log('📧 Sending anonymous code to:', toEmail);
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 5px; }
+          .content { margin: 20px 0; padding: 20px; border: 1px solid #eee; border-radius: 5px; }
+          .code-box { background: #f0f0f0; padding: 15px; border-left: 4px solid #667eea; margin: 20px 0; }
+          .code-text { font-size: 24px; font-weight: bold; color: #667eea; text-align: center; letter-spacing: 2px; }
+          .footer { margin-top: 20px; font-size: 12px; color: #666; border-top: 1px solid #eee; padding-top: 10px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Your Anonymous Code - SafeSpeak-Plus 🎓</h1>
+          </div>
+          
+          <div class="content">
+            <p>Here's your anonymous access code. Keep it safe!</p>
+            
+            <p><strong>Your Anonymous Access Code:</strong></p>
+            <div class="code-box">
+              <div class="code-text">${anonymousCode}</div>
+              <p style="text-align: center; margin: 10px 0 0 0; color: #666; font-size: 12px;">Use this code to login anonymously</p>
+            </div>
+            
+            <p><strong>How to use:</strong></p>
+            <ol>
+              <li>Go to the login page</li>
+              <li>Select "Anonymous Login"</li>
+              <li>Enter your code: <strong>${anonymousCode}</strong></li>
+              <li>You're logged in anonymously!</li>
+            </ol>
+            
+            <p style="color: #666; font-size: 12px;">
+              <strong>Security:</strong> This is your unique code. Don't share it with others.
+            </p>
+          </div>
+          
+          <div class="footer">
+            <p>SafeSpeak-Plus Team</p>
+            <p>Anonymous Incident Reporting System</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const info = await transporter.sendMail({
+      from: process.env.SMTP_EMAIL,
+      to: toEmail,
+      subject: '🔐 Your Anonymous Code - SafeSpeak-Plus',
+      html: htmlContent
+    });
+
+    console.log('✓ Anonymous code email sent:', info.messageId);
+    return { success: true, messageId: info.messageId };
+
+  } catch (error) {
+    console.error('✗ Failed to send anonymous code email:', error.message);
+    return { success: false, message: 'Failed to send anonymous code email. ' + error.message };
   }
 };
 

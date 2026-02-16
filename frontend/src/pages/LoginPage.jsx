@@ -38,16 +38,25 @@ export default function LoginPage() {
                 response = await loginUser(formData.email, formData.password);
             }
 
-            // Check if login was successful
-            if (response.success) {
-                // Save token to localStorage
-                saveToken(response.token);
+                        // Check if login was successful
+                        if (response.success) {
+                                // Save token to localStorage
+                                saveToken(response.token);
                 
-                // Show success message
-                console.log('Login successful!');
+                                // Save user session to sessionStorage
+                                const userData = {
+                                    email: response.user?.email || formData.email,
+                                    token: response.token,
+                                    loginMethod: loginMethod,
+                                    loginTime: new Date().toISOString()
+                                };
+                                sessionStorage.setItem('safespeak_session', JSON.stringify(userData));
                 
-                // Redirect to dashboard
-                navigate('/dashboard');
+                                // Show success message
+                                console.log('Login successful!');
+                
+                                // Redirect to dashboard
+                                navigate('/dashboard');
             } else {
                 // Login failed, show error message
                 setError(response.message || 'Login failed. Please try again.');
@@ -144,6 +153,11 @@ export default function LoginPage() {
                                     disabled={loading}
                                     className="text-lg tracking-wide font-mono"
                                 />
+                                <div className="flex justify-end">
+                                    <Link to="/forgot-code" className="text-xs text-primary hover:underline font-medium">
+                                        Forgot code?
+                                    </Link>
+                                </div>
                             </div>
                         ) : (
                             <div className="space-y-4">
@@ -168,9 +182,9 @@ export default function LoginPage() {
                                     disabled={loading}
                                 />
                                 <div className="flex justify-end">
-                                    <a href="#" className="text-xs text-primary hover:underline font-medium">
-                                        Forgot password?
-                                    </a>
+                                    <Link to="/forgot-code" className="text-xs text-primary hover:underline font-medium">
+                                        Forgot your code?
+                                    </Link>
                                 </div>
                             </div>
                         )}

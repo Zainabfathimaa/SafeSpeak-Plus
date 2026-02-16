@@ -14,25 +14,135 @@ const generateToken = (userId, email) => {
   );
 };
 
-/* =====================================
-   Register User
-   POST /api/auth/register
-===================================== */
-export const register = async (req, res) => {
+/**
+ * ===================================
+ * CONTROLLER FUNCTION 1: Register User
+ * ===================================
+ * 
+ * Route: POST /api/auth/register
+ * 
+ * WHAT HAPPENS:
+ * 1. User submits: email, password
+ * 2. Check if email already registered
+ * 3. Check password is strong enough
+ * 4. Create user in database
+ * 5. Generate anonymous code
+ * 6. Return success response
+ * 
+ * SECURITY CHECKS:
+ * - Email format validation
+ * - Password minimum length
+ * - Email uniqueness
+ * - Password encryption (done in model)
+ * 
+ * FRONTEND SENDS:
+ * POST /api/auth/register
+ * {
+ *   "email": "student@college.edu",
+ *   "password": "SecurePassword123"
+ * }
+ * 
+ * BACKEND RESPONDS:
+ * Success (201):
+ * {
+ *   "success": true,
+ *   "message": "Registration successful",
+ *   "user": {
+ *     "id": "507f1f77bcf86cd799439011",
+ *     "email": "student@college.edu",
+ *     "anonymousCode": "A7X-992-B4Q"
+/**
+ * ===================================
+ * CONTROLLER FUNCTION 6: Forgot Code
+ * ===================================
+ * 
+ * Route: POST /api/auth/forgot-code
+ * 
+ * User forgot their anonymous code?
+ * Send it to their registered email again
+ */
+export const forgotCode = async (req, res) => {
   try {
-    const { email, password, confirmPassword, gmailAddress, gmailPassword, fullName } = req.body;
+    const { email } = req.body;
 
-    if (!email || !password || !confirmPassword) {
+    if (!email) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide email, password, and confirm password'
+        message: 'Please provide your email address'
+      });
+    }
+export const register = async (req, res) => {
+    // Find user by email
+    const user = await User.findOne({ email: email.toLowerCase() });
+  try {
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Email not registered. Please register first.'
+      });
+    }
+    // Step 1: Extract data from request body
+    if (!user.anonymousCode) {
+      return res.status(400).json({
+        success: false,
+        message: 'No anonymous code found for this account'
+      });
+    }
+    // req.body contains JSON sent by frontend
+    // Send anonymous code via email
+    const emailResult = await sendVerificationEmail(
+      email,
+      null, // no verification token needed
+      user.anonymousCode,
+      process.env.FRONTEND_URL || 'http://localhost:5173'
+    );
+
+    // Actually use the new sendAnonymousCodeEmail function instead
+    const { sendAnonymousCodeEmail } = await import('../utils/emailService.js');
+    const codeEmailResult = await sendAnonymousCodeEmail(
+      email,
+      user.anonymousCode,
+      process.env.FRONTEND_URL || 'http://localhost:5173'
+    );
+    const { email, password } = req.body;
+    if (!codeEmailResult.success) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to send anonymous code. Please try again.'
       });
     }
 
-    if (password !== confirmPassword) {
+    console.log('✓ Anonymous code resent to:', email);
+    // ===================================
+    res.status(200).json({
+      success: true,
+      message: 'Your anonymous code has been sent to your email'
+    });
+    // VALIDATION: Check required fields
+  } catch (error) {
+    console.error('Forgot code error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'An error occurred. Please try again.'
+    });
+  }
+};
+
+/**
+ * Error Codes:
+ * 200: Success (OK)
+ * 201: Success (Created - for registration)
+ * 400: Bad Request (client error)
+ * 401: Unauthorized (invalid credentials/token)
+ * 404: Not Found
+ * 500: Server Error
+ */
+    // ===================================
+    
+    if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Passwords do not match'
+        message: 'Please provide email and password'
       });
     }
 
@@ -53,11 +163,11 @@ export const register = async (req, res) => {
 
     const newUser = new User({
       email: email.toLowerCase(),
-      password,
-      fullName: fullName || null,
-      isEmailVerified: false,
-      gmailAddress,
-      gmailPassword
+      password: password,
+      fullName: req.body.fullName || null,
+      isEmailVerified: false,  // Not verified until email link clicked
+      anonymousCode: anonymousCode,  // Store anonymous code
+      // Do not store user Gmail credentials. Server will send verification email.
     });
 
     const verificationToken = crypto.randomBytes(32).toString('hex');
@@ -69,9 +179,7 @@ export const register = async (req, res) => {
     const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
 
     const emailResult = await sendVerificationEmail(
-      gmailAddress,
-      gmailAddress,
-      gmailPassword,
+      email, // Send to user's college email using server SMTP
       verificationToken,
       baseUrl
     );
@@ -80,16 +188,21 @@ export const register = async (req, res) => {
       await User.deleteOne({ _id: newUser._id });
       return res.status(500).json({
         success: false,
-        message: 'Failed to send verification email'
+        message: emailResult.message || 'Failed to send verification email.'
       });
     }
 
+    console.log('✓ User registered successfully:', email);
+    console.log('✓ Anonymous Code:', anonymousCode);
+    console.log('✓ Verification email sent to:', email);
+    
     res.status(201).json({
       success: true,
       message: 'Registration successful! Please verify your email.',
       user: {
         id: newUser._id,
-        email: newUser.email
+        email: newUser.email,
+        anonymousCode: anonymousCode
       }
     });
 
@@ -281,4 +394,23 @@ export const getCurrentUser = async (req, res) => {
       message: 'Error fetching user'
     });
   }
+};
+
+/**
+ * Error Codes:
+ * 200: Success (OK)
+ * 201: Success (Created - for registration)
+ * 400: Bad Request (client error)
+ * 401: Unauthorized (invalid credentials/token)
+ * 404: Not Found
+ * 500: Server Error
+ */
+
+export default {
+  register,
+  login,
+  anonymousLogin,
+  verifyEmail,
+  getCurrentUser,
+  forgotCode
 };

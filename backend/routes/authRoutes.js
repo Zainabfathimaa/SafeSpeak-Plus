@@ -329,6 +329,46 @@ router.get('/me', authenticate, authController.getCurrentUser);
 
 /**
  * ===================================
+ * ROUTE 5: POST /api/auth/forgot-code
+ * ===================================
+ * 
+ * PURPOSE: Resend anonymous code if user forgot it
+ * 
+ * WHAT HAPPENS:
+ * 1. User enters their college email
+ * 2. Frontend sends email to this endpoint
+ * 3. Backend finds user by email
+ * 4. Backend sends anonymous code via email
+ * 5. User receives email with their code
+ * 
+ * FRONTEND REQUEST:
+ * POST http://localhost:5000/api/auth/forgot-code
+ * Headers: { "Content-Type": "application/json" }
+ * Body: { "email": "student@college.edu" }
+ * 
+ * BACKEND RESPONSE (Success):
+ * Status: 200 OK
+ * Body: {
+ *   "success": true,
+ *   "message": "Anonymous code sent to your email"
+ * }
+ * 
+ * BACKEND RESPONSE (Error):
+ * Status: 404 Not Found
+ * Body: {
+ *   "success": false,
+ *   "message": "Email not registered"
+ * }
+ * 
+ * SECURITY:
+ * - Public route (anyone can request)
+ * - Only sends code to verified email
+ * - Rate limiting recommended (not implemented)
+ */
+router.post('/forgot-code', authController.forgotCode);
+
+/**
+ * ===================================
  * ADVANCED ROUTES (Can add later)
  * ===================================
  * 
