@@ -116,19 +116,9 @@ if (process.env.ADDITIONAL_FRONTEND_ORIGINS) {
 const defaultOrigins = ['http://localhost:5173', 'http://localhost:3000'];
 
 const allowedOrigins = [...new Set([...envOrigins, ...defaultOrigins])];
-
 app.use(cors({
-  origin: function(origin, callback) {
-    if (!origin) return callback(null, true); // allow Postman, mobile apps, server-to-server
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: true,
+  credentials: true
 }));
 
 // JSON Parser Middleware
