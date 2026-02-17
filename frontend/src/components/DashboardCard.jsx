@@ -45,7 +45,10 @@ export function DashboardCard({ icon: Icon, title, description, buttonText, to, 
             </div>
 
             <Link to={to} className="mt-auto w-full">
-                <Button className="w-full justify-center shadow-none hover:shadow-md transition-all" variant="outline">
+                <Button
+                    className={`w-full justify-center shadow-none border hover:shadow-md transition-all 
+                    bg-white text-${color} border-${color} hover:bg-${color} hover:text-white`}
+                >
                     {buttonText}
                 </Button>
             </Link>
