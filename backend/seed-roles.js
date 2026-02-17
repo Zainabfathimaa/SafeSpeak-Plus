@@ -1,0 +1,87 @@
+/**
+ * SEED SCRIPT - Create test users with different roles
+ * 
+ * RUN THIS ONCE:
+ * node seed-roles.js
+ * 
+ * This creates test accounts you can login with
+ */
+
+import dotenv from 'dotenv';
+dotenv.config();
+
+import mongoose from 'mongoose';
+import User from './models/User.js';
+
+const testUsers = [
+  {
+    email: 'admin@safespeak.com',
+    password: 'Admin@12345',
+    fullName: 'Admin User',
+    role: 'admin',
+    isEmailVerified: true
+  },
+  {
+    email: 'counsellor@safespeak.com',
+    password: 'Counsellor@12345',
+    fullName: 'Counsellor User',
+    role: 'counsellor',
+    isEmailVerified: true
+  },
+  {
+    email: 'executive@safespeak.com',
+    password: 'Executive@12345',
+    fullName: 'Executive User',
+    role: 'executive',
+    isEmailVerified: true
+  },
+  {
+    email: 'compliance@safespeak.com',
+    password: 'Compliance@12345',
+    fullName: 'Compliance Officer',
+    role: 'compliance-officer',
+    isEmailVerified: true
+  },
+  {
+    email: 'user@safespeak.com',
+    password: 'User@12345',
+    fullName: 'Regular User',
+    role: 'user',
+    isEmailVerified: true
+  }
+];
+
+async function seedRoles() {
+  try {
+    // Connect to MongoDB
+    await mongoose.connect(process.env.MONGODB_URI);
+    console.log('✓ Connected to MongoDB');
+
+    // Delete existing test users
+    const emails = testUsers.map(u => u.email);
+    await User.deleteMany({ email: { $in: emails } });
+    console.log('✓ Cleared existing test users');
+
+    // Create new test users
+    for (const userData of testUsers) {
+      const user = new User(userData);
+      await user.save();
+      console.log(`✓ Created ${userData.role} user: ${userData.email}`);
+    }
+
+    console.log('\n✅ Test users created successfully!\n');
+    console.log('Login Credentials:');
+    console.log('================');
+    testUsers.forEach(u => {
+      console.log(`${u.role.toUpperCase()}: ${u.email} / ${u.password}`);
+    });
+    console.log('\n');
+
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ Error:', error.message);
+    process.exit(1);
+  }
+}
+
+seedRoles();
