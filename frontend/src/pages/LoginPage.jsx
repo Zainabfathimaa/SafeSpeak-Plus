@@ -40,6 +40,13 @@ export default function LoginPage() {
 
                         // Check if login was successful
                         if (response.success) {
+                                // DEBUG: Log what we received
+                                console.log('=== LOGIN RESPONSE ===');
+                                console.log('Full response:', response);
+                                console.log('User object:', response.user);
+                                console.log('Role received:', response.user?.role);
+                                console.log('=====================');
+                                
                                 // Save token to localStorage
                                 saveToken(response.token);
                 
@@ -53,6 +60,8 @@ export default function LoginPage() {
                                     loginMethod: loginMethod,
                                     loginTime: new Date().toISOString()
                                 };
+                                
+                                console.log('Stored userData:', userData); // DEBUG
                                 localStorage.setItem('user', JSON.stringify(userData));
                 
                                 // Save user session to sessionStorage
@@ -72,6 +81,7 @@ export default function LoginPage() {
                                 };
                                 
                                 const redirectUrl = roleDashboards[userData.role] || '/dashboard';
+                                console.log('Redirecting to:', redirectUrl, 'for role:', userData.role); // DEBUG
                                 navigate(redirectUrl);
             } else {
                 // Login failed, show error message
