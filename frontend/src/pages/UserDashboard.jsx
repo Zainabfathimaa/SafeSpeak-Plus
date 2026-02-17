@@ -4,6 +4,7 @@ import { Sidebar } from '../components/Sidebar';
 import { Footer } from '../components/Footer';
 import { WelcomeCard } from '../components/WelcomeCard';
 import { DashboardCard } from '../components/DashboardCard';
+import { DashboardStories } from '../components/DashboardStories';
 import { PlusCircle, FileText, MessageSquare, ArrowUpRight, BookOpen } from 'lucide-react';
 
 export default function UserDashboard() {
@@ -20,46 +21,50 @@ export default function UserDashboard() {
                     <div className="max-w-7xl mx-auto space-y-8">
                         <WelcomeCard />
 
+                        {/* Stories Section */}
+                        <DashboardStories />
+
+                        {/* Quick Actions */}
                         <div>
-                            <h3 className="text-xl font-semibold text-gray-800 mb-6 border-l-4 border-primary pl-4">Quick Actions</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <h3 className="text-xl font-semibold text-gray-800 mb-4 border-l-4 border-primary pl-4">Quick Actions</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                                 <DashboardCard
                                     icon={PlusCircle}
-                                    title="Create New Report"
-                                    description="Submit a new incident report securely and anonymously."
-                                    buttonText="Report an Incident"
+                                    title="New Report"
+                                    description="Submit securely."
+                                    buttonText="Report"
                                     to="/report-incident"
                                     color="blue-600"
                                 />
                                 <DashboardCard
                                     icon={FileText}
-                                    title="My Active Reports"
-                                    description="Track status updates on your 3 active cases."
-                                    buttonText="View My Reports"
+                                    title="Active Reports"
+                                    description="Track status."
+                                    buttonText="View"
                                     to="/report-status"
                                     color="emerald-600"
                                 />
                                 <DashboardCard
                                     icon={MessageSquare}
                                     title="Messages"
-                                    description="You have 2 new secure messages from administrators."
-                                    buttonText="Open Messages"
+                                    description="Secure inbox."
+                                    buttonText="Open"
                                     to="/messages"
                                     color="violet-600"
                                 />
                                 <DashboardCard
                                     icon={ArrowUpRight}
-                                    title="Escalation Option"
-                                    description="Request review for cases that need urgent attention."
-                                    buttonText="Escalate a Case"
+                                    title="Escolate"
+                                    description="Request review."
+                                    buttonText="Escalate"
                                     to="/escalate"
                                     color="orange-600"
                                 />
                                 <DashboardCard
                                     icon={BookOpen}
-                                    title="Stories & Awareness"
-                                    description="Read community stories and safety resources."
-                                    buttonText="Browse Stories"
+                                    title="Stories"
+                                    description="Read & share."
+                                    buttonText="Browse"
                                     to="/stories"
                                     color="pink-600"
                                 />

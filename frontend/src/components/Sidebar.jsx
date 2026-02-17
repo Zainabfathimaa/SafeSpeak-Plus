@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, MessageSquare, ArrowUpRight, BookOpen } from 'lucide-react';
+import { LayoutDashboard, FileText, MessageSquare, ArrowUpRight, BookOpen, Settings } from 'lucide-react';
 
 export function Sidebar() {
     const location = useLocation();
@@ -35,6 +35,19 @@ export function Sidebar() {
 
                 {/* Spacer to push logout or other items to bottom if needed */}
                 <div className="flex-grow"></div>
+
+                <div className="pt-4 border-t border-gray-100">
+                    <Link
+                        to="/settings"
+                        className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors font-medium
+                        ${isActive('/settings')
+                                ? 'bg-primary/10 text-primary border-r-4 border-primary'
+                                : 'text-text-secondary hover:text-primary hover:bg-gray-50'}`}
+                    >
+                        <Settings className={`h-5 w-5 ${isActive('/settings') ? 'text-primary' : 'text-gray-400 group-hover:text-primary'}`} />
+                        <span>Settings</span>
+                    </Link>
+                </div>
             </nav>
         </aside>
     );
