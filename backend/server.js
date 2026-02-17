@@ -113,12 +113,30 @@ if (process.env.ADDITIONAL_FRONTEND_ORIGINS) {
 }
 
 // Always allow requests from tools (no origin) and local dev by default
-const defaultOrigins = ['http://localhost:5173', 'http://localhost:3000'];
+const defaultOrigins = ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'];
 
 const allowedOrigins = [...new Set([...envOrigins, ...defaultOrigins])];
+
+// Log allowed origins for debugging
+console.log('✓ CORS Allowed Origins:', allowedOrigins);
+
 app.use(cors({
-  origin: true,
-  credentials: true
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or Postman)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin is in whitelist
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`✗ CORS Blocked: ${origin}`);
+      callback(new Error('CORS policy: origin not allowed'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  maxAge: 86400 // 24 hours
 }));
 
 // JSON Parser Middleware
