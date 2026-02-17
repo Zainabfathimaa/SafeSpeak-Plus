@@ -8,6 +8,10 @@ import VerificationPage from './pages/VerificationPage';
 import ForgotCodePage from './pages/ForgotCodePage';
 import UserDashboard from './pages/UserDashboard';
 import NewReport from './pages/NewReport';
+import ReportStatus from './pages/ReportStatus';
+import Messages from './pages/Messages';
+import EscalatePage from './pages/EscalatePage';
+import StoriesPage from './pages/StoriesPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
@@ -24,6 +28,10 @@ function App() {
             <Route path="/forgot-code" element={<ForgotCodePage />} />
             <Route path="/dashboard" element={<UserDashboard />} />
             <Route path="/report-incident" element={<NewReport />} />
+            <Route path="/report-status" element={<ReportStatus />} />
+            <Route path="/messages" element={<Messages />} />
+            <Route path="/escalate" element={<EscalatePage />} />
+            <Route path="/stories" element={<StoriesPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
