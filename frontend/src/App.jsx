@@ -13,6 +13,10 @@ import Messages from './pages/Messages';
 import EscalatePage from './pages/EscalatePage';
 import StoriesPage from './pages/StoriesPage';
 import SettingsPage from './pages/SettingsPage';
+import AdminDashboard from './pages/AdminDashboard';
+import CounsellorDashboard from './pages/CounsellorDashboard';
+import ExecutiveDashboard from './pages/ExecutiveDashboard';
+import ComplianceOfficerDashboard from './pages/ComplianceOfficerDashboard';
 import NotFoundPage from './pages/NotFoundPage';
 
 function Layout() {
@@ -20,6 +24,10 @@ function Layout() {
   // Define routes where the global Navbar and Footer should NOT appear
   const hideGlobalLayoutRoutes = [
     '/dashboard',
+    '/admin-dashboard',
+    '/counsellor-dashboard',
+    '/executive-dashboard',
+    '/compliance-officer-dashboard',
     '/report-incident',
     '/report-status',
     '/messages',
@@ -40,6 +48,10 @@ function Layout() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/forgot-code" element={<ForgotCodePage />} />
           <Route path="/dashboard" element={<UserDashboard />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/counsellor-dashboard" element={<CounsellorDashboard />} />
+          <Route path="/executive-dashboard" element={<ExecutiveDashboard />} />
+          <Route path="/compliance-officer-dashboard" element={<ComplianceOfficerDashboard />} />
           <Route path="/report-incident" element={<NewReport />} />
           <Route path="/report-status" element={<ReportStatus />} />
           <Route path="/messages" element={<Messages />} />
