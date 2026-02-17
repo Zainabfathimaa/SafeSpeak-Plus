@@ -12,6 +12,20 @@ dotenv.config();
 
 import mongoose from 'mongoose';
 import User from './models/User.js';
+import crypto from 'crypto';
+
+// Generate anonymous code in format ABC-123-DEF
+function generateAnonymousCode() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = '';
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 3; j++) {
+      code += chars[Math.floor(Math.random() * chars.length)];
+    }
+    if (i < 2) code += '-';
+  }
+  return code;
+}
 
 const testUsers = [
   {
@@ -19,35 +33,40 @@ const testUsers = [
     password: 'Admin@12345',
     fullName: 'Admin User',
     role: 'admin',
-    isEmailVerified: true
+    isEmailVerified: true,
+    anonymousCode: generateAnonymousCode()
   },
   {
     email: 'counsellor@safespeak.com',
     password: 'Counsellor@12345',
     fullName: 'Counsellor User',
     role: 'counsellor',
-    isEmailVerified: true
+    isEmailVerified: true,
+    anonymousCode: generateAnonymousCode()
   },
   {
     email: 'executive@safespeak.com',
     password: 'Executive@12345',
     fullName: 'Executive User',
     role: 'executive',
-    isEmailVerified: true
+    isEmailVerified: true,
+    anonymousCode: generateAnonymousCode()
   },
   {
     email: 'compliance@safespeak.com',
     password: 'Compliance@12345',
     fullName: 'Compliance Officer',
     role: 'compliance-officer',
-    isEmailVerified: true
+    isEmailVerified: true,
+    anonymousCode: generateAnonymousCode()
   },
   {
     email: 'user@safespeak.com',
     password: 'User@12345',
     fullName: 'Regular User',
     role: 'user',
-    isEmailVerified: true
+    isEmailVerified: true,
+    anonymousCode: generateAnonymousCode()
   }
 ];
 
@@ -66,7 +85,7 @@ async function seedRoles() {
     for (const userData of testUsers) {
       const user = new User(userData);
       await user.save();
-      console.log(`✓ Created ${userData.role} user: ${userData.email}`);
+      console.log(`✓ Created ${userData.role.toUpperCase()} user: ${userData.email}`);
     }
 
     console.log('\n✅ Test users created successfully!\n');
