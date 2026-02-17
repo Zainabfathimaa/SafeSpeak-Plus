@@ -1,31 +1,38 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, FileText, MessageSquare, ArrowUpRight, BookOpen } from 'lucide-react';
 
 export function Sidebar() {
+    const location = useLocation();
+    const currentPath = location.pathname;
+
+    const isActive = (path) => currentPath === path;
+
+    const navItems = [
+        { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+        { path: '/report-status', label: 'My Reports', icon: FileText },
+        { path: '/messages', label: 'Messages', icon: MessageSquare },
+        { path: '/escalate', label: 'Escalate', icon: ArrowUpRight },
+        { path: '/stories', label: 'Stories', icon: BookOpen },
+    ];
+
     return (
         <aside className="hidden md:block w-64 bg-white border-r border-gray-200 h-screen sticky top-0">
-            <nav className="flex flex-col h-full p-4 space-y-4">
-                <Link to="/dashboard" className="flex items-center space-x-2 text-text-secondary hover:text-primary transition-colors">
-                    <LayoutDashboard className="h-5 w-5" />
-                    <span>Dashboard</span>
-                </Link>
-                <Link to="/report-status" className="flex items-center space-x-2 text-text-secondary hover:text-primary transition-colors">
-                    <FileText className="h-5 w-5" />
-                    <span>My Reports</span>
-                </Link>
-                <Link to="/messages" className="flex items-center space-x-2 text-text-secondary hover:text-primary transition-colors">
-                    <MessageSquare className="h-5 w-5" />
-                    <span>Messages</span>
-                </Link>
-                <Link to="/escalate" className="flex items-center space-x-2 text-text-secondary hover:text-primary transition-colors">
-                    <ArrowUpRight className="h-5 w-5" />
-                    <span>Escalate</span>
-                </Link>
-                <Link to="/stories" className="flex items-center space-x-2 text-text-secondary hover:text-primary transition-colors">
-                    <BookOpen className="h-5 w-5" />
-                    <span>Stories</span>
-                </Link>
+            <nav className="flex flex-col h-full p-4 space-y-2">
+                {navItems.map((item) => (
+                    <Link
+                        key={item.path}
+                        to={item.path}
+                        className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors font-medium
+                        ${isActive(item.path)
+                                ? 'bg-primary/10 text-primary border-r-4 border-primary'
+                                : 'text-text-secondary hover:text-primary hover:bg-gray-50'}`}
+                    >
+                        <item.icon className={`h-5 w-5 ${isActive(item.path) ? 'text-primary' : 'text-gray-400 group-hover:text-primary'}`} />
+                        <span>{item.label}</span>
+                    </Link>
+                ))}
+
                 {/* Spacer to push logout or other items to bottom if needed */}
                 <div className="flex-grow"></div>
             </nav>
