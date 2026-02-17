@@ -89,12 +89,25 @@ async function seedRoles() {
     }
 
     console.log('\n✅ Test users created successfully!\n');
-    console.log('Login Credentials:');
-    console.log('================');
+    console.log('═══════════════════════════════════════════════════════');
+    console.log('          LOGIN CREDENTIALS FOR TESTING');
+    console.log('═══════════════════════════════════════════════════════\n');
+    
+    // Print email/password login
+    console.log('EMAIL & PASSWORD LOGIN:');
+    console.log('─────────────────────────');
     testUsers.forEach(u => {
-      console.log(`${u.role.toUpperCase()}: ${u.email} / ${u.password}`);
+      console.log(`${u.role.toUpperCase().padEnd(19)}: ${u.email.padEnd(30)} / ${u.password}`);
     });
-    console.log('\n');
+    
+    // Print anonymous code login
+    console.log('\n\nANONYMOUS CODE LOGIN:');
+    console.log('────────────────────');
+    testUsers.forEach(u => {
+      console.log(`${u.role.toUpperCase().padEnd(19)}: ${u.anonymousCode}`);
+    });
+    
+    console.log('\n═══════════════════════════════════════════════════════\n');
 
     process.exit(0);
   } catch (error) {
