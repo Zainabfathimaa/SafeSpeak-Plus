@@ -12,6 +12,7 @@ import ReportStatus from './pages/ReportStatus';
 import Messages from './pages/Messages';
 import EscalatePage from './pages/EscalatePage';
 import StoriesPage from './pages/StoriesPage';
+import SettingsPage from './pages/SettingsPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 function Layout() {
@@ -23,7 +24,8 @@ function Layout() {
     '/report-status',
     '/messages',
     '/escalate',
-    '/stories'
+    '/stories',
+    '/settings'
   ];
   const shouldHideGlobalLayout = hideGlobalLayoutRoutes.includes(location.pathname);
 
@@ -43,6 +45,7 @@ function Layout() {
           <Route path="/messages" element={<Messages />} />
           <Route path="/escalate" element={<EscalatePage />} />
           <Route path="/stories" element={<StoriesPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
