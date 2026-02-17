@@ -4,9 +4,9 @@ import crypto from 'crypto';
 import { sendVerificationEmail } from '../utils/emailService.js';
 
 /* Generate JWT */
-const generateToken = (userId, email) => {
+const generateToken = (userId, email, role) => {
   return jwt.sign(
-    { userId, email },
+    { userId, email, role },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRE || '7d' }
   );
@@ -77,9 +77,18 @@ export const login = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
-    const token = generateToken(user._id, user.email);
+    const token = generateToken(user._id, user.email, user.role);
 
-    res.status(200).json({ success: true, token });
+    res.status(200).json({ 
+      success: true, 
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        fullName: user.fullName,
+        role: user.role
+      }
+    });
 
   } catch (error) {
     res.status(500).json({ success: false, message: 'Login failed' });
@@ -99,9 +108,18 @@ export const anonymousLogin = async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid anonymous code' });
     }
 
-    const token = generateToken(user._id, user.email);
+    const token = generateToken(user._id, user.email, user.role);
 
-    res.status(200).json({ success: true, token });
+    res.status(200).json({ 
+      success: true, 
+      token,
+      user: {
+        id: user._id,
+        email: user.email,
+        fullName: user.fullName,
+        role: user.role
+      }
+    });
 
   } catch (error) {
     res.status(500).json({ success: false, message: 'Login failed' });

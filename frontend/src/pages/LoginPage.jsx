@@ -43,20 +43,36 @@ export default function LoginPage() {
                                 // Save token to localStorage
                                 saveToken(response.token);
                 
-                                // Save user session to sessionStorage
+                                // Save user info (including role) to localStorage
                                 const userData = {
                                     email: response.user?.email || formData.email,
+                                    fullName: response.user?.fullName,
+                                    role: response.user?.role || 'user',
+                                    id: response.user?.id,
                                     token: response.token,
                                     loginMethod: loginMethod,
                                     loginTime: new Date().toISOString()
                                 };
+                                localStorage.setItem('user', JSON.stringify(userData));
+                
+                                // Save user session to sessionStorage
                                 sessionStorage.setItem('safespeak_session', JSON.stringify(userData));
                 
                                 // Show success message
-                                console.log('Login successful!');
+                                console.log('Login successful!', userData);
                 
-                                // Redirect to dashboard
-                                navigate('/dashboard');
+                                // Route based on role
+                                const roleDashboards = {
+                                    admin: '/admin-dashboard',
+                                    counsellor: '/counsellor-dashboard',
+                                    executive: '/executive-dashboard',
+                                    'compliance-officer': '/compliance-officer-dashboard',
+                                    'department-head': '/department-head-dashboard',
+                                    user: '/dashboard'
+                                };
+                                
+                                const redirectUrl = roleDashboards[userData.role] || '/dashboard';
+                                navigate(redirectUrl);
             } else {
                 // Login failed, show error message
                 setError(response.message || 'Login failed. Please try again.');

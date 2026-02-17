@@ -104,7 +104,7 @@ const userSchema = new mongoose.Schema({
   // Allows different permission levels
   role: {
     type: String,
-    enum: ['user', 'admin', 'moderator'],                 // Only these values allowed
+    enum: ['user', 'admin', 'counsellor', 'executive', 'compliance-officer', 'department-head'],
     default: 'user'
   },
 
