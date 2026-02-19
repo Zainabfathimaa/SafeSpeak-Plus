@@ -35,12 +35,20 @@ export default function ProtectedRoute({ element, requiredRole = null }) {
       // Parse user info
       const userData = JSON.parse(user);
 
+      // DEBUG LOGGING
+      console.log(`[ProtectedRoute] Checking auth for role: ${requiredRole || 'any'}`);
+      console.log(`[ProtectedRoute] Token exists: ${!!token}`);
+      console.log(`[ProtectedRoute] User data:`, userData);
+
       // Check role if required
       if (requiredRole && userData.role !== requiredRole) {
-        console.warn(`Access denied: User is ${userData.role}, needs ${requiredRole}`);
+        console.warn(`[ProtectedRoute] Access denied: User role is '${userData.role}', but this route requires '${requiredRole}'`);
+        console.warn(`[ProtectedRoute] Redirecting to /dashboard`);
         navigate('/dashboard');
         return;
       }
+
+      console.log(`[ProtectedRoute] Access granted!`);
 
       // Authorized!
       setIsAuthorized(true);

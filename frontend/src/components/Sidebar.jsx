@@ -1,9 +1,11 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, FileText, MessageSquare, ArrowUpRight, BookOpen, Settings } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, FileText, MessageSquare, ArrowUpRight, BookOpen, Settings, LogOut } from 'lucide-react';
+import { logout } from '../services/authService';
 
 export function Sidebar() {
     const location = useLocation();
+    const navigate = useNavigate();
     const currentPath = location.pathname;
 
     const isActive = (path) => currentPath === path;
@@ -16,9 +18,14 @@ export function Sidebar() {
         { path: '/stories', label: 'Stories', icon: BookOpen },
     ];
 
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
+
     return (
-        <aside className="hidden md:block w-64 bg-white border-r border-gray-200 h-screen sticky top-0">
-            <nav className="flex flex-col h-full p-4 space-y-2">
+        <aside className="hidden md:block w-64 bg-white border-r border-gray-200 h-screen sticky top-0 flex flex-col justify-between">
+            <nav className="flex flex-col flex-grow p-4 space-y-2">
                 {navItems.map((item) => (
                     <Link
                         key={item.path}
@@ -32,23 +39,28 @@ export function Sidebar() {
                         <span>{item.label}</span>
                     </Link>
                 ))}
-
-                {/* Spacer to push logout or other items to bottom if needed */}
-                <div className="flex-grow"></div>
-
-                <div className="pt-4 border-t border-gray-100">
-                    <Link
-                        to="/settings"
-                        className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors font-medium
-                        ${isActive('/settings')
-                                ? 'bg-primary/10 text-primary border-r-4 border-primary'
-                                : 'text-text-secondary hover:text-primary hover:bg-gray-50'}`}
-                    >
-                        <Settings className={`h-5 w-5 ${isActive('/settings') ? 'text-primary' : 'text-gray-400 group-hover:text-primary'}`} />
-                        <span>Settings</span>
-                    </Link>
-                </div>
             </nav>
+
+            <div className="p-4 border-t border-gray-100 space-y-2">
+                <Link
+                    to="/settings"
+                    className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors font-medium
+                    ${isActive('/settings')
+                            ? 'bg-primary/10 text-primary border-r-4 border-primary'
+                            : 'text-text-secondary hover:text-primary hover:bg-gray-50'}`}
+                >
+                    <Settings className={`h-5 w-5 ${isActive('/settings') ? 'text-primary' : 'text-gray-400 group-hover:text-primary'}`} />
+                    <span>Settings</span>
+                </Link>
+
+                <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors font-medium text-red-600 hover:bg-red-50 hover:text-red-700"
+                >
+                    <LogOut className="h-5 w-5" />
+                    <span>Sign Out</span>
+                </button>
+            </div>
         </aside>
     );
 }
