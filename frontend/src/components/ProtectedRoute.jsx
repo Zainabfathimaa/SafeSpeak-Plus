@@ -23,7 +23,7 @@ export default function ProtectedRoute({ element, requiredRole = null }) {
   useEffect(() => {
     // Check if user is logged in and has correct role
     const checkAuth = () => {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem('token');
       const user = localStorage.getItem('user');
 
       // Not logged in
