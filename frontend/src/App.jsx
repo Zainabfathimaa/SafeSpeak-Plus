@@ -18,6 +18,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import CounsellorDashboard from './pages/CounsellorDashboard';
 import ExecutiveDashboard from './pages/ExecutiveDashboard';
 import ComplianceOfficerDashboard from './pages/ComplianceOfficerDashboard';
+import DepartmentHeadDashboard from './pages/DepartmentHeadDashboard';
 import NotFoundPage from './pages/NotFoundPage';
 
 function Layout() {
@@ -29,6 +30,7 @@ function Layout() {
     '/counsellor-dashboard',
     '/executive-dashboard',
     '/compliance-officer-dashboard',
+    '/department-head-dashboard',
     '/report-incident',
     '/report-status',
     '/messages',
@@ -53,6 +55,7 @@ function Layout() {
           <Route path="/counsellor-dashboard" element={<ProtectedRoute element={<CounsellorDashboard />} requiredRole="counsellor" />} />
           <Route path="/executive-dashboard" element={<ProtectedRoute element={<ExecutiveDashboard />} requiredRole="executive" />} />
           <Route path="/compliance-officer-dashboard" element={<ProtectedRoute element={<ComplianceOfficerDashboard />} requiredRole="compliance-officer" />} />
+          <Route path="/department-head-dashboard" element={<ProtectedRoute element={<DepartmentHeadDashboard />} requiredRole="department-head" />} />
           <Route path="/report-incident" element={<ProtectedRoute element={<NewReport />} />} />
           <Route path="/report-status" element={<ReportStatus />} />
           <Route path="/messages" element={<Messages />} />

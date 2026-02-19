@@ -4,7 +4,7 @@ import { Shield, Lock, Mail, Key, AlertCircle } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { cn } from '../lib/utils';
-import { loginUser, anonymousLogin, saveToken } from '../services/authService';
+import { loginUser, anonymousLogin, saveSession } from '../services/authService';
 
 export default function LoginPage() {
     const navigate = useNavigate();
@@ -38,51 +38,43 @@ export default function LoginPage() {
                 response = await loginUser(formData.email, formData.password);
             }
 
-                        // Check if login was successful
-                        if (response.success) {
-                                // DEBUG: Log what we received
-                                console.log('=== LOGIN RESPONSE ===');
-                                console.log('Full response:', response);
-                                console.log('User object:', response.user);
-                                console.log('Role received:', response.user?.role);
-                                console.log('=====================');
-                                
-                                // Save token to localStorage
-                                saveToken(response.token);
-                
-                                // Save user info (including role) to localStorage
-                                const userData = {
-                                    email: response.user?.email || formData.email,
-                                    fullName: response.user?.fullName,
-                                    role: response.user?.role || 'user',
-                                    id: response.user?.id,
-                                    token: response.token,
-                                    loginMethod: loginMethod,
-                                    loginTime: new Date().toISOString()
-                                };
-                                
-                                console.log('Stored userData:', userData); // DEBUG
-                                localStorage.setItem('user', JSON.stringify(userData));
-                
-                                // Save user session to sessionStorage
-                                sessionStorage.setItem('safespeak_session', JSON.stringify(userData));
-                
-                                // Show success message
-                                console.log('Login successful!', userData);
-                
-                                // Route based on role
-                                const roleDashboards = {
-                                    admin: '/admin-dashboard',
-                                    counsellor: '/counsellor-dashboard',
-                                    executive: '/executive-dashboard',
-                                    'compliance-officer': '/compliance-officer-dashboard',
-                                    'department-head': '/department-head-dashboard',
-                                    user: '/dashboard'
-                                };
-                                
-                                const redirectUrl = roleDashboards[userData.role] || '/dashboard';
-                                console.log('Redirecting to:', redirectUrl, 'for role:', userData.role); // DEBUG
-                                navigate(redirectUrl);
+            // Check if login was successful
+            if (response.success) {
+                // DEBUG: Log what we received
+                console.log('=== LOGIN RESPONSE ===');
+                console.log('Full response:', response);
+                console.log('User object:', response.user);
+                console.log('Role received:', response.user?.role);
+                console.log('=====================');
+
+                // Prepare user data
+                const userData = {
+                    email: response.user?.email || formData.email,
+                    fullName: response.user?.fullName,
+                    role: response.user?.role || 'user',
+                    id: response.user?.id,
+                    loginMethod: loginMethod,
+                    loginTime: new Date().toISOString()
+                };
+
+                // Save session centrally
+                saveSession(response.token, userData);
+
+                console.log('Login successful!', userData);
+
+                // Route based on role
+                const roleDashboards = {
+                    admin: '/admin-dashboard',
+                    counsellor: '/counsellor-dashboard',
+                    executive: '/executive-dashboard',
+                    'compliance-officer': '/compliance-officer-dashboard',
+                    'department-head': '/department-head-dashboard',
+                    user: '/dashboard'
+                };
+
+                const redirectUrl = roleDashboards[userData.role] || '/dashboard';
+                console.log('Redirecting to:', redirectUrl, 'for role:', userData.role); // DEBUG
+                navigate(redirectUrl);
             } else {
                 // Login failed, show error message
                 setError(response.message || 'Login failed. Please try again.');
@@ -215,8 +207,8 @@ export default function LoginPage() {
                             </div>
                         )}
 
-                        <Button 
-                            type="submit" 
+                        <Button
+                            type="submit"
                             className="w-full h-12 text-lg shadow-lg shadow-primary/20 hover:shadow-xl transition-all"
                             disabled={loading}
                         >
