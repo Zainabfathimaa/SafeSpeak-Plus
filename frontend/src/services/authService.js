@@ -298,62 +298,95 @@ export const getCurrentUser = async () => {
  * logout();
  * navigate('/login');
  */
-export const logout = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
+// ===================================
+// SESSION MANAGEMENT
+// ===================================
+
+/**
+ * FUNCTION: Save Session
+ * 
+ * Centralized place to save all user session data
+ * 
+ * @param {string} token - JWT token
+ * @param {Object} user - User object
+ */
+export const saveSession = (token, user) => {
+  localStorage.setItem('token', token);
+  localStorage.setItem('user', JSON.stringify(user));
+
+  // Also save to sessionStorage for current tab session preference if needed
+  // For now, we stick to localStorage for persistence across tabs
 };
 
 /**
- * FUNCTION 6: Save Token
+ * FUNCTION: Get User
  * 
- * Stores JWT token in localStorage
- * Called after successful login/registration
+ * Retrieves the full user object from storage
  * 
- * @param {string} token - JWT token from backend
+ * @returns {Object|null} - User object or null
+ */
+export const getUser = () => {
+  const userStr = localStorage.getItem('user');
+  if (!userStr) return null;
+
+  try {
+    return JSON.parse(userStr);
+  } catch (e) {
+    console.error('Error parsing user from storage', e);
+    return null;
+  }
+};
+
+/**
+ * FUNCTION: Get User Role
+ * 
+ * Helper to quickly get the current user's role
+ * 
+ * @returns {string|null} - Role string (e.g., 'admin', 'user') or null
+ */
+export const getRole = () => {
+  const user = getUser();
+  return user ? user.role : null;
+};
+
+/**
+ * FUNCTION: Clear Session (Logout)
+ * 
+ * Completely wipes all auth data
+ */
+export const clearSession = () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  sessionStorage.removeItem('safespeak_session'); // Clear potential legacy session
+};
+
+/* Re-export clearSession as logout for backward compatibility */
+export const logout = clearSession;
+
+/**
+ * FUNCTION: Save Token (Legacy support)
  */
 export const saveToken = (token) => {
   localStorage.setItem('token', token);
 };
 
 /**
- * FUNCTION 7: Get Stored Token
- * 
- * Retrieves token from localStorage
- * Used when making authenticated requests
- * 
- * @returns {string|null} - Token or null if not found
+ * FUNCTION: Get Stored Token
  */
 export const getToken = () => {
   return localStorage.getItem('token');
 };
 
 /**
- * FUNCTION 8: Check if User is Logged In
- * 
- * Returns true if token exists in localStorage
- * Useful for protecting routes
- * 
- * @returns {boolean} - True if user is logged in
- * 
- * USAGE:
- * if (isLoggedIn()) {
- *   // Show dashboard
- * } else {
- *   // Redirect to login
- * }
+ * FUNCTION: Check if User is Logged In
  */
 export const isLoggedIn = () => {
   const token = localStorage.getItem('token');
-  return token !== null && token !== '';
+  return !!token;
 };
 
 /**
- * FUNCTION 9: Verify Token (Advanced)
- * 
- * Checks if user's token is still valid
- * Calls backend to verify
- * 
- * @returns {Promise<boolean>} - True if token valid
+ * FUNCTION: Verify Token (Advanced)
  */
 export const verifyToken = async () => {
   const response = await getCurrentUser();
@@ -519,5 +552,9 @@ export default {
   getToken,
   isLoggedIn,
   verifyToken,
-  verifyEmail
+  verifyEmail,
+  saveSession,
+  getUser,
+  getRole,
+  clearSession
 };

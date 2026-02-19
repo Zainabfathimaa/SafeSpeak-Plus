@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { isLoggedIn, getUser } from '../services/authService';
+
 /**
  * ProtectedRoute Component
  * 
@@ -23,21 +25,23 @@ export default function ProtectedRoute({ element, requiredRole = null }) {
   useEffect(() => {
     // Check if user is logged in and has correct role
     const checkAuth = () => {
-      const token = localStorage.getItem('token');
-      const user = localStorage.getItem('user');
-
-      // Not logged in
-      if (!token || !user) {
+      // Use authService helper
+      if (!isLoggedIn()) {
         navigate('/login');
         return;
       }
 
-      // Parse user info
-      const userData = JSON.parse(user);
+      // Get user from session
+      const userData = getUser();
+
+      if (!userData) {
+        // Token exists but no user data? Invalid state.
+        navigate('/login');
+        return;
+      }
 
       // DEBUG LOGGING
       console.log(`[ProtectedRoute] Checking auth for role: ${requiredRole || 'any'}`);
-      console.log(`[ProtectedRoute] Token exists: ${!!token}`);
       console.log(`[ProtectedRoute] User data:`, userData);
 
       // Check role if required
