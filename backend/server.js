@@ -113,7 +113,12 @@ if (process.env.ADDITIONAL_FRONTEND_ORIGINS) {
 }
 
 // Always allow requests from tools (no origin) and local dev by default
-const defaultOrigins = ['http://localhost:5173', 'http://localhost:3000', 'http://127.0.0.1:5173'];
+const defaultOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://127.0.0.1:5173',
+  'https://safespeakplus-5es34vcdq-zainabfathima-1691s-projects.vercel.app'
+];
 
 const allowedOrigins = [...new Set([...envOrigins, ...defaultOrigins])];
 
@@ -124,7 +129,7 @@ app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps or Postman)
     if (!origin) return callback(null, true);
-    
+
     // Check if origin is in whitelist
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
@@ -256,11 +261,11 @@ app.use('*', (req, res) => {
 
 app.use((err, req, res, next) => {
   console.error('Error:', err);
-  
+
   // Extract error details
   const status = err.status || 500;
   const message = err.message || 'Internal Server Error';
-  
+
   res.status(status).json({
     success: false,
     message: message,
