@@ -99,9 +99,9 @@ export default function LoginPage() {
                             <Shield className="h-8 w-8 text-primary" />
                         </div>
                     </div>
-                    <h1 className="text-2xl font-bold text-text-primary">Welcome Back</h1>
+                    <h1 className="text-2xl font-bold text-text-primary">SafeSpeak+ Portal</h1>
                     <p className="text-text-secondary mt-2 text-sm">
-                        Securely access your dashboard
+                        Select your login method
                     </p>
                 </div>
 
@@ -130,7 +130,7 @@ export default function LoginPage() {
                             )}
                         >
                             <Mail className="h-4 w-4" />
-                            Email & Password
+                            Staff & User Login
                         </button>
                     </div>
                 </div>
@@ -155,8 +155,8 @@ export default function LoginPage() {
                                 <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 flex gap-3 items-start">
                                     <Lock className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
                                     <div className="text-sm text-blue-800">
-                                        <p className="font-semibold mb-1">Maximum Privacy</p>
-                                        Using your anonymous code ensures your identity remains completely hidden from administrators.
+                                        <p className="font-semibold mb-1">For Reporting & Tracking</p>
+                                        Use the anonymous code generated when you submitted a report to check its status safely.
                                     </div>
                                 </div>
 
@@ -179,11 +179,19 @@ export default function LoginPage() {
                             </div>
                         ) : (
                             <div className="space-y-4">
+                                <div className="bg-purple-50 p-4 rounded-lg border border-purple-100 flex gap-3 items-start mb-4">
+                                    <Shield className="h-5 w-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                                    <div className="text-sm text-purple-800">
+                                        <p className="font-semibold mb-1">Administrative Access</p>
+                                        For Admins, Counsellors, Executives, and registered users.
+                                    </div>
+                                </div>
+
                                 <Input
-                                    label="Email Address"
+                                    label="College Email Address"
                                     type="email"
                                     name="email"
-                                    placeholder="name@example.com"
+                                    placeholder="name@cmr.edu.in"
                                     required
                                     value={formData.email}
                                     onChange={handleChange}
@@ -212,7 +220,7 @@ export default function LoginPage() {
                             className="w-full h-12 text-lg shadow-lg shadow-primary/20 hover:shadow-xl transition-all"
                             disabled={loading}
                         >
-                            {loading ? 'Signing in...' : (loginMethod === 'code' ? 'Enter Securely' : 'Sign In')}
+                            {loading ? 'Authenticating...' : (loginMethod === 'code' ? 'Access Report' : 'Secure Login')}
                         </Button>
                     </form>
 

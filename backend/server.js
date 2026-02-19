@@ -132,11 +132,17 @@ app.use(cors({
 
     // Check if origin is in whitelist
     if (allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.warn(`✗ CORS Blocked: ${origin}`);
-      callback(new Error('CORS policy: origin not allowed'));
+      return callback(null, true);
     }
+
+    // Allow all Vercel preview deployments
+    // Matches: https://safespeakplus-*.vercel.app
+    if (origin.endsWith('.vercel.app') && origin.includes('safespeakplus')) {
+      return callback(null, true);
+    }
+
+    console.warn(`✗ CORS Blocked: ${origin}`);
+    callback(new Error('CORS policy: origin not allowed'));
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
