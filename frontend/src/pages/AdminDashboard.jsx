@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getAllReports } from '../../services/reportService';
+import { getAllReports } from '../services/reportService';
 import { useNavigate } from 'react-router-dom';
 import { AdminHeader } from '../components/Admin/AdminHeader';
 import { AdminSidebar } from '../components/Admin/AdminSidebar';

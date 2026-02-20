@@ -21,6 +21,7 @@ export default function NewReport() {
         time: '',
         location: '',
         description: '',
+        department: '',
         involvedParties: '',
         files: []
     });
@@ -66,7 +67,7 @@ export default function NewReport() {
                 time: formData.time,
                 location: formData.location,
                 description: formData.description,
-                department: formData.department, // Make sure Step1/2 collects this or add default
+                department: formData.department,
                 involvedParties: formData.involvedParties,
                 files: formData.files
             };

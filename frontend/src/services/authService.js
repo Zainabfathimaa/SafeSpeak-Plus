@@ -58,7 +58,7 @@ const API_BASE_URL = import.meta.env.VITE_BACKEND_URL;
  * 
  * BENEFIT: Avoids repeating fetch code in every function
  */
-const makeRequest = async (endpoint, options = {}) => {
+export const makeRequest = async (endpoint, options = {}) => {
   try {
     // Build full URL
     const url = `${API_BASE_URL}${endpoint}`;
@@ -568,5 +568,6 @@ export default {
   saveSession,
   getUser,
   getRole,
-  clearSession
+  clearSession,
+  makeRequest
 };
