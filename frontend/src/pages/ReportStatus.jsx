@@ -8,47 +8,26 @@ import { Link } from 'react-router-dom';
 
 export default function ReportStatus() {
     // Mock Data - In a real app, fetch from API
-    const mockReports = [
-        {
-            id: 'REF-2023-001',
-            type: 'Bullying',
-            status: 'In Review',
-            statusStep: 3,
-            date: 'Oct 24, 2023',
-            location: 'Library',
-            description: 'Two older students were repeatedly harassing a younger student near the quiet zone. I observed them taking books and...',
-            submittedAt: 'Oct 24',
-            receivedAt: 'Oct 24',
-            reviewedAt: 'Pending',
-            resolvedAt: null
-        },
-        {
-            id: 'REF-2023-002',
-            type: 'Safety Hazard',
-            status: 'Received',
-            statusStep: 2,
-            date: 'Oct 26, 2023',
-            location: 'Science Block B',
-            description: 'There is a loose railing on the second floor staircase in the science block. It feels very unstable when you lean on it.',
-            submittedAt: 'Oct 26',
-            receivedAt: 'Oct 26',
-            reviewedAt: null,
-            resolvedAt: null
-        },
-        {
-            id: 'REF-2023-003',
-            type: 'Discrimination',
-            status: 'Submitted',
-            statusStep: 1,
-            date: 'Nov 01, 2023',
-            location: 'Cafeteria',
-            description: 'I witnessed a group making inappropriate comments towards another student based on their background during lunch break.',
-            submittedAt: 'Nov 01',
-            receivedAt: null,
-            reviewedAt: null,
-            resolvedAt: null
-        }
-    ];
+    const [reports, setReports] = React.useState([]);
+    const [loading, setLoading] = React.useState(true);
+
+    React.useEffect(() => {
+        const fetchReports = async () => {
+            try {
+                const { getUserReports } = await import('../services/reportService');
+                const response = await getUserReports();
+                if (response.success) {
+                    setReports(response.reports);
+                }
+            } catch (error) {
+                console.error('Failed to fetch reports:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchReports();
+    }, []);
 
     return (
         <div className="flex min-h-screen flex-col bg-background text-text-primary">
@@ -84,10 +63,12 @@ export default function ReportStatus() {
                         </div>
 
                         {/* Reports Grid */}
-                        {mockReports.length > 0 ? (
+                        {loading ? (
+                            <div className="text-center py-10">Loading reports...</div>
+                        ) : reports.length > 0 ? (
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                {mockReports.map((report) => (
-                                    <ReportStatusCard key={report.id} report={report} />
+                                {reports.map((report) => (
+                                    <ReportStatusCard key={report._id} report={report} />
                                 ))}
                             </div>
                         ) : (

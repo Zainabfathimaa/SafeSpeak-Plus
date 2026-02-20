@@ -52,10 +52,10 @@ export const authenticate = (req, res, next) => {
      * Authorization header value = "Bearer <token>"
      * We need to extract just the token part (after "Bearer ")
      */
-    
+
     // Get Authorization header
     const authHeader = req.headers.authorization;
-    
+
     // Check if header exists
     if (!authHeader) {
       return res.status(401).json({
@@ -93,9 +93,9 @@ export const authenticate = (req, res, next) => {
      * If verification fails, throws error
      * If verification succeeds, returns decoded payload
      */
-    
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
+
     /**
      * STEP 3: Attach user info to request
      * 
@@ -110,10 +110,11 @@ export const authenticate = (req, res, next) => {
      *   exp: 1706122200       // Expires at (timestamp)
      * }
      */
-    
+
     req.user = {
       userId: decoded.userId,
       email: decoded.email,
+      role: decoded.role,
       iat: decoded.iat,
       exp: decoded.exp
     };
@@ -155,6 +156,24 @@ export const authenticate = (req, res, next) => {
       error: error.name
     });
   }
+};
+
+/**
+ * MIDDLEWARE FUNCTION: authorize
+ * 
+ * Restrict access to specific roles
+ * Usage: authorize('admin', 'counsellor')
+ */
+export const authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({
+        success: false,
+        message: `User role '${req.user.role}' is not authorized to access this route`
+      });
+    }
+    next();
+  };
 };
 
 /**

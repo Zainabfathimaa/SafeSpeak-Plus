@@ -57,6 +57,8 @@ import { connectDB } from './config/db.js';
 
 // Authentication routes
 import authRoutes from './routes/authRoutes.js';
+// Report routes
+import reportRoutes from './routes/reportRoutes.js';
 
 // ===================================
 // STEP 3: Create Express Application
@@ -199,6 +201,9 @@ connectDB();
 
 // Authentication routes
 app.use('/api/auth', authRoutes);
+
+// Report routes
+app.use('/api/reports', reportRoutes);
 
 // ===================================
 // STEP 7: Health Check Route

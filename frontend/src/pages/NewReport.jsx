@@ -21,6 +21,7 @@ export default function NewReport() {
         time: '',
         location: '',
         description: '',
+        department: '',
         involvedParties: '',
         files: []
     });
@@ -57,12 +58,34 @@ export default function NewReport() {
 
     const handleSubmit = async () => {
         setIsSubmitting(true);
-        // Simulate API call
-        setTimeout(() => {
+        try {
+            const { createReport } = await import('../services/reportService');
+            // Transform form data to match backend expectation
+            const payload = {
+                incidentType: formData.incidentType,
+                date: formData.date,
+                time: formData.time,
+                location: formData.location,
+                description: formData.description,
+                department: formData.department,
+                involvedParties: formData.involvedParties,
+                files: formData.files
+            };
+
+            const response = await createReport(payload);
+
+            if (response.success) {
+                alert("Report submitted successfully!");
+                navigate('/report-status');
+            } else {
+                alert("Failed to submit report: " + response.message);
+            }
+        } catch (error) {
+            console.error(error);
+            alert("An error occurred while submitting the report.");
+        } finally {
             setIsSubmitting(false);
-            alert("Report submitted successfully!");
-            navigate('/dashboard'); // or /report-status
-        }, 1500);
+        }
     };
 
     return (

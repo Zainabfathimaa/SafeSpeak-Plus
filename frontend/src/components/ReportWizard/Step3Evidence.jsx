@@ -6,9 +6,21 @@ export function Step3Evidence({ formData, updateFormData }) {
     const handleFileUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
-            updateFormData({
-                files: [...formData.files, { name: file.name, size: (file.size / 1024).toFixed(1) + ' KB' }]
-            });
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                updateFormData({
+                    files: [
+                        ...formData.files,
+                        {
+                            fileName: file.name,
+                            fileType: file.type,
+                            fileUrl: reader.result, // Base64 string
+                            size: (file.size / 1024).toFixed(1) + ' KB'
+                        }
+                    ]
+                });
+            };
+            reader.readAsDataURL(file);
         }
     };
 
@@ -46,7 +58,7 @@ export function Step3Evidence({ formData, updateFormData }) {
                                     <LinkIcon className="w-4 h-4 text-gray-500" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-medium text-text-primary">{file.name}</p>
+                                    <p className="text-sm font-medium text-text-primary">{file.fileName}</p>
                                     <p className="text-xs text-text-secondary">{file.size}</p>
                                 </div>
                             </div>

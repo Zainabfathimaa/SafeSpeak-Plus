@@ -15,8 +15,8 @@ export function AdminSidebar({ role = 'admin' }) {
     // Define menu items based on role
     const getMenuItems = () => {
         const baseItems = [
-            { path: '/admin', label: 'Dashboard', icon: LayoutDashboard },
-            { path: '/admin/reports', label: 'All Reports', icon: FileText },
+            { path: '/admin-dashboard', label: 'Dashboard', icon: LayoutDashboard },
+            // { path: '/admin/reports', label: 'All Reports', icon: FileText }, // Redundant with dashboard logic for now
         ];
 
         const roleSpecificItems = {
