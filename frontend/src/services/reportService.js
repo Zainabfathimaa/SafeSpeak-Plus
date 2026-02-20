@@ -1,14 +1,14 @@
 import { makeRequest } from './authService';
 
 export const createReport = async (reportData) => {
-    return await makeRequest('/api/reports', {
+    return await makeRequest('/reports', {
         method: 'POST',
         body: JSON.stringify(reportData)
     });
 };
 
 export const getUserReports = async () => {
-    return await makeRequest('/api/reports/my-reports', {
+    return await makeRequest('/reports/my-reports', {
         method: 'GET'
     });
 };
@@ -21,19 +21,19 @@ export const getAllReports = async (filters = {}) => {
     if (filters.department) queryParams.append('department', filters.department);
 
     const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
-    return await makeRequest(`/api/reports${queryString}`, {
+    return await makeRequest(`/reports${queryString}`, {
         method: 'GET'
     });
 };
 
 export const getReportById = async (id) => {
-    return await makeRequest(`/api/reports/${id}`, {
+    return await makeRequest(`/reports/${id}`, {
         method: 'GET'
     });
 };
 
 export const updateReportStatus = async (id, statusData) => {
-    return await makeRequest(`/api/reports/${id}/status`, {
+    return await makeRequest(`/reports/${id}/status`, {
         method: 'PATCH',
         body: JSON.stringify(statusData)
     });
