@@ -63,9 +63,9 @@ const makeRequest = async (endpoint, options = {}) => {
     // Build full URL
     const url = `${API_BASE_URL}${endpoint}`;
 
-    // Get token from localStorage if exists
+    // Get token from storage (check session first, then local)
     // Used for authenticated requests
-    const token = localStorage.getItem('token');
+    const token = sessionStorage.getItem('token') || localStorage.getItem('token');
 
     // Build headers
     const headers = {
@@ -306,27 +306,35 @@ export const getCurrentUser = async () => {
  * FUNCTION: Save Session
  * 
  * Centralized place to save all user session data
+ * Handles "Remember Me" functionality
  * 
  * @param {string} token - JWT token
  * @param {Object} user - User object
+ * @param {boolean} remember - If true, use localStorage (persistent). If false, use sessionStorage (session only).
  */
-export const saveSession = (token, user) => {
-  localStorage.setItem('token', token);
-  localStorage.setItem('user', JSON.stringify(user));
+export const saveSession = (token, user, remember = false) => {
+  const storage = remember ? localStorage : sessionStorage;
+  const otherStorage = remember ? sessionStorage : localStorage;
 
-  // Also save to sessionStorage for current tab session preference if needed
-  // For now, we stick to localStorage for persistence across tabs
+  // Save to selected storage
+  storage.setItem('token', token);
+  storage.setItem('user', JSON.stringify(user));
+
+  // Clear other storage to prevent conflicts
+  otherStorage.removeItem('token');
+  otherStorage.removeItem('user');
 };
 
 /**
  * FUNCTION: Get User
  * 
  * Retrieves the full user object from storage
+ * Checks sessionStorage first, then localStorage
  * 
  * @returns {Object|null} - User object or null
  */
 export const getUser = () => {
-  const userStr = localStorage.getItem('user');
+  const userStr = sessionStorage.getItem('user') || localStorage.getItem('user');
   if (!userStr) return null;
 
   try {
@@ -352,11 +360,13 @@ export const getRole = () => {
 /**
  * FUNCTION: Clear Session (Logout)
  * 
- * Completely wipes all auth data
+ * Completely wipes all auth data from ALL storages
  */
 export const clearSession = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('user');
+  sessionStorage.removeItem('token');
+  sessionStorage.removeItem('user');
   sessionStorage.removeItem('safespeak_session'); // Clear potential legacy session
 };
 
@@ -365,6 +375,7 @@ export const logout = clearSession;
 
 /**
  * FUNCTION: Save Token (Legacy support)
+ * Defaults to localStorage for backward compatibility
  */
 export const saveToken = (token) => {
   localStorage.setItem('token', token);
@@ -372,16 +383,17 @@ export const saveToken = (token) => {
 
 /**
  * FUNCTION: Get Stored Token
+ * Checks sessionStorage first, then localStorage
  */
 export const getToken = () => {
-  return localStorage.getItem('token');
+  return sessionStorage.getItem('token') || localStorage.getItem('token');
 };
 
 /**
  * FUNCTION: Check if User is Logged In
  */
 export const isLoggedIn = () => {
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token') || localStorage.getItem('token');
   return !!token;
 };
 
