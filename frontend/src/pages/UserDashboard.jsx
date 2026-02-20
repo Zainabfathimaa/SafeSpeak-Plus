@@ -7,7 +7,11 @@ import { DashboardCard } from '../components/DashboardCard';
 import { DashboardStories } from '../components/DashboardStories';
 import { PlusCircle, FileText, MessageSquare, ArrowUpRight, BookOpen } from 'lucide-react';
 
+import { getUser } from '../services/authService';
+
 export default function UserDashboard() {
+    const user = getUser();
+
     return (
         <div className="flex min-h-screen flex-col bg-gray-50/50 text-text-primary">
             {/* Header */}
@@ -19,7 +23,7 @@ export default function UserDashboard() {
                 {/* Main Content */}
                 <main className="flex-1 p-6 lg:p-8 overflow-y-auto">
                     <div className="max-w-7xl mx-auto space-y-8">
-                        <WelcomeCard />
+                        <WelcomeCard user={user} />
 
                         {/* Stories Section */}
                         <DashboardStories />

@@ -1,0 +1,238 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { AdminHeader } from '../../components/Admin/AdminHeader';
+import { AdminSidebar } from '../../components/Admin/AdminSidebar';
+import { Footer } from '../../components/Footer';
+import { getReportById, updateReportStatus } from '../../services/reportService';
+import { ArrowLeft, Calendar, MapPin, Clock, AlertTriangle, FileText, User, CheckCircle, XCircle } from 'lucide-react';
+import { RiskBadge } from '../../components/Admin/RiskBadge';
+import { StatusBadge } from '../../components/Admin/StatusBadge';
+import { Button } from '../../components/ui/Button';
+
+export default function ReportDetail() {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const [report, setReport] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [updating, setUpdating] = useState(false);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        const fetchReport = async () => {
+            try {
+                const response = await getReportById(id);
+                if (response.success) {
+                    setReport(response.report);
+                } else {
+                    setError('Report not found');
+                }
+            } catch (err) {
+                setError('Failed to fetch report details');
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (id) {
+            fetchReport();
+        }
+    }, [id]);
+
+    const handleStatusChange = async (newStatus) => {
+        setUpdating(true);
+        try {
+            const response = await updateReportStatus(id, { status: newStatus });
+            if (response.success) {
+                setReport(response.report);
+            }
+        } catch (err) {
+            console.error('Failed to update status:', err);
+            alert('Failed to update status');
+        } finally {
+            setUpdating(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center min-h-screen bg-gray-50">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+        );
+    }
+
+    if (error || !report) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center">
+                <p className="text-red-600 text-xl mb-4">{error || 'Report not found'}</p>
+                <Button onClick={() => navigate('/admin-dashboard')}>Back to Dashboard</Button>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex min-h-screen flex-col bg-gray-50/50 text-text-primary">
+            {/* Header */}
+            <AdminHeader roleName="Case Reviewer" />
+            <div className="flex flex-1">
+                {/* Sidebar */}
+                <AdminSidebar role="admin" />
+
+                {/* Main Content */}
+                <main className="flex-1 p-6 lg:p-8 overflow-y-auto">
+                    <div className="max-w-5xl mx-auto">
+                        {/* Back Button & Title */}
+                        <div className="flex items-center justify-between mb-6">
+                            <button
+                                onClick={() => navigate('/admin-dashboard')}
+                                className="flex items-center text-text-secondary hover:text-primary transition-colors"
+                            >
+                                <ArrowLeft className="h-5 w-5 mr-2" />
+                                Back to Dashboard
+                            </button>
+                            <div className="flex space-x-3">
+                                {report.status !== 'Resolved' && (
+                                    <Button
+                                        variant="outline"
+                                        className="border-green-600 text-green-600 hover:bg-green-50"
+                                        onClick={() => handleStatusChange('Resolved')}
+                                        disabled={updating}
+                                    >
+                                        <CheckCircle className="h-4 w-4 mr-2" />
+                                        Mark Resolved
+                                    </Button>
+                                )}
+                                {report.status !== 'Closed' && (
+                                    <Button
+                                        variant="outline"
+                                        className="border-gray-400 text-gray-600 hover:bg-gray-100"
+                                        onClick={() => handleStatusChange('Closed')}
+                                        disabled={updating}
+                                    >
+                                        <XCircle className="h-4 w-4 mr-2" />
+                                        Close Case
+                                    </Button>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Content Grid */}
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                            {/* specific Report Details */}
+                            <div className="lg:col-span-2 space-y-6">
+                                {/* Main Info Card */}
+                                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div>
+                                            <h1 className="text-2xl font-bold text-gray-900 mb-1">{report.incidentType}</h1>
+                                            <p className="text-sm font-mono text-text-secondary">Reference: {report.reportId}</p>
+                                        </div>
+                                        <div className="flex flex-col items-end gap-2">
+                                            <StatusBadge status={report.status} />
+                                            <RiskBadge level={report.riskLevel} />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
+                                        <div className="flex items-center text-text-secondary">
+                                            <Calendar className="h-4 w-4 mr-2" />
+                                            <span>{new Date(report.date).toLocaleDateString()}</span>
+                                        </div>
+                                        <div className="flex items-center text-text-secondary">
+                                            <Clock className="h-4 w-4 mr-2" />
+                                            <span>{report.time || 'Time not specified'}</span>
+                                        </div>
+                                        <div className="flex items-center text-text-secondary">
+                                            <MapPin className="h-4 w-4 mr-2" />
+                                            <span>{report.location}</span>
+                                        </div>
+                                        <div className="flex items-center text-text-secondary">
+                                            <User className="h-4 w-4 mr-2" />
+                                            <span>{report.department}</span>
+                                        </div>
+                                    </div>
+
+                                    <h3 className="text-lg font-semibold text-gray-800 mb-2 border-b border-gray-100 pb-2">Description</h3>
+                                    <p className="text-gray-700 whitespace-pre-wrap leading-relaxed mb-6">
+                                        {report.description}
+                                    </p>
+
+                                    {report.involvedParties && (
+                                        <>
+                                            <h3 className="text-lg font-semibold text-gray-800 mb-2 border-b border-gray-100 pb-2">Involved Parties</h3>
+                                            <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+                                                {report.involvedParties}
+                                            </p>
+                                        </>
+                                    )}
+                                </div>
+
+                                {/* Evidence Section */}
+                                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                    <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                                        <FileText className="h-5 w-5 mr-2 text-primary" />
+                                        Evidence & Attachments
+                                    </h3>
+                                    {report.evidenceFiles && report.evidenceFiles.length > 0 ? (
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            {report.evidenceFiles.map((file, index) => (
+                                                <div key={index} className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                                                    <FileText className="h-8 w-8 text-gray-400 mr-3" />
+                                                    <div className="flex-1 overflow-hidden">
+                                                        <p className="text-sm font-medium text-gray-900 truncate">{file.fileName}</p>
+                                                        <p className="text-xs text-gray-500">{file.fileType}</p>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-gray-500 italic">No evidence attached to this report.</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Sidebar Info */}
+                            <div className="space-y-6">
+                                {/* Reporter Info (Hidden/Anonymous) */}
+                                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Reporter Information</h3>
+                                    <div className="flex items-center p-3 bg-blue-50 rounded-lg border border-blue-100 mb-4">
+                                        <AlertTriangle className="h-5 w-5 text-blue-600 mr-3" />
+                                        <div>
+                                            <p className="text-sm font-bold text-blue-900">Anonymous Reporter</p>
+                                            <p className="text-xs text-blue-700">Identity protected by system</p>
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-gray-500">
+                                        The reporter has chosen to remain anonymous. You cannot see their personal details unless they explicitly revealed them in the description.
+                                    </p>
+                                </div>
+
+                                {/* Quick Actions */}
+                                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Quick Actions</h3>
+                                    <div className="space-y-3">
+                                        <Button className="w-full justify-start" variant="outline">
+                                            Message Reporter
+                                        </Button>
+                                        <Button className="w-full justify-start" variant="outline">
+                                            Escalate to Supervisor
+                                        </Button>
+                                        <Button className="w-full justify-start text-red-600 border-red-200 hover:bg-red-50" variant="outline">
+                                            Flag as Spam
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </main>
+            </div>
+            {/* Footer */}
+            <Footer />
+        </div>
+    );
+}

@@ -24,6 +24,26 @@ export function Step1Type({ formData, updateFormData }) {
                     </select>
                 </div>
 
+                <div className="col-span-1 md:col-span-2">
+                    <label className="block text-sm font-medium text-text-secondary mb-2">
+                        Department/Area
+                    </label>
+                    <select
+                        value={formData.department || ''}
+                        onChange={(e) => updateFormData({ department: e.target.value })}
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                    >
+                        <option value="">Select Department (Optional)</option>
+                        <option value="General">General</option>
+                        <option value="HR">HR</option>
+                        <option value="IT">IT</option>
+                        <option value="Finance">Finance</option>
+                        <option value="Operations">Operations</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Sales">Sales</option>
+                    </select>
+                </div>
+
                 <div>
                     <label className="block text-sm font-medium text-text-secondary mb-2">
                         Date of Incident <span className="text-red-500">*</span>

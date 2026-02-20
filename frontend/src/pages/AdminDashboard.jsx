@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { getAllReports } from '../../services/reportService';
+import { useNavigate } from 'react-router-dom';
 import { AdminHeader } from '../components/Admin/AdminHeader';
 import { AdminSidebar } from '../components/Admin/AdminSidebar';
 import { Footer } from '../components/Footer';
@@ -9,59 +11,25 @@ import { RiskBadge } from '../components/Admin/RiskBadge';
 import { AlertCircle, FileText, TrendingUp, Clock } from 'lucide-react';
 
 export default function AdminDashboard() {
-    // Mock data - replace with API call
-    const [reports, setReports] = useState([
-        {
-            id: '1',
-            reportId: 'SR-2024-0001',
-            incidentType: 'Harassment',
-            department: 'HR',
-            riskLevel: 'High',
-            status: 'In-Review',
-            createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-            location: 'Building A'
-        },
-        {
-            id: '2',
-            reportId: 'SR-2024-0002',
-            incidentType: 'Bullying',
-            department: 'IT',
-            riskLevel: 'Medium',
-            status: 'In-Progress',
-            createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-            location: 'Building B'
-        },
-        {
-            id: '3',
-            reportId: 'SR-2024-0003',
-            incidentType: 'Discrimination',
-            department: 'Finance',
-            riskLevel: 'High',
-            status: 'Escalated',
-            createdAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
-            location: 'Building C'
-        },
-        {
-            id: '4',
-            reportId: 'SR-2024-0004',
-            incidentType: 'General Complaint',
-            department: 'Operations',
-            riskLevel: 'Low',
-            status: 'Open',
-            createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-            location: 'Building A'
-        },
-        {
-            id: '5',
-            reportId: 'SR-2024-0005',
-            incidentType: 'Harassment',
-            department: 'Marketing',
-            riskLevel: 'Medium',
-            status: 'Resolved',
-            createdAt: new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString(),
-            location: 'Building D'
-        },
-    ]);
+    const [reports, setReports] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchReports = async () => {
+            try {
+                const response = await getAllReports();
+                if (response.success) {
+                    setReports(response.reports);
+                }
+            } catch (error) {
+                console.error('Failed to fetch reports:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchReports();
+    }, []);
 
     const [filteredReports, setFilteredReports] = useState(reports);
     const [selectedView, setSelectedView] = useState('all');
@@ -86,9 +54,10 @@ export default function AdminDashboard() {
         setFilteredReports(reports);
     };
 
+    const navigate = useNavigate();
+
     const handleViewReport = (reportId) => {
-        // Navigate to report detail view
-        console.log('View report:', reportId);
+        navigate(`/admin/reports/${reportId}`);
     };
 
     // Calculate statistics
