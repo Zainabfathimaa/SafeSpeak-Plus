@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Paperclip, MoreVertical, ArrowLeft } from 'lucide-react';
 
-export function ChatWindow({ conversation, onBack }) {
+export function ChatWindow({ conversation, onBack, onSend }) {
     const [newMessage, setNewMessage] = useState('');
     const messagesEndRef = useRef(null);
 
@@ -28,11 +28,10 @@ export function ChatWindow({ conversation, onBack }) {
         e.preventDefault();
         if (!newMessage.trim()) return;
 
-        // In a real app, this would send to API
-        console.log("Sending:", newMessage);
+        if (onSend) {
+            onSend(newMessage);
+        }
         setNewMessage('');
-        // For demo, we can't easily push to props without a real state manager or callback, 
-        // so we'll just clear input for now.
     };
 
     return (

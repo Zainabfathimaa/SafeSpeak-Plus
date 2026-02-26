@@ -19,6 +19,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import AdminUsers from './pages/Admin/AdminUsers';
 import AdminAnalytics from './pages/Admin/AdminAnalytics';
 import AdminSettings from './pages/Admin/AdminSettings';
+import AdminMessages from './pages/Admin/AdminMessages';
 import CounsellorDashboard from './pages/CounsellorDashboard';
 import ExecutiveDashboard from './pages/ExecutiveDashboard';
 import ComplianceOfficerDashboard from './pages/ComplianceOfficerDashboard';
@@ -43,7 +44,8 @@ function Layout() {
     '/messages',
     '/escalate',
     '/stories',
-    '/settings'
+    '/settings',
+    '/admin/messages'
   ];
 
   const shouldHideGlobalLayout = hideGlobalLayoutRoutes.includes(location.pathname);
@@ -63,6 +65,7 @@ function Layout() {
           <Route path="/admin/users" element={<ProtectedRoute element={<AdminUsers />} requiredRole="admin" />} />
           <Route path="/admin/analytics" element={<ProtectedRoute element={<AdminAnalytics />} requiredRole="admin" />} />
           <Route path="/admin/settings" element={<ProtectedRoute element={<AdminSettings />} requiredRole="admin" />} />
+          <Route path="/admin/messages" element={<ProtectedRoute element={<AdminMessages />} requiredRole="admin" />} />
           <Route path="/counsellor-dashboard" element={<ProtectedRoute element={<CounsellorDashboard />} requiredRole="counsellor" />} />
           <Route path="/executive-dashboard" element={<ProtectedRoute element={<ExecutiveDashboard />} requiredRole="executive" />} />
           <Route path="/compliance-officer-dashboard" element={<ProtectedRoute element={<ComplianceOfficerDashboard />} requiredRole="compliance-officer" />} />

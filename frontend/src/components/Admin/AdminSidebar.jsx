@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, FileText, Users, TrendingUp, Lock, Settings, AlertCircle, LogOut } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, TrendingUp, Lock, Settings, AlertCircle, LogOut, MessageSquare } from 'lucide-react';
 import { logout } from '../../services/authService';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
 import { useState } from 'react';
@@ -16,6 +16,7 @@ export function AdminSidebar({ role = 'admin' }) {
     const getMenuItems = () => {
         const baseItems = [
             { path: '/admin-dashboard', label: 'Dashboard', icon: LayoutDashboard },
+            { path: '/admin/messages', label: 'Messages', icon: MessageSquare },
             // { path: '/admin/reports', label: 'All Reports', icon: FileText }, // Redundant with dashboard logic for now
         ];
 
