@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Header } from '../components/Header';
-import { Sidebar } from '../components/Sidebar';
-import { ConversationList } from '../components/Messages/ConversationList';
-import { ChatWindow } from '../components/Messages/ChatWindow';
-import { getConversations, getMessages, sendMessage as sendMessageApi } from '../services/messageService';
+import { AdminHeader } from '../../components/Admin/AdminHeader';
+import { AdminSidebar } from '../../components/Admin/AdminSidebar';
+import { ConversationList } from '../../components/Messages/ConversationList';
+import { ChatWindow } from '../../components/Messages/ChatWindow';
+import { getConversations, getMessages, sendMessage as sendMessageApi } from '../../services/messageService';
 
-export default function Messages() {
+export default function AdminMessages() {
     const [conversations, setConversations] = useState([]);
     const [activeConversationId, setActiveConversationId] = useState(null);
     const [activeConversation, setActiveConversation] = useState(null);
@@ -23,9 +23,9 @@ export default function Messages() {
                         subject: c.subject,
                         reportId: c.reportId,
                         lastMessage: c.lastMessage,
-                        lastSender: c.lastSenderRole === 'user' ? 'You' : c.lastSenderRole.charAt(0).toUpperCase() + c.lastSenderRole.slice(1),
+                        lastSender: c.lastSenderRole === 'admin' ? 'You' : c.lastSenderRole.charAt(0).toUpperCase() + c.lastSenderRole.slice(1),
                         lastTime: new Date(c.lastTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                        messages: [] // will be filled when selected
+                        messages: []
                     }));
                     setConversations(convs);
                     setActiveConversationId(convs[0].id);
@@ -48,7 +48,7 @@ export default function Messages() {
                 if (res.success) {
                     const msgs = res.messages.map(m => ({
                         id: m._id,
-                        sender: m.senderRole === 'user' ? 'You' : (m.sender?.fullName || m.senderRole.charAt(0).toUpperCase() + m.senderRole.slice(1)),
+                        sender: m.senderRole === 'admin' ? 'You' : (m.sender?.fullName || 'Student'),
                         text: m.text,
                         time: new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                     }));
@@ -74,7 +74,6 @@ export default function Messages() {
         try {
             const res = await sendMessageApi(activeConversationId, text);
             if (res.success) {
-                // Append the new message locally
                 const newMsg = {
                     id: res.message._id,
                     sender: 'You',
@@ -93,10 +92,10 @@ export default function Messages() {
 
     if (loading) {
         return (
-            <div className="flex h-screen flex-col bg-background text-text-primary overflow-hidden">
-                <Header />
+            <div className="flex min-h-screen flex-col bg-gray-50/50 text-text-primary overflow-hidden">
+                <AdminHeader roleName="Admin / Messages" />
                 <div className="flex flex-1 overflow-hidden">
-                    <Sidebar />
+                    <AdminSidebar role="admin" />
                     <main className="flex-1 flex items-center justify-center">
                         <p className="text-text-secondary animate-pulse">Loading messages...</p>
                     </main>
@@ -106,15 +105,15 @@ export default function Messages() {
     }
 
     return (
-        <div className="flex h-screen flex-col bg-background text-text-primary overflow-hidden">
-            <Header />
+        <div className="flex min-h-screen flex-col bg-gray-50/50 text-text-primary overflow-hidden">
+            <AdminHeader roleName="Admin / Messages" />
             <div className="flex flex-1 overflow-hidden">
-                <Sidebar />
+                <AdminSidebar role="admin" />
 
                 <main className="flex-1 flex overflow-hidden">
                     {conversations.length === 0 ? (
                         <div className="flex-1 flex items-center justify-center">
-                            <p className="text-text-secondary">No messages yet. Start a conversation from a report.</p>
+                            <p className="text-text-secondary">No message threads yet.</p>
                         </div>
                     ) : (
                         <>
