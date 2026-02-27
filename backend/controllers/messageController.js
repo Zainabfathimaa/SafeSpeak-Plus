@@ -77,7 +77,7 @@ export const getMessagesByReport = async (req, res) => {
         }
 
         // Permission check: users can only see messages on their own reports
-        if (role === 'user' && report.submittedBy.userId.toString() !== userId) {
+        if (role === 'user' && report.submittedBy?.userId?.toString() !== userId) {
             return res.status(403).json({ success: false, message: 'Not authorized to view these messages' });
         }
 
@@ -110,7 +110,7 @@ export const sendMessage = async (req, res) => {
         }
 
         // Permission check
-        if (role === 'user' && report.submittedBy.userId.toString() !== userId) {
+        if (role === 'user' && report.submittedBy?.userId?.toString() !== userId) {
             return res.status(403).json({ success: false, message: 'Not authorized to message on this report' });
         }
 
