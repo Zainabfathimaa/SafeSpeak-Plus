@@ -25,7 +25,7 @@ export function ReportTable({ reports, onViewReport }) {
                     <tbody className="divide-y divide-gray-200">
                         {reports && reports.length > 0 ? (
                             reports.map((report) => (
-                                <tr key={report.id} className="hover:bg-gray-50 transition-colors">
+                                <tr key={report._id} className="hover:bg-gray-50 transition-colors">
                                     <td className="px-6 py-4 text-sm font-mono text-primary font-semibold">
                                         {report.reportId}
                                     </td>
@@ -46,7 +46,7 @@ export function ReportTable({ reports, onViewReport }) {
                                     </td>
                                     <td className="px-6 py-4">
                                         <button
-                                            onClick={() => onViewReport(report.id)}
+                                            onClick={() => onViewReport(report._id)}
                                             className="inline-flex items-center space-x-1 text-primary hover:text-primary-dark transition-colors font-medium"
                                         >
                                             <Eye className="h-4 w-4" />

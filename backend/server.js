@@ -61,6 +61,10 @@ import authRoutes from './routes/authRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
 // Message routes
 import messageRoutes from './routes/messageRoutes.js';
+// User routes
+import userRoutes from './routes/userRoutes.js';
+// Analytics routes
+import analyticsRoutes from './routes/analyticsRoutes.js';
 
 // ===================================
 // STEP 3: Create Express Application
@@ -209,6 +213,12 @@ app.use('/api/reports', reportRoutes);
 
 // Message routes
 app.use('/api/messages', messageRoutes);
+
+// User routes
+app.use('/api/users', userRoutes);
+
+// Analytics routes
+app.use('/api/analytics', analyticsRoutes);
 
 // ===================================
 // STEP 7: Health Check Route
