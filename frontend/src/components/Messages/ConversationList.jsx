@@ -1,12 +1,23 @@
 import React from 'react';
-import { Search } from 'lucide-react';
+import { Search, Plus } from 'lucide-react';
 
-export function ConversationList({ conversations, activeId, onSelect, mobileView }) {
+export function ConversationList({ conversations, activeId, onSelect, mobileView, onNewConversation }) {
     return (
         <div className={`flex flex-col h-full bg-white border-r border-gray-200 ${mobileView ? 'w-full' : 'w-80 md:w-96'}`}>
             {/* Header */}
             <div className="p-4 border-b border-gray-200">
-                <h2 className="text-xl font-bold text-gray-800 mb-4">Messages</h2>
+                <div className="flex items-center justify-between mb-4">
+                    <h2 className="text-xl font-bold text-gray-800">Messages</h2>
+                    {onNewConversation && (
+                        <button
+                            onClick={onNewConversation}
+                            className="flex items-center space-x-1.5 px-3 py-1.5 bg-primary hover:bg-primary-dark text-white text-xs font-medium rounded-lg transition-colors shadow-sm"
+                        >
+                            <Plus className="w-3.5 h-3.5" />
+                            <span>New</span>
+                        </button>
+                    )}
+                </div>
                 <div className="relative">
                     <input
                         type="text"
@@ -43,3 +54,4 @@ export function ConversationList({ conversations, activeId, onSelect, mobileView
         </div>
     );
 }
+

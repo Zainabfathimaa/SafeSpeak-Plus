@@ -25,14 +25,13 @@ import ExecutiveDashboard from './pages/ExecutiveDashboard';
 import ComplianceOfficerDashboard from './pages/ComplianceOfficerDashboard';
 import DepartmentHeadDashboard from './pages/DepartmentHeadDashboard';
 import NotFoundPage from './pages/NotFoundPage';
-
-// 🔥 IMPORTANT: remove ReportDetail route until file exists
-// If you want it, properly import it
+import UserReportDetail from './pages/UserReportDetail';
+import ReportDetail from './pages/Admin/ReportDetail';
 
 function Layout() {
   const location = useLocation();
 
-  const hideGlobalLayoutRoutes = [
+  const hideGlobalLayoutPrefixes = [
     '/dashboard',
     '/admin-dashboard',
     '/counsellor-dashboard',
@@ -41,14 +40,15 @@ function Layout() {
     '/department-head-dashboard',
     '/report-incident',
     '/report-status',
+    '/reports',
     '/messages',
     '/escalate',
     '/stories',
     '/settings',
-    '/admin/messages'
+    '/admin'
   ];
 
-  const shouldHideGlobalLayout = hideGlobalLayoutRoutes.includes(location.pathname);
+  const shouldHideGlobalLayout = hideGlobalLayoutPrefixes.some(prefix => location.pathname.startsWith(prefix));
 
   return (
     <div className="flex flex-col min-h-screen bg-background font-sans text-text-primary">
@@ -66,12 +66,14 @@ function Layout() {
           <Route path="/admin/analytics" element={<ProtectedRoute element={<AdminAnalytics />} requiredRole="admin" />} />
           <Route path="/admin/settings" element={<ProtectedRoute element={<AdminSettings />} requiredRole="admin" />} />
           <Route path="/admin/messages" element={<ProtectedRoute element={<AdminMessages />} requiredRole="admin" />} />
+          <Route path="/admin/reports/:id" element={<ProtectedRoute element={<ReportDetail />} requiredRole="admin" />} />
           <Route path="/counsellor-dashboard" element={<ProtectedRoute element={<CounsellorDashboard />} requiredRole="counsellor" />} />
           <Route path="/executive-dashboard" element={<ProtectedRoute element={<ExecutiveDashboard />} requiredRole="executive" />} />
           <Route path="/compliance-officer-dashboard" element={<ProtectedRoute element={<ComplianceOfficerDashboard />} requiredRole="compliance-officer" />} />
           <Route path="/department-head-dashboard" element={<ProtectedRoute element={<DepartmentHeadDashboard />} requiredRole="department-head" />} />
           <Route path="/report-incident" element={<ProtectedRoute element={<NewReport />} />} />
           <Route path="/report-status" element={<ReportStatus />} />
+          <Route path="/reports/:id" element={<UserReportDetail />} />
           <Route path="/messages" element={<Messages />} />
           <Route path="/escalate" element={<EscalatePage />} />
           <Route path="/stories" element={<StoriesPage />} />
