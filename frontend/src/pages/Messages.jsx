@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Header } from '../components/Header';
 import { Sidebar } from '../components/Sidebar';
 import { ConversationList } from '../components/Messages/ConversationList';
@@ -7,6 +7,8 @@ import { NewConversationModal } from '../components/Messages/NewConversationModa
 import { getConversations, getMessages, sendMessage as sendMessageApi } from '../services/messageService';
 import { MessageSquare, Plus } from 'lucide-react';
 
+const POLL_INTERVAL = 5000; // 5 seconds
+
 export default function Messages() {
     const [conversations, setConversations] = useState([]);
     const [activeConversationId, setActiveConversationId] = useState(null);
@@ -14,61 +16,79 @@ export default function Messages() {
     const [showMobileChat, setShowMobileChat] = useState(false);
     const [loading, setLoading] = useState(true);
     const [showNewConversation, setShowNewConversation] = useState(false);
+    const pollRef = useRef(null);
+    const msgPollRef = useRef(null);
 
     // Fetch conversation list
-    const fetchConversations = async () => {
+    const fetchConversations = useCallback(async (silent = false) => {
         try {
             const res = await getConversations();
-            if (res.success && res.conversations.length > 0) {
-                const convs = res.conversations.map(c => ({
+            if (res.success) {
+                const convs = (res.conversations || []).map(c => ({
                     id: c.id,
                     subject: c.subject,
                     reportId: c.reportId,
                     lastMessage: c.lastMessage,
                     lastSender: c.lastSenderRole === 'user' ? 'You' : c.lastSenderRole.charAt(0).toUpperCase() + c.lastSenderRole.slice(1),
                     lastTime: new Date(c.lastTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                    messages: [] // will be filled when selected
+                    messages: []
                 }));
                 setConversations(convs);
-                if (!activeConversationId) {
+                if (!activeConversationId && convs.length > 0) {
                     setActiveConversationId(convs[0].id);
                 }
             }
         } catch (err) {
-            console.error('Failed to load conversations:', err);
+            if (!silent) console.error('Failed to load conversations:', err);
         } finally {
-            setLoading(false);
+            if (!silent) setLoading(false);
         }
-    };
+    }, [activeConversationId]);
 
+    // Initial load
     useEffect(() => {
         fetchConversations();
     }, []);
 
-    // Fetch messages when active conversation changes
+    // Poll conversations for new threads
     useEffect(() => {
+        pollRef.current = setInterval(() => fetchConversations(true), POLL_INTERVAL);
+        return () => clearInterval(pollRef.current);
+    }, [fetchConversations]);
+
+    // Fetch messages for active conversation
+    const fetchMessages = useCallback(async () => {
         if (!activeConversationId) return;
-        const fetchMessages = async () => {
-            try {
-                const res = await getMessages(activeConversationId);
-                if (res.success) {
-                    const msgs = res.messages.map(m => ({
-                        id: m._id,
-                        sender: m.senderRole === 'user' ? 'You' : (m.sender?.fullName || m.senderRole.charAt(0).toUpperCase() + m.senderRole.slice(1)),
-                        text: m.text,
-                        time: new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                    }));
+        try {
+            const res = await getMessages(activeConversationId);
+            if (res.success) {
+                const msgs = res.messages.map(m => ({
+                    id: m._id,
+                    sender: m.senderRole === 'user' ? 'You' : (m.sender?.fullName || m.senderRole.charAt(0).toUpperCase() + m.senderRole.slice(1)),
+                    senderRole: m.senderRole,
+                    text: m.text,
+                    time: new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                }));
+                setActiveConversation(prev => {
                     const conv = conversations.find(c => c.id === activeConversationId);
-                    if (conv) {
-                        setActiveConversation({ ...conv, messages: msgs });
-                    }
-                }
-            } catch (err) {
-                console.error('Failed to load messages:', err);
+                    return { ...(conv || prev || {}), messages: msgs };
+                });
             }
-        };
+        } catch (err) {
+            console.error('Failed to load messages:', err);
+        }
+    }, [activeConversationId, conversations]);
+
+    useEffect(() => {
         fetchMessages();
     }, [activeConversationId, conversations]);
+
+    // Poll messages for live chat
+    useEffect(() => {
+        if (!activeConversationId) return;
+        msgPollRef.current = setInterval(fetchMessages, POLL_INTERVAL);
+        return () => clearInterval(msgPollRef.current);
+    }, [activeConversationId, fetchMessages]);
 
     const handleSelectConversation = (id) => {
         setActiveConversationId(id);
@@ -80,10 +100,10 @@ export default function Messages() {
         try {
             const res = await sendMessageApi(activeConversationId, text);
             if (res.success) {
-                // Append the new message locally
                 const newMsg = {
                     id: res.message._id,
                     sender: 'You',
+                    senderRole: 'user',
                     text: res.message.text,
                     time: new Date(res.message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                 };
@@ -91,6 +111,8 @@ export default function Messages() {
                     ...prev,
                     messages: [...(prev?.messages || []), newMsg]
                 }));
+                // Also refresh conversation list to update last message
+                fetchConversations(true);
             }
         } catch (err) {
             console.error('Failed to send message:', err);
@@ -100,6 +122,7 @@ export default function Messages() {
     const handleConversationCreated = async () => {
         setLoading(true);
         await fetchConversations();
+        setLoading(false);
     };
 
     if (loading) {
@@ -109,7 +132,10 @@ export default function Messages() {
                 <div className="flex flex-1 overflow-hidden">
                     <Sidebar />
                     <main className="flex-1 flex items-center justify-center">
-                        <p className="text-text-secondary animate-pulse">Loading messages...</p>
+                        <div className="text-center">
+                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary mx-auto mb-3"></div>
+                            <p className="text-text-secondary">Loading messages...</p>
+                        </div>
                     </main>
                 </div>
             </div>
@@ -125,7 +151,7 @@ export default function Messages() {
                 <main className="flex-1 flex overflow-hidden">
                     {conversations.length === 0 ? (
                         /* Empty State — Contact Admin */
-                        <div className="flex-1 flex items-center justify-center">
+                        <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
                             <div className="text-center max-w-md mx-auto px-6">
                                 <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-primary/10 flex items-center justify-center">
                                     <MessageSquare className="w-10 h-10 text-primary" />
@@ -167,6 +193,7 @@ export default function Messages() {
                                     conversation={activeConversation}
                                     onBack={() => setShowMobileChat(false)}
                                     onSend={handleSendMessage}
+                                    currentUserRole="user"
                                 />
                             </div>
                         </>
