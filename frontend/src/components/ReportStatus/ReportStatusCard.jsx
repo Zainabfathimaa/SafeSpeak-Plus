@@ -3,16 +3,27 @@ import { ChevronRight, Calendar, MapPin, CheckCircle2, Circle, Clock } from 'luc
 import { Link } from 'react-router-dom';
 
 export function ReportStatusCard({ report }) {
+    // Derive step from status
+    const getStepFromStatus = (status) => {
+        switch (status?.toLowerCase()) {
+            case 'open': return 1;
+            case 'in-review': case 'in review': return 2;
+            case 'in-progress': case 'escalated': return 3;
+            case 'resolved': case 'closed': return 4;
+            default: return 1;
+        }
+    };
+
     // Steps for the timeline
     const steps = [
         { id: 1, label: 'Submitted', date: report.submittedAt },
-        { id: 2, label: 'Received', date: report.receivedAt },
-        { id: 3, label: 'In Review', date: report.reviewedAt },
+        { id: 2, label: 'In Review', date: report.reviewedAt },
+        { id: 3, label: 'Processing', date: null },
         { id: 4, label: 'Resolved', date: report.resolvedAt },
     ];
 
-    // Determine current step index (1-based from report.statusStep)
-    const currentStep = report.statusStep || 1;
+    // Determine current step index
+    const currentStep = report.statusStep || getStepFromStatus(report.status);
 
     const getStatusColor = (status) => {
         switch (status.toLowerCase()) {
@@ -29,7 +40,7 @@ export function ReportStatusCard({ report }) {
             <div className="p-5 border-b border-gray-100 bg-gray-50/50 flex justify-between items-start">
                 <div>
                     <div className="flex items-center space-x-3 mb-1">
-                        <span className="text-lg font-bold text-text-primary">{report.type}</span>
+                        <span className="text-lg font-bold text-text-primary">{report.incidentType || report.type}</span>
                         <span className={`px-2 py-0.5 rounded-full text-xs font-semibold border ${getStatusColor(report.status)}`}>
                             {report.status}
                         </span>

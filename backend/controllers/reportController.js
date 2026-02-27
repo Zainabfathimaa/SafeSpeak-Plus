@@ -147,7 +147,7 @@ export const getReportById = async (req, res) => {
         }
 
         // Check permission (Admin can see all, User can only see their own)
-        if (req.user.role === 'user' && report.submittedBy.userId.toString() !== req.user._id.toString()) {
+        if (req.user.role === 'user' && report.submittedBy.userId.toString() !== req.user.userId.toString()) {
             return res.status(403).json({ success: false, message: 'Not authorized to view this report' });
         }
 
