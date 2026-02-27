@@ -46,7 +46,7 @@ export const createReport = async (req, res) => {
         // Determine submitter info
         // req.user is set by authMiddleware
         const submittedBy = {
-            userId: req.user._id,
+            userId: req.user.userId,
             isAnonymous: req.user.isAnonymous || false,
             anonymousCode: req.user.anonymousCode
         };
@@ -117,7 +117,7 @@ export const getAllReports = async (req, res) => {
 // @access  Private
 export const getUserReports = async (req, res) => {
     try {
-        const reports = await Report.find({ 'submittedBy.userId': req.user._id })
+        const reports = await Report.find({ 'submittedBy.userId': req.user.userId })
             .sort({ createdAt: -1 });
 
         res.status(200).json({
@@ -147,7 +147,7 @@ export const getReportById = async (req, res) => {
         }
 
         // Check permission (Admin can see all, User can only see their own)
-        if (req.user.role === 'user' && report.submittedBy.userId.toString() !== req.user.userId.toString()) {
+        if (req.user.role === 'user' && report.submittedBy?.userId?.toString() !== req.user.userId?.toString()) {
             return res.status(403).json({ success: false, message: 'Not authorized to view this report' });
         }
 
