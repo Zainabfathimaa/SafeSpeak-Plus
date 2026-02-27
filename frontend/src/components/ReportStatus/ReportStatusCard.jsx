@@ -46,7 +46,7 @@ export function ReportStatusCard({ report }) {
                     </div>
                 </div>
                 <div className="text-right">
-                    <span className="text-xs font-mono text-gray-400">ID: {report.id}</span>
+                    <span className="text-xs font-mono text-gray-400">ID: {report.reportId || report._id}</span>
                 </div>
             </div>
 
@@ -93,7 +93,7 @@ export function ReportStatusCard({ report }) {
             {/* Footer */}
             <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 flex justify-end">
                 <Link
-                    to={`/reports/${report.id}`}
+                    to={`/reports/${report._id}`}
                     className="text-sm font-medium text-primary hover:text-primary-dark flex items-center transition-colors"
                 >
                     View Full Details

@@ -3,7 +3,9 @@ import { Header } from '../components/Header';
 import { Sidebar } from '../components/Sidebar';
 import { ConversationList } from '../components/Messages/ConversationList';
 import { ChatWindow } from '../components/Messages/ChatWindow';
+import { NewConversationModal } from '../components/Messages/NewConversationModal';
 import { getConversations, getMessages, sendMessage as sendMessageApi } from '../services/messageService';
+import { MessageSquare, Plus } from 'lucide-react';
 
 export default function Messages() {
     const [conversations, setConversations] = useState([]);
@@ -11,31 +13,35 @@ export default function Messages() {
     const [activeConversation, setActiveConversation] = useState(null);
     const [showMobileChat, setShowMobileChat] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [showNewConversation, setShowNewConversation] = useState(false);
 
-    // Fetch conversation list on mount
-    useEffect(() => {
-        const fetchConversations = async () => {
-            try {
-                const res = await getConversations();
-                if (res.success && res.conversations.length > 0) {
-                    const convs = res.conversations.map(c => ({
-                        id: c.id,
-                        subject: c.subject,
-                        reportId: c.reportId,
-                        lastMessage: c.lastMessage,
-                        lastSender: c.lastSenderRole === 'user' ? 'You' : c.lastSenderRole.charAt(0).toUpperCase() + c.lastSenderRole.slice(1),
-                        lastTime: new Date(c.lastTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                        messages: [] // will be filled when selected
-                    }));
-                    setConversations(convs);
+    // Fetch conversation list
+    const fetchConversations = async () => {
+        try {
+            const res = await getConversations();
+            if (res.success && res.conversations.length > 0) {
+                const convs = res.conversations.map(c => ({
+                    id: c.id,
+                    subject: c.subject,
+                    reportId: c.reportId,
+                    lastMessage: c.lastMessage,
+                    lastSender: c.lastSenderRole === 'user' ? 'You' : c.lastSenderRole.charAt(0).toUpperCase() + c.lastSenderRole.slice(1),
+                    lastTime: new Date(c.lastTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    messages: [] // will be filled when selected
+                }));
+                setConversations(convs);
+                if (!activeConversationId) {
                     setActiveConversationId(convs[0].id);
                 }
-            } catch (err) {
-                console.error('Failed to load conversations:', err);
-            } finally {
-                setLoading(false);
             }
-        };
+        } catch (err) {
+            console.error('Failed to load conversations:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         fetchConversations();
     }, []);
 
@@ -91,6 +97,11 @@ export default function Messages() {
         }
     };
 
+    const handleConversationCreated = async () => {
+        setLoading(true);
+        await fetchConversations();
+    };
+
     if (loading) {
         return (
             <div className="flex h-screen flex-col bg-background text-text-primary overflow-hidden">
@@ -113,8 +124,24 @@ export default function Messages() {
 
                 <main className="flex-1 flex overflow-hidden">
                     {conversations.length === 0 ? (
+                        /* Empty State — Contact Admin */
                         <div className="flex-1 flex items-center justify-center">
-                            <p className="text-text-secondary">No messages yet. Start a conversation from a report.</p>
+                            <div className="text-center max-w-md mx-auto px-6">
+                                <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-primary/10 flex items-center justify-center">
+                                    <MessageSquare className="w-10 h-10 text-primary" />
+                                </div>
+                                <h2 className="text-2xl font-bold text-gray-900 mb-2">No Messages Yet</h2>
+                                <p className="text-text-secondary mb-8">
+                                    Start a conversation with an admin about one of your reports. Get updates, ask questions, or provide additional information.
+                                </p>
+                                <button
+                                    onClick={() => setShowNewConversation(true)}
+                                    className="inline-flex items-center space-x-2 px-6 py-3 bg-primary hover:bg-primary-dark text-white font-medium rounded-xl shadow-lg shadow-primary/25 transition-all hover:shadow-xl hover:shadow-primary/30 hover:-translate-y-0.5"
+                                >
+                                    <Plus className="w-5 h-5" />
+                                    <span>Contact Admin</span>
+                                </button>
+                            </div>
                         </div>
                     ) : (
                         <>
@@ -127,6 +154,7 @@ export default function Messages() {
                                     conversations={conversations}
                                     activeId={activeConversationId}
                                     onSelect={handleSelectConversation}
+                                    onNewConversation={() => setShowNewConversation(true)}
                                 />
                             </div>
 
@@ -145,6 +173,13 @@ export default function Messages() {
                     )}
                 </main>
             </div>
+
+            {/* New Conversation Modal */}
+            <NewConversationModal
+                isOpen={showNewConversation}
+                onClose={() => setShowNewConversation(false)}
+                onConversationCreated={handleConversationCreated}
+            />
         </div>
     );
 }
