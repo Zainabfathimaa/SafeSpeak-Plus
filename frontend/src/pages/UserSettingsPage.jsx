@@ -308,8 +308,8 @@ export const UserSettingsPage = () => {
                         name="fullName"
                         value={profile.fullName}
                         onChange={handleProfileChange}
-                        className="w-full px-5 py-3.5 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-gray-800 shadow-sm hover:border-gray-300"
-                        placeholder="e.g. Jane Doe"
+                        className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
+                        placeholder="Your full name"
                       />
                     </div>
 
@@ -320,7 +320,7 @@ export const UserSettingsPage = () => {
                         name="phone"
                         value={profile.phone}
                         onChange={handleProfileChange}
-                        className="w-full px-5 py-3.5 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-gray-800 shadow-sm hover:border-gray-300"
+                        className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
                         placeholder="+1 (555) 000-0000"
                       />
                     </div>
@@ -332,7 +332,7 @@ export const UserSettingsPage = () => {
                         name="department"
                         value={profile.department}
                         onChange={handleProfileChange}
-                        className="w-full px-5 py-3.5 bg-white/80 backdrop-blur-sm border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-gray-800 shadow-sm hover:border-gray-300"
+                        className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
                         placeholder="e.g. Computer Science"
                       />
                     </div>
@@ -486,7 +486,7 @@ export const UserSettingsPage = () => {
                           type="time"
                           value={notifyPrefs.preferredNotificationTime}
                           onChange={(e) => setNotifyPrefs(prev => ({ ...prev, preferredNotificationTime: e.target.value }))}
-                          className="w-full max-w-[150px] px-5 py-3.5 bg-white/80 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500 font-medium text-gray-800 cursor-pointer shadow-sm hover:border-gray-300 transition-all"
+                          className="w-full max-w-[150px] px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
                         />
                       </div>
                     </div>
@@ -623,7 +623,7 @@ export const UserSettingsPage = () => {
                           required
                           value={securityData.oldPassword}
                           onChange={handleSecurityChange}
-                          className="w-full px-5 py-3.5 bg-white/80 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-gray-800 shadow-sm hover:border-gray-300"
+                          className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
                           placeholder="••••••••"
                         />
                       </div>
@@ -637,7 +637,7 @@ export const UserSettingsPage = () => {
                             required
                             value={securityData.newPassword}
                             onChange={handleSecurityChange}
-                            className="w-full px-5 py-3.5 bg-white/80 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-gray-800 shadow-sm hover:border-gray-300"
+                            className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
                             placeholder="••••••••"
                           />
                         </div>
@@ -649,7 +649,7 @@ export const UserSettingsPage = () => {
                             required
                             value={securityData.confirmPassword}
                             onChange={handleSecurityChange}
-                            className="w-full px-5 py-3.5 bg-white/80 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium text-gray-800 shadow-sm hover:border-gray-300"
+                            className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
                             placeholder="••••••••"
                           />
                         </div>
