@@ -111,8 +111,10 @@ export const authenticate = (req, res, next) => {
      * }
      */
 
+    // Normalize user object to include both `userId` and `id` for compatibility
     req.user = {
       userId: decoded.userId,
+      id: decoded.userId || decoded.id,
       email: decoded.email,
       role: decoded.role,
       iat: decoded.iat,
