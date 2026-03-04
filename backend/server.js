@@ -65,6 +65,12 @@ import messageRoutes from './routes/messageRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 // Analytics routes
 import analyticsRoutes from './routes/analyticsRoutes.js';
+// Story routes
+import storyRoutes from './routes/storyRoutes.js';
+// Notification routes
+import notificationRoutes from './routes/notificationRoutes.js';
+// Report authenticity routes
+import reportAuthenticityRoutes from './routes/reportAuthenticityRoutes.js';
 
 // ===================================
 // STEP 3: Create Express Application
@@ -221,11 +227,20 @@ app.use('/api/auth', authRoutes);
 // Report routes
 app.use('/api/reports', reportRoutes);
 
+// Report authenticity routes
+app.use('/api/reports', reportAuthenticityRoutes);
+
 // Message routes
 app.use('/api/messages', messageRoutes);
 
 // User routes
-app.use('/api/users', userRoutes);
+app.use('/api/user', userRoutes);
+
+// Story routes
+app.use('/api/stories', storyRoutes);
+
+// Notification routes
+app.use('/api/notifications', notificationRoutes);
 
 // Analytics routes
 app.use('/api/analytics', analyticsRoutes);

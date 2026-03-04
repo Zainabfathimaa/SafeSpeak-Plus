@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AdminHeader } from '../../components/Admin/AdminHeader';
 import { AdminSidebar } from '../../components/Admin/AdminSidebar';
 import { Footer } from '../../components/Footer';
-import { getAllUsers } from '../../services/userService';
+import userService from '../../services/userService';
 import { Search, Shield, User, CheckCircle2, XCircle, MailWarning } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -16,7 +16,7 @@ export default function AdminUsers() {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const data = await getAllUsers();
+                const data = await userService.getAllUsers();
                 if (data.success) {
                     setUsers(data.users);
                 }

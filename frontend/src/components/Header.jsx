@@ -1,10 +1,11 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Shield, LogOut } from 'lucide-react';
+import { Shield, LogOut, Settings } from 'lucide-react';
 import { logout } from '../services/authService';
 import { ConfirmationModal } from './ui/ConfirmationModal';
 import { useState } from 'react';
 import { Button } from './ui/Button';
+import { NotificationBell } from './Notifications/NotificationBell';
 
 export function Header() {
     const navigate = useNavigate();
@@ -21,6 +22,10 @@ export function Header() {
         navigate('/login');
     };
 
+    const handleSettingsClick = () => {
+        navigate('/settings');
+    };
+
     return (
         <>
             <nav className="border-b border-primary-dark bg-primary sticky top-0 z-50 shadow-md">
@@ -30,10 +35,17 @@ export function Header() {
                         <span className="text-xl font-bold text-white">SafeSpeak+</span>
                     </Link>
                     <h1 className="text-lg font-semibold text-white/90 hidden md:block">User Dashboard</h1>
-                    <Button variant="ghost" onClick={handleLogoutClick} className="flex items-center space-x-1 text-white hover:bg-primary-dark hover:text-white">
-                        <LogOut className="h-4 w-4" />
-                        <span>Logout</span>
-                    </Button>
+                    <div className="flex items-center space-x-4">
+                        <NotificationBell />
+                        <Button variant="ghost" onClick={handleSettingsClick} className="flex items-center space-x-1 text-white hover:bg-primary-dark hover:text-white">
+                            <Settings className="h-4 w-4" />
+                            <span className="hidden sm:inline">Settings</span>
+                        </Button>
+                        <Button variant="ghost" onClick={handleLogoutClick} className="flex items-center space-x-1 text-white hover:bg-primary-dark hover:text-white">
+                            <LogOut className="h-4 w-4" />
+                            <span className="hidden sm:inline">Logout</span>
+                        </Button>
+                    </div>
                 </div>
             </nav>
 

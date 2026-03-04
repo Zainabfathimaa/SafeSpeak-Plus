@@ -11,6 +11,7 @@ export default function ReportStatus() {
     // Mock Data - In a real app, fetch from API
     const [reports, setReports] = React.useState([]);
     const [loading, setLoading] = React.useState(true);
+    const [selectedStatus, setSelectedStatus] = React.useState('all');
 
     React.useEffect(() => {
         const fetchReports = async () => {
@@ -36,6 +37,18 @@ export default function ReportStatus() {
         fetchReports();
     }, []);
 
+    // Filter reports based on selected status
+    const getFilteredReports = () => {
+        if (selectedStatus === 'all') {
+            return reports;
+        }
+        return reports.filter(report => 
+            report.status.toLowerCase() === selectedStatus.toLowerCase()
+        );
+    };
+
+    const filteredReports = getFilteredReports();
+
     return (
         <div className="flex min-h-screen flex-col bg-background text-text-primary">
             <Header />
@@ -53,10 +66,17 @@ export default function ReportStatus() {
                             </div>
                             <div className="flex items-center space-x-3">
                                 <div className="relative">
-                                    <select className="appearance-none bg-white border border-gray-300 text-text-primary py-2 pl-4 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent cursor-pointer">
-                                        <option>All Statuses</option>
-                                        <option>In Review</option>
-                                        <option>Resolved</option>
+                                    <select 
+                                        value={selectedStatus}
+                                        onChange={(e) => setSelectedStatus(e.target.value)}
+                                        className="appearance-none bg-white border border-gray-300 text-text-primary py-2 pl-4 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent cursor-pointer"
+                                    >
+                                        <option value="all">All Statuses</option>
+                                        <option value="in review">In Review</option>
+                                        <option value="resolved">Resolved</option>
+                                        <option value="open">Open</option>
+                                        <option value="escalated">Escalated</option>
+                                        <option value="closed">Closed</option>
                                     </select>
                                     <Filter className="w-4 h-4 text-gray-500 absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none" />
                                 </div>
@@ -72,16 +92,20 @@ export default function ReportStatus() {
                         {/* Reports Grid */}
                         {loading ? (
                             <div className="text-center py-10">Loading reports...</div>
-                        ) : reports.length > 0 ? (
+                        ) : filteredReports.length > 0 ? (
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                {reports.map((report) => (
+                                {filteredReports.map((report) => (
                                     <ReportStatusCard key={report._id} report={report} />
                                 ))}
                             </div>
                         ) : (
                             <div className="text-center py-20 bg-white rounded-xl border border-dashed border-gray-300">
-                                <p className="text-xl font-medium text-gray-400 mb-2">No active reports found</p>
-                                <p className="text-gray-500 mb-6">You haven't submitted any reports yet.</p>
+                                <p className="text-xl font-medium text-gray-400 mb-2">{selectedStatus === 'all' ? 'No active reports found' : `No ${selectedStatus} reports found`}</p>
+                                <p className="text-gray-500 mb-6">
+                                    {selectedStatus === 'all' 
+                                        ? "You haven't submitted any reports yet." 
+                                        : `You don't have any reports with status "${selectedStatus}".`}
+                                </p>
                                 <Link
                                     to="/report-incident"
                                     className="text-primary font-semibold hover:underline"

@@ -8,12 +8,14 @@ import { ReportTable } from '../components/Admin/ReportTable';
 import { FilterPanel } from '../components/Admin/FilterPanel';
 import { StatCard } from '../components/Admin/StatCard';
 import { RiskBadge } from '../components/Admin/RiskBadge';
-import { AlertCircle, FileText, TrendingUp, Clock } from 'lucide-react';
+import { AdminStoryReview } from '../components/Admin/AdminStoryReview';
+import { AlertCircle, FileText, TrendingUp, Clock, BookOpen } from 'lucide-react';
 import toastService from '../services/toastService';
 
 export default function AdminDashboard() {
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedView, setSelectedView] = useState('reports');
 
     useEffect(() => {
         const fetchReports = async () => {
@@ -37,7 +39,6 @@ export default function AdminDashboard() {
     }, []);
 
     const [filteredReports, setFilteredReports] = useState([]);
-    const [selectedView, setSelectedView] = useState('all');
 
     useEffect(() => {
         setFilteredReports(reports);
@@ -92,54 +93,90 @@ export default function AdminDashboard() {
                             <p className="text-text-secondary mt-2">Manage and review all incident reports</p>
                         </div>
 
-                        {/* Stats Section */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <StatCard
-                                icon={FileText}
-                                title="Total Reports"
-                                value={totalReports}
-                                subtitle="All time"
-                                color="blue-600"
-                            />
-                            <StatCard
-                                icon={AlertCircle}
-                                title="High Risk Cases"
-                                value={highRiskReports}
-                                subtitle="Require urgent action"
-                                color="red-600"
-                            />
-                            <StatCard
-                                icon={Clock}
-                                title="Open Cases"
-                                value={openReports}
-                                subtitle="Awaiting review"
-                                color="amber-600"
-                            />
-                            <StatCard
-                                icon={TrendingUp}
-                                title="Escalated"
-                                value={escalatedReports}
-                                subtitle="Sent to higher authority"
-                                color="orange-600"
-                            />
+                        {/* Tab Navigation */}
+                        <div className="flex border-b border-gray-200 gap-8">
+                            <button
+                                onClick={() => setSelectedView('reports')}
+                                className={`pb-4 font-medium transition flex items-center gap-2 ${
+                                    selectedView === 'reports'
+                                        ? 'text-blue-600 border-b-2 border-blue-600'
+                                        : 'text-gray-600 hover:text-gray-900'
+                                }`}
+                            >
+                                <FileText size={18} />
+                                All Reports
+                            </button>
+                            <button
+                                onClick={() => setSelectedView('stories')}
+                                className={`pb-4 font-medium transition flex items-center gap-2 ${
+                                    selectedView === 'stories'
+                                        ? 'text-blue-600 border-b-2 border-blue-600'
+                                        : 'text-gray-600 hover:text-gray-900'
+                                }`}
+                            >
+                                <BookOpen size={18} />
+                                Story Review
+                            </button>
                         </div>
 
-                        {/* Filter Section */}
-                        <FilterPanel
-                            onFilterChange={handleFilterChange}
-                            onReset={handleReset}
-                        />
+                        {/* Reports View */}
+                        {selectedView === 'reports' && (
+                            <>
+                                {/* Stats Section */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                    <StatCard
+                                        icon={FileText}
+                                        title="Total Reports"
+                                        value={totalReports}
+                                        subtitle="All time"
+                                        color="blue-600"
+                                    />
+                                    <StatCard
+                                        icon={AlertCircle}
+                                        title="High Risk Cases"
+                                        value={highRiskReports}
+                                        subtitle="Require urgent action"
+                                        color="red-600"
+                                    />
+                                    <StatCard
+                                        icon={Clock}
+                                        title="Open Cases"
+                                        value={openReports}
+                                        subtitle="Awaiting review"
+                                        color="amber-600"
+                                    />
+                                    <StatCard
+                                        icon={TrendingUp}
+                                        title="Escalated"
+                                        value={escalatedReports}
+                                        subtitle="Sent to higher authority"
+                                        color="orange-600"
+                                    />
+                                </div>
 
-                        {/* Reports Table */}
-                        <div>
-                            <h2 className="text-xl font-semibold text-gray-800 mb-4 border-l-4 border-primary pl-4">
-                                All Reports ({filteredReports.length})
-                            </h2>
-                            <ReportTable
-                                reports={filteredReports}
-                                onViewReport={handleViewReport}
-                            />
-                        </div>
+                                {/* Filter Section */}
+                                <FilterPanel
+                                    onFilterChange={handleFilterChange}
+                                    onReset={handleReset}
+                                />
+
+                                {/* Reports Table */}
+                                <div>
+                                    <h2 className="text-xl font-semibold text-gray-800 mb-4 border-l-4 border-primary pl-4">
+                                        All Reports ({filteredReports.length})
+                                    </h2>
+                                    <ReportTable
+                                        reports={filteredReports}
+                                        onViewReport={handleViewReport}
+                                    />
+                                </div>
+                            </>
+                        )}
+
+                        {/* Stories View */}
+                        {selectedView === 'stories' && (
+                            <AdminStoryReview />
+                        )}
                     </div>
                 </main>
             </div>
