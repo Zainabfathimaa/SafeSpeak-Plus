@@ -7,7 +7,7 @@ export const PublishedStoriesList = ({ stories, isLoading }) => {
   const { addToast } = useToast();
   const [list, setList] = useState(stories || []);
   const [likedStories, setLikedStories] = useState(new Set());
-  const [expandedComments, setExpandedComments] =useState(new Set());
+  const [expandedComments, setExpandedComments] = useState(new Set());
   const [newComment, setNewComment] = useState({});
 
   // keep local list in sync when props change
@@ -52,6 +52,13 @@ export const PublishedStoriesList = ({ stories, isLoading }) => {
               : s
           )
         );
+        setNewComment(prev => ({ ...prev, [storyId]: '' }));
+      }
+    } catch (error) {
+      addToast('error', 'Failed to add comment');
+    }
+  };
+
   const handleShare = async (storyId) => {
     try {
       const response = await storyService.shareStory(storyId);
@@ -63,6 +70,11 @@ export const PublishedStoriesList = ({ stories, isLoading }) => {
             s._id === storyId ? { ...s, shares: (s.shares || 0) + 1 } : s
           )
         );
+      }
+    } catch (error) {
+      addToast('error', 'Failed to share story');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -127,7 +139,7 @@ export const PublishedStoriesList = ({ stories, isLoading }) => {
               )}
             </div>
             <p className="text-sm text-gray-600">
-              By <span className="font-medium">{story.submittedBy?.fullName || 'Anonymous'}</span> • 
+              By <span className="font-medium">{story.submittedBy?.fullName || 'Anonymous'}</span> •
               {new Date(story.createdAt).toLocaleDateString()}
             </p>
           </div>

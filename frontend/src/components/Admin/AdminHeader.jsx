@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Shield, LogOut, Bell } from 'lucide-react';
+import { Shield, LogOut } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { NotificationBell } from '../Notifications/NotificationBell';
 
 export function AdminHeader({ roleName = 'Case Reviewer' }) {
     const navigate = useNavigate();
@@ -18,13 +19,11 @@ export function AdminHeader({ roleName = 'Case Reviewer' }) {
                     <span className="text-xl font-bold text-white">SafeSpeak+</span>
                 </Link>
                 <h1 className="text-lg font-semibold text-white/90 hidden md:block">{roleName} Dashboard</h1>
-                <div className="flex items-center space-x-2">
-                    <button className="p-2 hover:bg-primary-dark rounded-lg transition-colors text-white">
-                        <Bell className="h-5 w-5" />
-                    </button>
-                    <Button 
-                        variant="ghost" 
-                        onClick={handleLogout} 
+                <div className="flex items-center space-x-4">
+                    <NotificationBell />
+                    <Button
+                        variant="ghost"
+                        onClick={handleLogout}
                         className="flex items-center space-x-1 text-white hover:bg-primary-dark hover:text-white"
                     >
                         <LogOut className="h-4 w-4" />

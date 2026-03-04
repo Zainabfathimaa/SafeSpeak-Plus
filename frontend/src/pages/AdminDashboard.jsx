@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getAllReports } from '../services/reportService';
+import storyService from '../services/storyService';
 import { useNavigate } from 'react-router-dom';
 import { AdminHeader } from '../components/Admin/AdminHeader';
 import { AdminSidebar } from '../components/Admin/AdminSidebar';
@@ -89,6 +90,14 @@ export default function AdminDashboard() {
         setFilteredReports(reports);
     };
 
+    const handleStatFilter = (filterType) => {
+        setSelectedView('reports');
+        if (filterType === 'all') setFilteredReports(reports);
+        if (filterType === 'highRisk') setFilteredReports(reports.filter(r => r.riskLevel === 'High'));
+        if (filterType === 'open') setFilteredReports(reports.filter(r => r.status === 'Open'));
+        if (filterType === 'escalated') setFilteredReports(reports.filter(r => r.status === 'Escalated'));
+    };
+
     const navigate = useNavigate();
 
     const handleViewReport = (reportId) => {
@@ -122,29 +131,27 @@ export default function AdminDashboard() {
                         <div className="flex border-b border-gray-200 gap-8">
                             <button
                                 onClick={() => setSelectedView('reports')}
-                                className={`pb-4 font-medium transition flex items-center gap-2 ${
-                                    selectedView === 'reports'
-                                        ? 'text-blue-600 border-b-2 border-blue-600'
-                                        : 'text-gray-600 hover:text-gray-900'
-                                }`}
+                                className={`pb-4 font-medium transition flex items-center gap-2 ${selectedView === 'reports'
+                                    ? 'text-blue-600 border-b-2 border-blue-600'
+                                    : 'text-gray-600 hover:text-gray-900'
+                                    }`}
                             >
                                 <FileText size={18} />
                                 All Reports
                             </button>
                             <button
                                 onClick={() => setSelectedView('stories')}
-                                className={`pb-4 font-medium transition flex items-center gap-2 ${
-                                    selectedView === 'stories'
-                                        ? 'text-blue-600 border-b-2 border-blue-600'
-                                        : 'text-gray-600 hover:text-gray-900'
-                                }`}
+                                className={`pb-4 font-medium transition flex items-center gap-2 ${selectedView === 'stories'
+                                    ? 'text-blue-600 border-b-2 border-blue-600'
+                                    : 'text-gray-600 hover:text-gray-900'
+                                    }`}
                             >
                                 <BookOpen size={18} />
                                 Story Review
                                 {pendingStories.length > 0 && (
-                                  <span className="ml-1 inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium leading-4 text-white bg-red-600 rounded-full">
-                                    {pendingStories.length}
-                                  </span>
+                                    <span className="ml-1 inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium leading-4 text-white bg-red-600 rounded-full">
+                                        {pendingStories.length}
+                                    </span>
                                 )}
                             </button>
                         </div>
@@ -154,42 +161,42 @@ export default function AdminDashboard() {
                             <>
                                 {/* Stats Section */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                    <div onClick={() => setSelectedView('reports')} className="cursor-pointer">
-                                    <StatCard
-                                        icon={FileText}
-                                        title="Total Reports"
-                                        value={totalReports}
-                                        subtitle="All time"
-                                        color="blue-600"
-                                    />
-                                </div>
-                                    <div onClick={() => setSelectedView('reports')} className="cursor-pointer">
-                                    <StatCard
-                                        icon={AlertCircle}
-                                        title="High Risk Cases"
-                                        value={highRiskReports}
-                                        subtitle="Require urgent action"
-                                        color="red-600"
-                                    />
-                                </div>
-                                    <div onClick={() => setSelectedView('reports')} className="cursor-pointer">
-                                    <StatCard
-                                        icon={Clock}
-                                        title="Open Cases"
-                                        value={openReports}
-                                        subtitle="Awaiting review"
-                                        color="amber-600"
-                                    />
-                                </div>
-                                    <div onClick={() => setSelectedView('reports')} className="cursor-pointer">
-                                    <StatCard
-                                        icon={TrendingUp}
-                                        title="Escalated"
-                                        value={escalatedReports}
-                                        subtitle="Sent to higher authority"
-                                        color="orange-600"
-                                    />
-                                </div>
+                                    <div onClick={() => handleStatFilter('all')} className="cursor-pointer transition-transform hover:scale-105">
+                                        <StatCard
+                                            icon={FileText}
+                                            title="Total Reports"
+                                            value={totalReports}
+                                            subtitle="All time"
+                                            color="blue-600"
+                                        />
+                                    </div>
+                                    <div onClick={() => handleStatFilter('highRisk')} className="cursor-pointer transition-transform hover:scale-105">
+                                        <StatCard
+                                            icon={AlertCircle}
+                                            title="High Risk Cases"
+                                            value={highRiskReports}
+                                            subtitle="Require urgent action"
+                                            color="red-600"
+                                        />
+                                    </div>
+                                    <div onClick={() => handleStatFilter('open')} className="cursor-pointer transition-transform hover:scale-105">
+                                        <StatCard
+                                            icon={Clock}
+                                            title="Open Cases"
+                                            value={openReports}
+                                            subtitle="Awaiting review"
+                                            color="amber-600"
+                                        />
+                                    </div>
+                                    <div onClick={() => handleStatFilter('escalated')} className="cursor-pointer transition-transform hover:scale-105">
+                                        <StatCard
+                                            icon={TrendingUp}
+                                            title="Escalated"
+                                            value={escalatedReports}
+                                            subtitle="Sent to higher authority"
+                                            color="orange-600"
+                                        />
+                                    </div>
                                 </div>
 
                                 {/* Filter Section */}
