@@ -16,6 +16,10 @@ export default function AdminDashboard() {
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(true);
     const [selectedView, setSelectedView] = useState('reports');
+    // pending stories state for review tab
+    const [pendingStories, setPendingStories] = useState([]);
+    const [storyLoading, setStoryLoading] = useState(false);
+    const [storyRefreshTrigger, setStoryRefreshTrigger] = useState(0);
 
     useEffect(() => {
         const fetchReports = async () => {
@@ -37,6 +41,27 @@ export default function AdminDashboard() {
 
         fetchReports();
     }, []);
+
+    // fetch pending stories when Dashboard loads or refresh triggered
+    useEffect(() => {
+        const fetchPending = async () => {
+            setStoryLoading(true);
+            try {
+                const res = await storyService.getPendingStories();
+                if (res.success) {
+                    setPendingStories(res.stories || []);
+                } else {
+                    toastService.error('Failed to load pending stories');
+                }
+            } catch (err) {
+                console.error('Error fetching pending stories:', err);
+                toastService.error('Error loading pending stories');
+            } finally {
+                setStoryLoading(false);
+            }
+        };
+        fetchPending();
+    }, [storyRefreshTrigger]);
 
     const [filteredReports, setFilteredReports] = useState([]);
 
@@ -175,7 +200,10 @@ export default function AdminDashboard() {
 
                         {/* Stories View */}
                         {selectedView === 'stories' && (
-                            <AdminStoryReview />
+                            <AdminStoryReview
+                                stories={pendingStories}
+                                onRefresh={() => setStoryRefreshTrigger(prev => prev + 1)}
+                            />
                         )}
                     </div>
                 </main>

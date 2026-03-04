@@ -136,7 +136,8 @@ export default function UserDashboard() {
             <StorySubmissionModal
                 isOpen={isStoryModalOpen}
                 onClose={() => setIsStoryModalOpen(false)}
-                onSubmit={handleStorySubmitted}
+                // prop name corrected to match component
+                onSuccess={handleStorySubmitted}
             />
 
             {/* Footer */}
