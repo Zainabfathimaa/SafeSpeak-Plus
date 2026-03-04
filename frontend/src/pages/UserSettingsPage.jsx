@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Save, AlertCircle, Trash2, Shield, BellRing, User, Lock, Palette, CheckCircle2 } from 'lucide-react';
-import userService from '../../services/userService';
-import { useToast } from '../../hooks/useToast';
+import userService from '../services/userService';
+import { useToast } from '../hooks/useToast';
 
 export const UserSettingsPage = () => {
   const { addToast } = useToast();
@@ -174,7 +174,7 @@ export const UserSettingsPage = () => {
 
     setIsSaving(true);
     try {
-      const { changePassword } = await import('../../services/authService');
+      const { changePassword } = await import('../services/authService');
       const response = await changePassword(securityData.oldPassword, securityData.newPassword);
       if (response.success) {
         addToast('success', 'Password changed successfully');
@@ -194,7 +194,7 @@ export const UserSettingsPage = () => {
         const response = await userService.deleteAccount();
         if (response.success) {
           addToast('success', 'Your account has been deleted.');
-          const { logout } = await import('../../services/authService');
+          const { logout } = await import('../services/authService');
           logout();
           setTimeout(() => {
             window.location.href = '/login';
