@@ -38,18 +38,14 @@ export default function ReportStatus() {
     }, []);
 
     // Filter reports based on selected status
-    const getFilteredReports = () => {
-        if (selectedStatus === 'all') {
-            return reports;
-        }
+    const filteredReports = React.useMemo(() => {
+        if (selectedStatus === 'all') return reports;
         return reports.filter(report => {
-            const status = report.status.toLowerCase().replace(/\s+/g, ' ').trim();
-            const sel = selectedStatus.toLowerCase().replace(/\s+/g, ' ').trim();
+            const status = (report.status || '').toLowerCase().replace(/-/g, ' ').replace(/\s+/g, ' ').trim();
+            const sel = selectedStatus.toLowerCase().replace(/-/g, ' ').replace(/\s+/g, ' ').trim();
             return status === sel;
         });
-    };
-
-    const filteredReports = getFilteredReports();
+    }, [reports, selectedStatus]);
 
     return (
         <div className="flex min-h-screen flex-col bg-background text-text-primary">
@@ -68,13 +64,14 @@ export default function ReportStatus() {
                             </div>
                             <div className="flex items-center space-x-3">
                                 <div className="relative">
-                                    <select 
+                                    <select
                                         value={selectedStatus}
                                         onChange={(e) => setSelectedStatus(e.target.value)}
                                         className="appearance-none bg-white border border-gray-300 text-text-primary py-2 pl-4 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent cursor-pointer"
                                     >
                                         <option value="all">All Statuses</option>
                                         <option value="in review">In Review</option>
+                                        <option value="requires clarification">Requires Clarification</option>
                                         <option value="resolved">Resolved</option>
                                         <option value="open">Open</option>
                                         <option value="escalated">Escalated</option>
@@ -104,8 +101,8 @@ export default function ReportStatus() {
                             <div className="text-center py-20 bg-white rounded-xl border border-dashed border-gray-300">
                                 <p className="text-xl font-medium text-gray-400 mb-2">{selectedStatus === 'all' ? 'No active reports found' : `No ${selectedStatus} reports found`}</p>
                                 <p className="text-gray-500 mb-6">
-                                    {selectedStatus === 'all' 
-                                        ? "You haven't submitted any reports yet." 
+                                    {selectedStatus === 'all'
+                                        ? "You haven't submitted any reports yet."
                                         : `You don't have any reports with status "${selectedStatus}".`}
                                 </p>
                                 <Link
