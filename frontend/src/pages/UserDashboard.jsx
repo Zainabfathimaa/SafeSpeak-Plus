@@ -5,6 +5,8 @@ import { Footer } from '../components/Footer';
 import { WelcomeCard } from '../components/WelcomeCard';
 import { DashboardCard } from '../components/DashboardCard';
 import { DashboardStories } from '../components/DashboardStories';
+import { StorySubmissionModal } from '../components/Stories/StorySubmissionModal';
+import { UserStoriesList } from '../components/Stories/UserStoriesList';
 import { PlusCircle, FileText, MessageSquare, ArrowUpRight, BookOpen } from 'lucide-react';
 
 import { getUser } from '../services/authService';
@@ -15,6 +17,8 @@ export default function UserDashboard() {
         active: 0,
         total: 0
     });
+    const [isStoryModalOpen, setIsStoryModalOpen] = React.useState(false);
+    const [storyRefreshTrigger, setStoryRefreshTrigger] = React.useState(0);
 
     React.useEffect(() => {
         const fetchStats = async () => {
@@ -36,6 +40,11 @@ export default function UserDashboard() {
         fetchStats();
     }, []);
 
+    const handleStorySubmitted = () => {
+        setIsStoryModalOpen(false);
+        setStoryRefreshTrigger(prev => prev + 1);
+    };
+
     return (
         <div className="flex min-h-screen flex-col bg-gray-50/50 text-text-primary">
             {/* Header */}
@@ -51,6 +60,20 @@ export default function UserDashboard() {
 
                         {/* Stories Section */}
                         <DashboardStories />
+
+                        {/* Your Stories Section */}
+                        <div>
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-xl font-semibold text-gray-800 border-l-4 border-blue-500 pl-4">Your Stories</h3>
+                                <button
+                                    onClick={() => setIsStoryModalOpen(true)}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+                                >
+                                    + Submit Story
+                                </button>
+                            </div>
+                            <UserStoriesList refreshTrigger={storyRefreshTrigger} />
+                        </div>
 
                         {/* Quick Actions */}
                         <div>
@@ -108,6 +131,14 @@ export default function UserDashboard() {
                     </div>
                 </main>
             </div>
+
+            {/* Story Submission Modal */}
+            <StorySubmissionModal
+                isOpen={isStoryModalOpen}
+                onClose={() => setIsStoryModalOpen(false)}
+                onSubmit={handleStorySubmitted}
+            />
+
             {/* Footer */}
             <Footer />
         </div>

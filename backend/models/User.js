@@ -144,6 +144,91 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true
     // Can be set to false to deactivate accounts
+  },
+
+  // ===================================
+  // PRIVACY & CONSENT
+  // ===================================
+  
+  // Has user consented to reveal their ID to admin?
+  idRevealConsent: {
+    type: Boolean,
+    default: false
+    // User can later grant permission to reveal their ID in reports
+  },
+
+  // When did user grant/revoke consent?
+  idRevealConsentDate: {
+    type: Date,
+    default: null
+  },
+
+  // ===================================
+  // NOTIFICATION PREFERENCES
+  // ===================================
+
+  notificationPreferences: {
+    // Email notifications
+    emailNotifications: {
+      reportStatusUpdates: {
+        type: Boolean,
+        default: true
+      },
+      storyUpdates: {
+        type: Boolean,
+        default: true
+      },
+      newMessages: {
+        type: Boolean,
+        default: true
+      },
+      systemAlerts: {
+        type: Boolean,
+        default: true
+      },
+      weeklyDigest: {
+        type: Boolean,
+        default: false
+      }
+    },
+
+    // In-app notifications
+    inAppNotifications: {
+      reportStatusUpdates: {
+        type: Boolean,
+        default: true
+      },
+      storyUpdates: {
+        type: Boolean,
+        default: true
+      },
+      newMessages: {
+        type: Boolean,
+        default: true
+      },
+      systemAlerts: {
+        type: Boolean,
+        default: true
+      }
+    },
+
+    // Notification times
+    preferredNotificationTime: {
+      type: String,
+      default: '09:00' // 9 AM in HH:MM format
+    }
+  },
+
+  // Last time user read their notifications
+  lastReadNotificationTime: {
+    type: Date,
+    default: null
+  },
+
+  // Unread notification count (cache for performance)
+  unreadNotificationCount: {
+    type: Number,
+    default: 0
   }
 
 }, { 

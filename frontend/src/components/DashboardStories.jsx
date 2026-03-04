@@ -1,12 +1,34 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { StoryCard } from './Stories/StoryCard';
-import { stories } from '../data/stories';
 import { ArrowRight } from 'lucide-react';
+import storyService from '../services/storyService';
+import { useToast } from '../hooks/useToast';
 
 export function DashboardStories() {
-    // Take the first 3 stories for the dashboard preview
-    const recentStories = stories.slice(0, 3);
+    const [recentStories, setRecentStories] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const { addToast } = useToast();
+
+    useEffect(() => {
+        fetchPublishedStories();
+    }, []);
+
+    const fetchPublishedStories = async () => {
+        try {
+            setIsLoading(true);
+            const response = await storyService.getPublishedStories();
+            if (response.success && response.stories) {
+                // Take the first 3 published stories
+                setRecentStories(response.stories.slice(0, 3));
+            }
+        } catch (error) {
+            console.error('Failed to fetch stories:', error);
+            // Silently fail - show loading spinner instead of error
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <div className="mb-8">
@@ -18,11 +40,23 @@ export function DashboardStories() {
                 </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {recentStories.map(story => (
-                    <StoryCard key={story.id} story={story} />
-                ))}
-            </div>
+            {isLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[1, 2, 3].map(i => (
+                        <div key={i} className="bg-gray-100 rounded-lg h-64 animate-pulse" />
+                    ))}
+                </div>
+            ) : recentStories.length === 0 ? (
+                <div className="text-center py-12 bg-gray-50 rounded-lg">
+                    <p className="text-gray-500">No stories yet. Be the first to share one!</p>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {recentStories.map(story => (
+                        <StoryCard key={story._id} story={story} />
+                    ))}
+                </div>
+            )}
         </div>
     );
 }

@@ -79,7 +79,76 @@ const reportSchema = new mongoose.Schema({
             type: Date,
             default: Date.now
         }
-    }]
+    }],
+
+    // ===================================
+    // AUTHENTICITY & VERIFICATION TRACKING
+    // ===================================
+
+    // Admin review/verification status
+    verificationStatus: {
+        type: String,
+        enum: ['Unverified', 'Verified', 'Under Review', 'Requires Clarification', 'Flagged'],
+        default: 'Unverified'
+    },
+
+    // Authenticity score (0-100)
+    // Automatically calculated based on:
+    // - Evidence completeness
+    // - Detail level
+    // - Description clarity
+    // - Time consistency
+    authenticityScore: {
+        type: Number,
+        default: 50,
+        min: 0,
+        max: 100
+    },
+
+    // Flags for suspicious reports
+    flags: [{
+        reason: {
+            type: String,
+            enum: ['Duplicate Report', 'Suspicious Details', 'Consistency Issues', 'Insufficient Evidence', 'Potential False Accusation'],
+            required: true
+        },
+        flaggedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        },
+        flaggedAt: {
+            type: Date,
+            default: Date.now
+        },
+        notes: String
+    }],
+
+    // Has admin confirmed authenticity?
+    isVerifiedAuthentic: {
+        type: Boolean,
+        default: false
+    },
+
+    // User has given permission to reveal their identity
+    userConsentedIdReveal: {
+        type: Boolean,
+        default: false
+    },
+
+    // Affected person information (for admins to identify false accusations)
+    affectedParty: {
+        name: String,
+        email: String,
+        department: String
+    },
+
+    // User's confidence level in this report
+    confidence: {
+        type: String,
+        enum: ['Low', 'Medium', 'High'],
+        default: 'Medium'
+    }
+
 }, {
     timestamps: true
 });
