@@ -161,6 +161,23 @@ export const sendVerificationEmail = async (toEmail, verificationToken, anonymou
   }
 };
 
+// generic email helper for other notifications
+export const sendEmail = async (to, subject, text) => {
+  try {
+    const info = await transporter.sendMail({
+      from: process.env.SMTP_EMAIL,
+      to,
+      subject,
+      text
+    });
+    console.log('✓ Generic email sent:', info.messageId);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('✗ Generic email failed:', error.message);
+    return { success: false, message: error.message };
+  }
+};
+
 /**
  * SEND ANONYMOUS CODE EMAIL (for forgot-code feature)
  * 

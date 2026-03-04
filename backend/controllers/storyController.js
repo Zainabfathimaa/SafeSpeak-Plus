@@ -1,6 +1,7 @@
 import Story from '../models/Story.js';
 import User from '../models/User.js';
 import Notification from '../models/Notification.js';
+import { sendEmail } from '../utils/emailService.js';
 
 /**
  * ===================================
@@ -74,7 +75,7 @@ export const submitStory = async (req, res) => {
       const admins = await User.find({ role: 'admin' });
       for (const admin of admins) {
         try {
-          await Notification.create({
+          const notif = await Notification.create({
             recipientId: admin._id,
             type: 'system_alert',
             title: 'New Story Submitted',
@@ -84,6 +85,10 @@ export const submitStory = async (req, res) => {
             priority: 'medium',
             shouldSendEmail: true
           });
+          // send email if possible
+          if (notif.shouldSendEmail && admin.email) {
+            sendEmail(admin.email, notif.title, notif.message);
+          }
         } catch (notifErr) {
           console.error(`Failed to create notification for admin ${admin._id}:`, notifErr && (notifErr.stack || notifErr.message) || notifErr);
         }
@@ -216,7 +221,7 @@ export const approveStory = async (req, res) => {
     await story.populate('submittedBy', 'fullName email');
 
     // Create notification for user
-    await Notification.create({
+    const notif = await Notification.create({
       recipientId: story.submittedBy._id,
       type: 'story_approved',
       title: 'Your Story Was Approved! 🎉',
@@ -226,6 +231,9 @@ export const approveStory = async (req, res) => {
       priority: 'high',
       shouldSendEmail: true
     });
+    if (notif.shouldSendEmail && story.submittedBy.email) {
+      sendEmail(story.submittedBy.email, notif.title, notif.message);
+    }
 
     res.status(200).json({
       success: true,
@@ -277,7 +285,7 @@ export const rejectStory = async (req, res) => {
     await story.populate('submittedBy', 'fullName email');
 
     // Create notification for user
-    await Notification.create({
+    const notif = await Notification.create({
       recipientId: story.submittedBy._id,
       type: 'story_rejected',
       title: 'Story Review - Changes Requested',
@@ -287,6 +295,9 @@ export const rejectStory = async (req, res) => {
       priority: 'medium',
       shouldSendEmail: true
     });
+    if (notif.shouldSendEmail && story.submittedBy.email) {
+      sendEmail(story.submittedBy.email, notif.title, notif.message);
+    }
 
     res.status(200).json({
       success: true,
