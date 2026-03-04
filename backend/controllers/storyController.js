@@ -466,8 +466,8 @@ export const deleteStory = async (req, res) => {
       });
     }
 
-    // Check ownership
-    if (story.submittedBy.toString() !== userId) {
+    // Check ownership or admin role
+    if (story.submittedBy.toString() !== userId && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
         message: 'You can only delete your own stories'

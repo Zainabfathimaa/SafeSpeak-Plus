@@ -132,14 +132,7 @@ export default function AdminSettings() {
     ];
 
     return (
-        <div className="flex min-h-screen flex-col bg-gradient-to-br from-indigo-50/50 via-white to-blue-50/50 text-text-primary relative overflow-hidden">
-            {/* Decorative Background Elements */}
-            <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-0">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-gradient-to-br from-blue-200/40 to-indigo-300/40 blur-3xl animate-blob"></div>
-                <div className="absolute top-[20%] right-[-10%] w-[30%] h-[50%] rounded-full bg-gradient-to-tl from-purple-200/40 to-pink-200/40 blur-3xl animate-blob animation-delay-2000"></div>
-                <div className="absolute bottom-[-20%] left-[20%] w-[50%] h-[50%] rounded-full bg-gradient-to-tr from-cyan-200/40 to-blue-200/40 blur-3xl animate-blob animation-delay-4000"></div>
-            </div>
-
+        <div className="flex min-h-screen flex-col bg-gray-50/50 text-text-primary relative overflow-hidden">
             <div className="relative z-10 flex flex-col flex-1 w-full">
                 <AdminHeader roleName="Settings" />
                 <div className="flex flex-1">

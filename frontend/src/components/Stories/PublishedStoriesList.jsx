@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Heart, MessageSquare, Share2 } from 'lucide-react';
+import { Heart, MessageSquare, Share2, Trash2 } from 'lucide-react';
 import storyService from '../../services/storyService';
 import { useToast } from '../../hooks/useToast';
+import { getUser } from '../../services/authService';
 
 export const PublishedStoriesList = ({ stories, isLoading }) => {
   const { addToast } = useToast();
@@ -10,8 +11,11 @@ export const PublishedStoriesList = ({ stories, isLoading }) => {
   const [expandedComments, setExpandedComments] = useState(new Set());
   const [newComment, setNewComment] = useState({});
 
+  const user = getUser();
+  const isAdmin = user?.role === 'admin';
+
   // keep local list in sync when props change
-  useEffect(() => {
+  React.useEffect(() => {
     setList(stories || []);
   }, [stories]);
 
@@ -102,6 +106,20 @@ export const PublishedStoriesList = ({ stories, isLoading }) => {
     );
   }
 
+  const handleDelete = async (storyId) => {
+    if (window.confirm('Are you sure you want to permanently delete this story? This action cannot be undone.')) {
+      try {
+        const response = await storyService.deleteStory(storyId);
+        if (response.success) {
+          addToast('success', 'Story deleted successfully');
+          setList(prev => prev.filter(s => s._id !== storyId));
+        }
+      } catch (error) {
+        addToast('error', error.message || 'Failed to delete story');
+      }
+    }
+  };
+
   // apply search filter
   const displayedStories = list.filter(s => {
     if (!searchTerm) return true;
@@ -127,16 +145,27 @@ export const PublishedStoriesList = ({ stories, isLoading }) => {
           <div className="p-6 border-b border-gray-100">
             <div className="flex items-start justify-between mb-3">
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wider">
+                <p className="text-[10px] text-blue-600 font-bold uppercase tracking-widest bg-blue-50 px-2 py-0.5 rounded w-fit mb-2">
                   {story.category}
                 </p>
-                <h2 className="text-2xl font-bold text-gray-900 mt-1">{story.title}</h2>
+                <h2 className="text-xl font-bold text-gray-900 mt-1">{story.title}</h2>
               </div>
-              {story.isFeatured && (
-                <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-medium">
-                  ⭐ Featured
-                </span>
-              )}
+              <div className="flex items-center gap-2">
+                {story.isFeatured && (
+                  <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-[10px] font-bold uppercase">
+                    ⭐ Featured
+                  </span>
+                )}
+                {isAdmin && (
+                  <button
+                    onClick={() => handleDelete(story._id)}
+                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors border border-red-100 shadow-sm"
+                    title="Delete story (Admin)"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                )}
+              </div>
             </div>
             <p className="text-sm text-gray-600">
               By <span className="font-medium">{story.submittedBy?.fullName || 'Anonymous'}</span> •

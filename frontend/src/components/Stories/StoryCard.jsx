@@ -1,55 +1,83 @@
 import React from 'react';
 import { Heart, MessageCircle, Share2, MoreHorizontal } from 'lucide-react';
+import storyService from '../../services/storyService';
+import { useToast } from '../../hooks/useToast';
 
 export function StoryCard({ story }) {
+    const { addToast } = useToast();
+    const [likes, setLikes] = React.useState(story.likes?.length || 0);
+    const [isLiked, setIsLiked] = React.useState(false);
+
+    const handleLike = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await storyService.likeStory(story._id);
+            if (res.success) {
+                setLikes(res.likeCount);
+                setIsLiked(res.liked);
+                addToast('success', res.liked ? 'Story liked!' : 'Story unliked');
+            }
+        } catch (err) {
+            addToast('error', 'Login to like stories');
+        }
+    };
+
+    const handleShare = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await storyService.shareStory(story._id);
+            if (res.success) {
+                addToast('success', 'Story shared!');
+            }
+        } catch (err) {
+            addToast('error', 'Failed to share');
+        }
+    };
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-300 flex flex-col h-full">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow duration-300 flex flex-col h-full">
             {/* Header */}
-            <div className="flex justify-between items-start mb-4">
-                <div className="flex items-center space-x-3">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm ${story.colorClass || 'bg-teal-500 shadow-sm'}`}>
+            <div className="flex justify-between items-start mb-3">
+                <div className="flex items-center space-x-2">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs ${story.colorClass || 'bg-teal-500 shadow-sm'}`}>
                         {(story.author?.[0] || 'A').toUpperCase()}
                     </div>
                     <div>
-                        <p className="font-bold text-gray-900 text-sm leading-none mb-1">{story.author || 'Anonymous User'}</p>
-                        <p className="text-[10px] uppercase font-bold text-gray-400 tracking-wider font-mono">
+                        <p className="font-bold text-gray-900 text-xs leading-none mb-0.5">{story.author || 'Anonymous'}</p>
+                        <p className="text-[9px] uppercase font-bold text-gray-400 tracking-tighter">
                             {story.createdAt ? new Date(story.createdAt).toLocaleDateString() : 'Just now'}
                         </p>
                     </div>
                 </div>
-                <button className="text-gray-400 hover:text-gray-600">
-                    <MoreHorizontal className="w-5 h-5" />
-                </button>
             </div>
 
-            {/* Content */}
-            <h3 className="font-bold text-lg text-gray-800 mb-2">{story.title}</h3>
-            <p className="text-text-secondary text-sm leading-relaxed mb-4 flex-grow">
-                {story.snippet}
-                <span className="text-primary hover:underline cursor-pointer ml-1 font-medium">Read more</span>
+            <h3 className="font-bold text-base text-gray-800 mb-1.5">{story.title}</h3>
+            <p className="text-gray-600 text-xs leading-relaxed mb-3 flex-grow line-clamp-2">
+                {story.snippet || story.content?.substring(0, 100) + '...'}
+                <span className="text-blue-600 hover:underline cursor-pointer ml-1 font-semibold">Read</span>
             </p>
 
-            {/* Tags */}
-            <div className="flex flex-wrap gap-2 mb-4 mt-auto">
-                {(story.tags || []).map((tag, idx) => (
-                    <span key={idx} className="bg-gray-100/80 backdrop-blur-sm text-gray-600 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-tight hover:bg-gray-200 transition-colors">
+            <div className="flex flex-wrap gap-1 mb-3 mt-auto">
+                {(story.tags || []).slice(0, 2).map((tag, idx) => (
+                    <span key={idx} className="bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-tight">
                         #{tag}
                     </span>
                 ))}
             </div>
 
-            {/* Footer / Actions */}
-            <div className="flex items-center justify-between pt-4 border-t border-gray-50 text-gray-400">
-                <button className="flex items-center space-x-1.5 hover:text-red-500 transition-colors group">
-                    <Heart className="w-4 h-4 group-hover:fill-current" />
-                    <span className="text-xs font-bold">{story.likes?.length || 0}</span>
+            <div className="flex items-center justify-between pt-3 border-t border-gray-50 text-gray-400">
+                <button
+                    onClick={handleLike}
+                    className={`flex items-center space-x-1 hover:text-red-500 transition-colors group ${isLiked ? 'text-red-500' : ''}`}
+                >
+                    <Heart size={14} fill={isLiked ? 'currentColor' : 'none'} />
+                    <span className="text-[10px] font-bold">{likes}</span>
                 </button>
-                <button className="flex items-center space-x-1.5 hover:text-blue-500 transition-colors group">
-                    <MessageCircle className="w-4 h-4" />
-                    <span className="text-xs font-bold">{story.comments?.length || 0}</span>
+                <button className="flex items-center space-x-1 hover:text-blue-500 transition-colors">
+                    <MessageCircle size={14} />
+                    <span className="text-[10px] font-bold">{story.comments?.length || 0}</span>
                 </button>
-                <button className="hover:text-gray-600 transition-colors">
-                    <Share2 className="w-4 h-4" />
+                <button onClick={handleShare} className="hover:text-blue-600 transition-colors">
+                    <Share2 size={14} />
                 </button>
             </div>
         </div>

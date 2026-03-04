@@ -73,104 +73,91 @@ export default function UserDashboard() {
     }, [storyRefreshTrigger]);
 
     return (
-        <div className="flex min-h-screen flex-col bg-gradient-to-br from-indigo-50/50 via-white to-blue-50/50 text-text-primary relative overflow-hidden">
-            {/* Decorative Background Elements */}
-            <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-0">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-gradient-to-br from-blue-200/40 to-indigo-300/40 blur-3xl animate-blob"></div>
-                <div className="absolute top-[20%] right-[-10%] w-[30%] h-[50%] rounded-full bg-gradient-to-tl from-purple-200/40 to-pink-200/40 blur-3xl animate-blob animation-delay-2000"></div>
-                <div className="absolute bottom-[-20%] left-[20%] w-[50%] h-[50%] rounded-full bg-gradient-to-tr from-cyan-200/40 to-blue-200/40 blur-3xl animate-blob animation-delay-4000"></div>
-            </div>
-
-            <div className="relative z-10 flex flex-col flex-1 w-full">
-                {/* Header */}
+        <div className="flex min-h-screen bg-gray-50/50">
+            <Sidebar />
+            <div className="flex flex-col flex-1">
                 <Header />
-                <div className="flex flex-1">
-                    {/* Sidebar (hidden on small screens) */}
-                    <Sidebar />
+                <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
+                    <div className="max-w-7xl mx-auto space-y-6">
+                        <WelcomeCard user={user} />
 
-                    {/* Main Content */}
-                    <main className="flex-1 p-6 lg:p-8 overflow-y-auto relative">
-                        <div className="max-w-7xl mx-auto space-y-8">
-                            <WelcomeCard user={user} />
+                        {/* Stories Section */}
+                        <DashboardStories />
 
-                            {/* Stories Section */}
-                            <DashboardStories />
+                        {/* Your Stories Section */}
+                        <div>
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-xl font-semibold text-gray-800 border-l-4 border-blue-500 pl-4">Your Stories</h3>
+                                <button
+                                    onClick={() => setIsStoryModalOpen(true)}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+                                >
+                                    + Submit Story
+                                </button>
+                            </div>
+                            <UserStoriesList
+                                stories={userStories}
+                                isLoading={storiesLoading}
+                                onDelete={(deletedId) => setUserStories(prev => prev.filter(s => s._id !== deletedId))}
+                                refreshTrigger={storyRefreshTrigger}
+                            />
+                        </div>
 
-                            {/* Your Stories Section */}
-                            <div>
-                                <div className="flex items-center justify-between mb-4">
-                                    <h3 className="text-xl font-semibold text-gray-800 border-l-4 border-blue-500 pl-4">Your Stories</h3>
-                                    <button
-                                        onClick={() => setIsStoryModalOpen(true)}
-                                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
-                                    >
-                                        + Submit Story
-                                    </button>
+                        {/* Quick Actions */}
+                        <div>
+                            <h3 className="text-xl font-semibold text-gray-800 mb-4 border-l-4 border-primary pl-4">Quick Actions</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                                <DashboardCard
+                                    icon={PlusCircle}
+                                    title="New Report"
+                                    description="Submit securely."
+                                    buttonText="Report"
+                                    to="/report-incident"
+                                    color="blue-600"
+                                />
+                                <div className="relative">
+                                    <DashboardCard
+                                        icon={FileText}
+                                        title="Active Reports"
+                                        description={`${stats.active} ongoing case${stats.active !== 1 ? 's' : ''}.`}
+                                        buttonText="View Status"
+                                        to="/report-status"
+                                        color="emerald-600"
+                                    />
+                                    {stats.active > 0 && (
+                                        <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md animate-pulse">
+                                            {stats.active}
+                                        </span>
+                                    )}
                                 </div>
-                                <UserStoriesList
-                                    stories={userStories}
-                                    isLoading={storiesLoading}
-                                    onDelete={(deletedId) => setUserStories(prev => prev.filter(s => s._id !== deletedId))}
-                                    refreshTrigger={storyRefreshTrigger}
+                                <DashboardCard
+                                    icon={MessageSquare}
+                                    title="Messages"
+                                    description="Secure inbox."
+                                    buttonText="Open"
+                                    to="/messages"
+                                    color="violet-600"
+                                />
+                                <DashboardCard
+                                    icon={ArrowUpRight}
+                                    title="Escalate"
+                                    description="Request review."
+                                    buttonText="Escalate"
+                                    to="/escalate"
+                                    color="orange-600"
+                                />
+                                <DashboardCard
+                                    icon={BookOpen}
+                                    title="Stories"
+                                    description="Read & share."
+                                    buttonText="Browse"
+                                    to="/stories"
+                                    color="pink-600"
                                 />
                             </div>
-
-                            {/* Quick Actions */}
-                            <div>
-                                <h3 className="text-xl font-semibold text-gray-800 mb-4 border-l-4 border-primary pl-4">Quick Actions</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                                    <DashboardCard
-                                        icon={PlusCircle}
-                                        title="New Report"
-                                        description="Submit securely."
-                                        buttonText="Report"
-                                        to="/report-incident"
-                                        color="blue-600"
-                                    />
-                                    <div className="relative">
-                                        <DashboardCard
-                                            icon={FileText}
-                                            title="Active Reports"
-                                            description={`${stats.active} ongoing case${stats.active !== 1 ? 's' : ''}.`}
-                                            buttonText="View Status"
-                                            to="/report-status"
-                                            color="emerald-600"
-                                        />
-                                        {stats.active > 0 && (
-                                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full shadow-md animate-pulse">
-                                                {stats.active}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <DashboardCard
-                                        icon={MessageSquare}
-                                        title="Messages"
-                                        description="Secure inbox."
-                                        buttonText="Open"
-                                        to="/messages"
-                                        color="violet-600"
-                                    />
-                                    <DashboardCard
-                                        icon={ArrowUpRight}
-                                        title="Escalate"
-                                        description="Request review."
-                                        buttonText="Escalate"
-                                        to="/escalate"
-                                        color="orange-600"
-                                    />
-                                    <DashboardCard
-                                        icon={BookOpen}
-                                        title="Stories"
-                                        description="Read & share."
-                                        buttonText="Browse"
-                                        to="/stories"
-                                        color="pink-600"
-                                    />
-                                </div>
-                            </div>
                         </div>
-                    </main>
-                </div>
+                    </div>
+                </main>
 
                 {/* Story Submission Modal */}
                 <StorySubmissionModal
@@ -180,7 +167,6 @@ export default function UserDashboard() {
                     onSuccess={handleStorySubmitted}
                 />
 
-                {/* Footer */}
                 <Footer />
             </div>
         </div>
