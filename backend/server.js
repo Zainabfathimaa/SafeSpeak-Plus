@@ -125,7 +125,7 @@ const defaultOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
   'http://127.0.0.1:5173',
-  'https://safespeakplus-5es34vcdq-zainabfathima-1691s-projects.vercel.app'
+  'http://127.0.0.1:3000'
 ];
 
 const allowedOrigins = [...new Set([...envOrigins, ...defaultOrigins])];
@@ -134,7 +134,7 @@ const allowedOrigins = [...new Set([...envOrigins, ...defaultOrigins])];
 console.log('✓ CORS Allowed Origins:', allowedOrigins);
 
 app.use(cors({
-  origin: (origin, callback) => {
+  origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps or Postman)
     if (!origin) return callback(null, true);
 
@@ -144,10 +144,18 @@ app.use(cors({
     }
 
     // Allow all Vercel preview deployments
-    // Matches: https://safespeakplus-*.vercel.app
-    if (origin.endsWith('.vercel.app') && origin.includes('safespeakplus')) {
+    // Matches: https://safespeakplus-*.vercel.app and https://*vercel.app
+    if (origin && origin.includes('vercel.app')) {
       return callback(null, true);
     }
+
+    // Allow localhost in development
+    if (origin && origin.includes('localhost')) {
+      return callback(null, true);
+    }
+
+    // For development: uncomment to allow all origins (NOT for production!)
+    // return callback(null, true);
 
     console.warn(`✗ CORS Blocked: ${origin}`);
     callback(new Error('CORS policy: origin not allowed'));
@@ -155,7 +163,9 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-  maxAge: 86400 // 24 hours
+  exposedHeaders: ['Content-Type', 'Authorization'],
+  maxAge: 86400, // 24 hours
+  optionsSuccessStatus: 200 // For legacy browsers
 }));
 
 // JSON Parser Middleware

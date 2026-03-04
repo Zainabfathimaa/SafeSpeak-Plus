@@ -6,6 +6,7 @@ import { ChatWindow } from '../components/Messages/ChatWindow';
 import { NewConversationModal } from '../components/Messages/NewConversationModal';
 import { getConversations, getMessages, sendMessage as sendMessageApi } from '../services/messageService';
 import { MessageSquare, Plus } from 'lucide-react';
+import toastService from '../services/toastService';
 
 const POLL_INTERVAL = 5000; // 5 seconds
 
@@ -37,9 +38,14 @@ export default function Messages() {
                 if (!activeConversationId && convs.length > 0) {
                     setActiveConversationId(convs[0].id);
                 }
+            } else {
+                if (!silent) toastService.error('Failed to load conversations');
             }
         } catch (err) {
-            if (!silent) console.error('Failed to load conversations:', err);
+            if (!silent) {
+                console.error('Failed to load conversations:', err);
+                toastService.error('Error loading conversations. Please try again.');
+            }
         } finally {
             if (!silent) setLoading(false);
         }
@@ -113,9 +119,13 @@ export default function Messages() {
                 }));
                 // Also refresh conversation list to update last message
                 fetchConversations(true);
+                toastService.success('Message sent successfully');
+            } else {
+                toastService.error('Failed to send message');
             }
         } catch (err) {
             console.error('Failed to send message:', err);
+            toastService.error('Error sending message. Please try again.');
         }
     };
 
@@ -123,6 +133,7 @@ export default function Messages() {
         setLoading(true);
         await fetchConversations();
         setLoading(false);
+        toastService.success('New conversation created!');
     };
 
     if (loading) {

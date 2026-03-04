@@ -9,6 +9,7 @@ import { FilterPanel } from '../components/Admin/FilterPanel';
 import { StatCard } from '../components/Admin/StatCard';
 import { RiskBadge } from '../components/Admin/RiskBadge';
 import { AlertCircle, FileText, TrendingUp, Clock } from 'lucide-react';
+import toastService from '../services/toastService';
 
 export default function AdminDashboard() {
     const [reports, setReports] = useState([]);
@@ -20,9 +21,13 @@ export default function AdminDashboard() {
                 const response = await getAllReports();
                 if (response.success) {
                     setReports(response.reports);
+                    toastService.success(`Loaded ${response.reports.length} reports`);
+                } else {
+                    toastService.error('Failed to load reports');
                 }
             } catch (error) {
                 console.error('Failed to fetch reports:', error);
+                toastService.error('Error loading reports. Please try again.');
             } finally {
                 setLoading(false);
             }
@@ -31,8 +36,12 @@ export default function AdminDashboard() {
         fetchReports();
     }, []);
 
-    const [filteredReports, setFilteredReports] = useState(reports);
+    const [filteredReports, setFilteredReports] = useState([]);
     const [selectedView, setSelectedView] = useState('all');
+
+    useEffect(() => {
+        setFilteredReports(reports);
+    }, [reports]);
 
     const handleFilterChange = (filters) => {
         let filtered = [...reports];
