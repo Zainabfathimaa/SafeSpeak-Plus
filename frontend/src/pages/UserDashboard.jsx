@@ -10,6 +10,7 @@ import { UserStoriesList } from '../components/Stories/UserStoriesList';
 import { PlusCircle, FileText, MessageSquare, ArrowUpRight, BookOpen } from 'lucide-react';
 
 import { getUser } from '../services/authService';
+import storyService from '../services/storyService';
 
 export default function UserDashboard() {
     const user = getUser();
