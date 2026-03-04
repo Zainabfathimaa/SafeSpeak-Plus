@@ -18,6 +18,10 @@ import Notification from '../models/Notification.js';
 // ===================================
 export const submitStory = async (req, res) => {
   try {
+    // ensure req.user is available (auth middleware should set this)
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ success: false, message: 'Authentication required' });
+    }
     const userId = req.user.id;
     const { title, content, category } = req.body;
 
@@ -56,18 +60,28 @@ export const submitStory = async (req, res) => {
     await story.populate('submittedBy', 'fullName email');
 
     // Create notification for admins
-    const admins = await User.find({ role: 'admin' });
-    for (const admin of admins) {
-      await Notification.create({
-        recipientId: admin._id,
-        type: 'system_alert',
-        title: 'New Story Submitted',
-        message: 'A new story has been submitted for review',
-        relatedId: story._id,
-        relatedType: 'Story',
-        priority: 'medium',
-        shouldSendEmail: true
-      });
+    // create admin notifications but don't let a notification failure
+    // break the entire submission flow. Log errors for debugging.
+    try {
+      const admins = await User.find({ role: 'admin' });
+      for (const admin of admins) {
+        try {
+          await Notification.create({
+            recipientId: admin._id,
+            type: 'system_alert',
+            title: 'New Story Submitted',
+            message: 'A new story has been submitted for review',
+            relatedId: story._id,
+            relatedType: 'Story',
+            priority: 'medium',
+            shouldSendEmail: true
+          });
+        } catch (notifErr) {
+          console.error(`Failed to create notification for admin ${admin._1d}:`, notifErr.message || notifErr);
+        }
+      }
+    } catch (adminsErr) {
+      console.error('Failed to query admins for notifications:', adminsErr.message || adminsErr);
     }
 
     res.status(201).json({
@@ -78,10 +92,17 @@ export const submitStory = async (req, res) => {
 
   } catch (error) {
     console.error('Error submitting story:', error);
+    // Provide validation details if available
+    const errMessage = error?.message || 'Unknown server error';
+    // If it's a Mongoose validation error, include details (helpful for debugging)
+    if (error.name === 'ValidationError') {
+      const details = Object.values(error.errors || {}).map(e => e.message).join('; ');
+      return res.status(400).json({ success: false, message: details || errMessage });
+    }
+
     res.status(500).json({
       success: false,
-      message: 'Error submitting story',
-      error: error.message
+      message: errMessage
     });
   }
 };
