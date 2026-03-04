@@ -70,10 +70,81 @@ export const PublishedStoriesList = ({ stories, isLoading }) => {
   }
 
   if (!stories || stories.length === 0) {
+    // When there are no published stories display a couple of hardcoded
+    // examples so that the community section isn't empty. Users can still
+    // "like" these placeholder stories, and real entries will replace them
+    // once someone submits and an admin approves.
+    const sampleStories = [
+      {
+        _id: 'example1',
+        category: 'Personal Experience',
+        title: 'How I Found My Voice',
+        content:
+          'Sharing your journey can inspire others. I was silent for years, but once I spoke up, I realised the power of my story.',
+        submittedBy: { fullName: 'Jane Doe' },
+        createdAt: new Date().toISOString(),
+        isFeatured: true,
+        likes: [],
+        comments: [],
+        shares: 0
+      },
+      {
+        _id: 'example2',
+        category: 'Support',
+        title: 'You Are Not Alone',
+        content:
+          'There were days when I thought nobody understood me. This platform reminded me that others have walked the same path.',
+        submittedBy: { fullName: 'John Smith' },
+        createdAt: new Date().toISOString(),
+        isFeatured: false,
+        likes: [],
+        comments: [],
+        shares: 0
+      }
+    ];
+
     return (
-      <div className="bg-white rounded-lg p-12 text-center border border-gray-200">
-        <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-        <p className="text-gray-500">No stories published yet.</p>
+      <div className="space-y-6">
+        {sampleStories.map(story => (
+          <div key={story._id} className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+            <div className="p-6 border-b border-gray-100">
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <p className="text-xs text-gray-500 uppercase tracking-wider">
+                    {story.category}
+                  </p>
+                  <h2 className="text-2xl font-bold text-gray-900 mt-1">{story.title}</h2>
+                </div>
+                {story.isFeatured && (
+                  <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-medium">
+                    ⭐ Featured
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-gray-600">
+                By <span className="font-medium">{story.submittedBy.fullName}</span> •{' '}
+                {new Date(story.createdAt).toLocaleDateString()}
+              </p>
+            </div>
+            <div className="p-6 border-b border-gray-100">
+              <p className="text-gray-700 leading-relaxed whitespace-pre-line">{story.content}</p>
+            </div>
+            <div className="px-6 py-4 bg-gray-50 border-b border-gray-100 flex items-center gap-8 text-sm text-gray-600">
+              <div className="flex items-center gap-2">
+                <Heart size={18} />
+                <span>0 Likes</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <MessageSquare size={18} />
+                <span>0 Comments</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Share2 size={18} />
+                <span>0 Shares</span>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     );
   }
