@@ -5,7 +5,8 @@ import {
   anonymousLogin,
   verifyEmail,
   getCurrentUser,
-  changePassword
+  changePassword,
+  forgotCode
 } from '../controllers/authController.js';
 import { authenticate } from '../middleware/auth.js';
 
@@ -15,6 +16,7 @@ router.post('/register', register);
 router.post('/login', login);
 router.post('/anonymous-login', anonymousLogin);
 router.post('/verify-email', verifyEmail);
+router.post('/forgot-code', forgotCode);
 router.get('/me', authenticate, getCurrentUser);
 router.put('/change-password', authenticate, changePassword);
 

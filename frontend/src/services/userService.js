@@ -71,6 +71,18 @@ const userService = {
     } catch (error) {
       throw error.response?.data || error;
     }
+  },
+
+  // Delete current user account
+  deleteAccount: async () => {
+    try {
+      // For DELETE requests with axios, use the config object to pass auth headers if needed
+      // (assuming interceptor is already handling token)
+      const response = await axios.delete(`${API_BASE_URL}/user/account`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
   }
 };
 

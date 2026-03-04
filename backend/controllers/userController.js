@@ -217,8 +217,8 @@ export const updateIdRevealConsent = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            message: idRevealConsent 
-                ? 'ID reveal consent granted. Admins can now see your identity for your reports.' 
+            message: idRevealConsent
+                ? 'ID reveal consent granted. Admins can now see your identity for your reports.'
                 : 'ID reveal consent revoked. Your reports will remain anonymous.',
             idRevealConsent: user.idRevealConsent
         });
@@ -267,13 +267,57 @@ export const getIdRevealConsentStatus = async (req, res) => {
     }
 };
 
-export default { 
+// ===================================
+// DELETE USER ACCOUNT
+// ===================================
+export const deleteAccount = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        // Find user
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        // Precaution: Do not allow deletion of admin accounts via this route
+        if (user.role === 'admin') {
+            return res.status(403).json({
+                success: false,
+                message: 'Admin accounts cannot be deleted via the user dashboard.'
+            });
+        }
+
+        // Alternatively, instead of hard delete, we can soft delete or deactivate
+        // But for this requirement, we'll permanently delete the user (Note conflicts with orphaned reports)
+        await User.findByIdAndDelete(userId);
+
+        res.status(200).json({
+            success: true,
+            message: 'Your account has been permanently deleted.'
+        });
+
+    } catch (error) {
+        console.error('Error deleting account:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error deleting account',
+            error: error.message
+        });
+    }
+};
+
+export default {
     getAllUsers,
     getCurrentUser,
     updateUserProfile,
     getUserPreferences,
     updateNotificationPreferences,
     updateIdRevealConsent,
-    getIdRevealConsentStatus
+    getIdRevealConsentStatus,
+    deleteAccount
 };
 

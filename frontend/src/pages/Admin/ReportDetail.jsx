@@ -54,6 +54,21 @@ export default function ReportDetail() {
         }
     };
 
+    const handleMessageReporter = () => {
+        // Navigate to the messages page. The messages component will fetch threads.
+        navigate('/admin/messages', { state: { reportId: id } });
+    };
+
+    const handleEscalate = async () => {
+        if (!window.confirm('Are you sure you want to escalate this report to a supervisor?')) return;
+        await handleStatusChange('Escalated');
+    };
+
+    const handleFlagSpam = async () => {
+        if (!window.confirm('Are you sure you want to flag this report as spam? It will be closed.')) return;
+        await handleStatusChange('Closed');
+    };
+
     if (loading) {
         return (
             <div className="flex justify-center items-center min-h-screen bg-gray-50">
@@ -91,29 +106,22 @@ export default function ReportDetail() {
                                 <ArrowLeft className="h-5 w-5 mr-2" />
                                 Back to Dashboard
                             </button>
-                            <div className="flex space-x-3">
-                                {report.status !== 'Resolved' && (
-                                    <Button
-                                        variant="outline"
-                                        className="border-green-600 text-green-600 hover:bg-green-50"
-                                        onClick={() => handleStatusChange('Resolved')}
-                                        disabled={updating}
-                                    >
-                                        <CheckCircle className="h-4 w-4 mr-2" />
-                                        Mark Resolved
-                                    </Button>
-                                )}
-                                {report.status !== 'Closed' && (
-                                    <Button
-                                        variant="outline"
-                                        className="border-gray-400 text-gray-600 hover:bg-gray-100"
-                                        onClick={() => handleStatusChange('Closed')}
-                                        disabled={updating}
-                                    >
-                                        <XCircle className="h-4 w-4 mr-2" />
-                                        Close Case
-                                    </Button>
-                                )}
+                            <div className="flex items-center space-x-3">
+                                <label className="text-sm font-medium text-gray-700">Update Status:</label>
+                                <select
+                                    value={report.status}
+                                    onChange={(e) => handleStatusChange(e.target.value)}
+                                    disabled={updating}
+                                    className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 transition-colors cursor-pointer min-w-[160px]"
+                                >
+                                    <option value="Open">Open</option>
+                                    <option value="In Review">In Review</option>
+                                    <option value="Requires Clarification">Requires Clarification</option>
+                                    <option value="Escalated">Escalated</option>
+                                    <option value="Resolved">Resolved</option>
+                                    <option value="Closed">Closed</option>
+                                </select>
+                                {updating && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>}
                             </div>
                         </div>
 
@@ -214,13 +222,27 @@ export default function ReportDetail() {
                                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                                     <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Quick Actions</h3>
                                     <div className="space-y-3">
-                                        <Button className="w-full justify-start" variant="outline">
+                                        <Button
+                                            className="w-full justify-start"
+                                            variant="outline"
+                                            onClick={handleMessageReporter}
+                                        >
                                             Message Reporter
                                         </Button>
-                                        <Button className="w-full justify-start" variant="outline">
-                                            Escalate to Supervisor
+                                        <Button
+                                            className="w-full justify-start"
+                                            variant="outline"
+                                            onClick={handleEscalate}
+                                            disabled={updating || report.status === 'Escalated'}
+                                        >
+                                            {report.status === 'Escalated' ? 'Already Escalated' : 'Escalate to Supervisor'}
                                         </Button>
-                                        <Button className="w-full justify-start text-red-600 border-red-200 hover:bg-red-50" variant="outline">
+                                        <Button
+                                            className="w-full justify-start text-red-600 border-red-200 hover:bg-red-50"
+                                            variant="outline"
+                                            onClick={handleFlagSpam}
+                                            disabled={updating || report.status === 'Closed'}
+                                        >
                                             Flag as Spam
                                         </Button>
                                     </div>
