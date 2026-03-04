@@ -141,6 +141,11 @@ export default function AdminDashboard() {
                             >
                                 <BookOpen size={18} />
                                 Story Review
+                                {pendingStories.length > 0 && (
+                                  <span className="ml-1 inline-flex items-center justify-center px-2 py-0.5 text-xs font-medium leading-4 text-white bg-red-600 rounded-full">
+                                    {pendingStories.length}
+                                  </span>
+                                )}
                             </button>
                         </div>
 
@@ -149,6 +154,7 @@ export default function AdminDashboard() {
                             <>
                                 {/* Stats Section */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                    <div onClick={() => setSelectedView('reports')} className="cursor-pointer">
                                     <StatCard
                                         icon={FileText}
                                         title="Total Reports"
@@ -156,6 +162,8 @@ export default function AdminDashboard() {
                                         subtitle="All time"
                                         color="blue-600"
                                     />
+                                </div>
+                                    <div onClick={() => setSelectedView('reports')} className="cursor-pointer">
                                     <StatCard
                                         icon={AlertCircle}
                                         title="High Risk Cases"
@@ -163,6 +171,8 @@ export default function AdminDashboard() {
                                         subtitle="Require urgent action"
                                         color="red-600"
                                     />
+                                </div>
+                                    <div onClick={() => setSelectedView('reports')} className="cursor-pointer">
                                     <StatCard
                                         icon={Clock}
                                         title="Open Cases"
@@ -170,6 +180,8 @@ export default function AdminDashboard() {
                                         subtitle="Awaiting review"
                                         color="amber-600"
                                     />
+                                </div>
+                                    <div onClick={() => setSelectedView('reports')} className="cursor-pointer">
                                     <StatCard
                                         icon={TrendingUp}
                                         title="Escalated"
@@ -177,6 +189,7 @@ export default function AdminDashboard() {
                                         subtitle="Sent to higher authority"
                                         color="orange-600"
                                     />
+                                </div>
                                 </div>
 
                                 {/* Filter Section */}

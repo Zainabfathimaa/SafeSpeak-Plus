@@ -9,6 +9,13 @@ export const UserSettingsPage = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
 
+  // Security tab state
+  const [securityData, setSecurityData] = useState({
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+
   // Profile tab state
   const [profile, setProfile] = useState({
     fullName: '',
@@ -47,7 +54,7 @@ export const UserSettingsPage = () => {
   const fetchSettings = async () => {
     try {
       setIsLoading(true);
-      
+
       // Fetch profile
       const userResponse = await userService.getCurrentUser();
       if (userResponse.success && userResponse.user) {
@@ -140,6 +147,40 @@ export const UserSettingsPage = () => {
     }
   };
 
+  const handleSecurityChange = (e) => {
+    const { name, value } = e.target;
+    setSecurityData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    if (securityData.newPassword !== securityData.confirmPassword) {
+      addToast('error', 'New passwords do not match');
+      return;
+    }
+    if (securityData.newPassword.length < 6) {
+      addToast('error', 'New password must be at least 6 characters');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const { changePassword } = await import('../../services/authService');
+      const response = await changePassword(securityData.oldPassword, securityData.newPassword);
+      if (response.success) {
+        addToast('success', 'Password changed successfully');
+        setSecurityData({ oldPassword: '', newPassword: '', confirmPassword: '' });
+      }
+    } catch (error) {
+      addToast('error', error.message || 'Failed to change password');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="max-w-4xl mx-auto p-6">
@@ -159,33 +200,39 @@ export const UserSettingsPage = () => {
       <div className="flex border-b border-gray-200 mb-8 gap-8">
         <button
           onClick={() => setActiveTab('profile')}
-          className={`pb-4 font-medium transition ${
-            activeTab === 'profile'
+          className={`pb-4 font-medium transition ${activeTab === 'profile'
               ? 'text-blue-600 border-b-2 border-blue-600'
               : 'text-gray-600 hover:text-gray-900'
-          }`}
+            }`}
         >
           Profile
         </button>
         <button
           onClick={() => setActiveTab('notifications')}
-          className={`pb-4 font-medium transition ${
-            activeTab === 'notifications'
+          className={`pb-4 font-medium transition ${activeTab === 'notifications'
               ? 'text-blue-600 border-b-2 border-blue-600'
               : 'text-gray-600 hover:text-gray-900'
-          }`}
+            }`}
         >
           Notifications
         </button>
         <button
           onClick={() => setActiveTab('privacy')}
-          className={`pb-4 font-medium transition ${
-            activeTab === 'privacy'
+          className={`pb-4 font-medium transition ${activeTab === 'privacy'
               ? 'text-blue-600 border-b-2 border-blue-600'
               : 'text-gray-600 hover:text-gray-900'
-          }`}
+            }`}
         >
           Privacy & Consent
+        </button>
+        <button
+          onClick={() => setActiveTab('security')}
+          className={`pb-4 font-medium transition ${activeTab === 'security'
+              ? 'text-blue-600 border-b-2 border-blue-600'
+              : 'text-gray-600 hover:text-gray-900'
+            }`}
+        >
+          Security
         </button>
       </div>
 
@@ -388,6 +435,73 @@ export const UserSettingsPage = () => {
               </>
             )}
           </button>
+        </div>
+      )}
+
+      {/* Security Tab */}
+      {activeTab === 'security' && (
+        <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
+          <form onSubmit={handleChangePassword} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Current Password
+              </label>
+              <input
+                type="password"
+                name="oldPassword"
+                required
+                value={securityData.oldPassword}
+                onChange={handleSecurityChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                New Password
+              </label>
+              <input
+                type="password"
+                name="newPassword"
+                required
+                value={securityData.newPassword}
+                onChange={handleSecurityChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Confirm New Password
+              </label>
+              <input
+                type="password"
+                name="confirmPassword"
+                required
+                value={securityData.confirmPassword}
+                onChange={handleSecurityChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isSaving}
+              className="w-full px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-medium transition flex items-center justify-center gap-2"
+            >
+              {isSaving ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Updating Password...
+                </>
+              ) : (
+                <>
+                  <Save size={18} />
+                  Change Password
+                </>
+              )}
+            </button>
+          </form>
         </div>
       )}
     </div>

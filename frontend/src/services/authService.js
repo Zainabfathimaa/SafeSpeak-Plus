@@ -298,6 +298,26 @@ export const getCurrentUser = async () => {
  * logout();
  * navigate('/login');
  */
+
+/**
+ * FUNCTION: Change Password
+ * 
+ * Flow:
+ * 1. User provides old password and new password
+ * 2. Send PUT request to /api/auth/change-password
+ * 
+ * @param {string} oldPassword - Existing password
+ * @param {string} newPassword - New password
+ */
+export const changePassword = async (oldPassword, newPassword) => {
+  return makeRequest('/auth/change-password', {
+    method: 'PUT',
+    body: JSON.stringify({
+      oldPassword,
+      newPassword
+    })
+  });
+};
 // ===================================
 // SESSION MANAGEMENT
 // ===================================
@@ -569,5 +589,6 @@ export default {
   getUser,
   getRole,
   clearSession,
-  makeRequest
+  makeRequest,
+  changePassword
 };

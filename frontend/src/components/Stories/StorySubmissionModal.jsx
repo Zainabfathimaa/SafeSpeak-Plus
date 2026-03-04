@@ -54,7 +54,9 @@ export const StorySubmissionModal = ({ isOpen, onClose, onSuccess }) => {
       const response = await storyService.submitStory(formData);
 
       if (response.success) {
-        addToast('success', response.message);
+        // Build the URL for the user to view their stories
+        const currentUrl = window.location.origin;
+        addToast('success', `${response.message} View at: ${currentUrl}/dashboard`);
         setFormData({
           title: '',
           content: '',
@@ -151,7 +153,7 @@ export const StorySubmissionModal = ({ isOpen, onClose, onSuccess }) => {
           {/* Info */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-blue-900">
-              <strong>ℹ️ Please note:</strong> Your story will be reviewed by our admin team before publication. 
+              <strong>ℹ️ Please note:</strong> Your story will be reviewed by our admin team before publication.
               Ensure it's appropriate and follows our community guidelines.
             </p>
           </div>

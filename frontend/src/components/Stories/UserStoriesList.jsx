@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Trash2, MessageSquare, Heart, Share2 } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Trash2, MessageSquare, Heart, Share2, Search } from 'lucide-react';
 import storyService from '../../services/storyService';
 import { useToast } from '../../hooks/useToast';
 
 export const UserStoriesList = ({ stories, onDelete, isLoading }) => {
   const { addToast } = useToast();
   const [likedStories, setLikedStories] = useState(new Set());
+  const [searchQuery, setSearchQuery] = useState('');
 
   const getStatusColor = (status) => {
     const colors = {
@@ -71,6 +72,18 @@ export const UserStoriesList = ({ stories, onDelete, isLoading }) => {
     }
   };
 
+  const filteredStories = useMemo(() => {
+    if (!stories) return [];
+    if (!searchQuery.trim()) return stories;
+
+    const query = searchQuery.toLowerCase();
+    return stories.filter(story =>
+      (story.title && story.title.toLowerCase().includes(query)) ||
+      (story.content && story.content.toLowerCase().includes(query)) ||
+      (story.category && story.category.toLowerCase().includes(query))
+    );
+  }, [stories, searchQuery]);
+
   if (!stories || stories.length === 0) {
     return (
       <div className="bg-white rounded-lg p-8 text-center border border-gray-200">
@@ -81,74 +94,94 @@ export const UserStoriesList = ({ stories, onDelete, isLoading }) => {
 
   return (
     <div className="space-y-4">
-      {stories.map(story => (
-        <div key={story._id} className="bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow overflow-hidden">
-          {/* Header */}
-          <div className="p-4 border-b border-gray-100">
-            <div className="flex justify-between items-start gap-4">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="text-lg">{getStatusIcon(story.status)}</span>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(story.status)}`}>
-                    {story.status}
-                  </span>
-                </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-1">{story.title}</h3>
-                <p className="text-sm text-gray-600">
-                  Category: <span className="font-medium">{story.category}</span>
-                </p>
-              </div>
-              <button
-                onClick={() => handleDelete(story._id)}
-                className="text-red-500 hover:text-red-700 p-2"
-                title="Delete story"
-              >
-                <Trash2 size={18} />
-              </button>
-            </div>
-          </div>
-
-          {/* Content */}
-          <div className="p-4 border-b border-gray-100">
-            <p className="text-gray-700 line-clamp-3">{story.content}</p>
-            <p className="text-xs text-gray-500 mt-2">
-              {new Date(story.createdAt).toLocaleDateString()} {new Date(story.createdAt).toLocaleTimeString()}
-            </p>
-          </div>
-
-          {/* Admin Comments (if rejected or has feedback) */}
-          {story.reviewComments && (story.status === 'Rejected' || story.status === 'Approved') && (
-            <div className="p-4 bg-blue-50 border-b border-blue-200">
-              <p className="text-sm font-medium text-blue-900 mb-1">Admin Feedback:</p>
-              <p className="text-sm text-blue-800">{story.reviewComments}</p>
-            </div>
-          )}
-
-          {/* Engagement Stats & Actions */}
-          <div className="p-4 flex items-center justify-between">
-            <div className="flex gap-6 text-sm text-gray-600">
-              <button
-                onClick={() => handleLike(story._id)}
-                className="flex items-center gap-2 hover:text-red-500 transition"
-              >
-                <Heart size={18} fill={likedStories.has(story._id) ? 'currentColor' : 'none'} />
-                <span>{story.likes?.length || 0}</span>
-              </button>
-              <div className="flex items-center gap-2">
-                <MessageSquare size={18} />
-                <span>{story.comments?.length || 0}</span>
-              </div>
-              <button
-                onClick={() => handleShare(story._id)}
-                className="flex items-center gap-2 hover:text-blue-500 transition"
-              >
-                <Share2 size={18} />
-                <span>{story.shares || 0}</span>
-              </button>
-            </div>
-          </div>
+      {/* Search Bar */}
+      <div className="relative mb-6">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <Search className="h-5 w-5 text-gray-400" />
         </div>
-      ))}
+        <input
+          type="text"
+          className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          placeholder="Search your stories by title, content, or category..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+
+      {filteredStories.length === 0 && searchQuery ? (
+        <div className="bg-white rounded-lg p-8 text-center border border-gray-200">
+          <p className="text-gray-500">No stories found matching "{searchQuery}"</p>
+        </div>
+      ) : (
+        filteredStories.map(story => (
+          <div key={story._id} className="bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow overflow-hidden mb-4">
+            {/* Header */}
+            <div className="p-4 border-b border-gray-100">
+              <div className="flex justify-between items-start gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-lg">{getStatusIcon(story.status)}</span>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(story.status)}`}>
+                      {story.status}
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-1">{story.title}</h3>
+                  <p className="text-sm text-gray-600">
+                    Category: <span className="font-medium">{story.category}</span>
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleDelete(story._id)}
+                  className="text-red-500 hover:text-red-700 p-2"
+                  title="Delete story"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-4 border-b border-gray-100">
+              <p className="text-gray-700 line-clamp-3">{story.content}</p>
+              <p className="text-xs text-gray-500 mt-2">
+                {new Date(story.createdAt).toLocaleDateString()} {new Date(story.createdAt).toLocaleTimeString()}
+              </p>
+            </div>
+
+            {/* Admin Comments (if rejected or has feedback) */}
+            {story.reviewComments && (story.status === 'Rejected' || story.status === 'Approved') && (
+              <div className="p-4 bg-blue-50 border-b border-blue-200">
+                <p className="text-sm font-medium text-blue-900 mb-1">Admin Feedback:</p>
+                <p className="text-sm text-blue-800">{story.reviewComments}</p>
+              </div>
+            )}
+
+            {/* Engagement Stats & Actions */}
+            <div className="p-4 flex items-center justify-between">
+              <div className="flex gap-6 text-sm text-gray-600">
+                <button
+                  onClick={() => handleLike(story._id)}
+                  className="flex items-center gap-2 hover:text-red-500 transition"
+                >
+                  <Heart size={18} fill={likedStories.has(story._id) ? 'currentColor' : 'none'} />
+                  <span>{story.likes?.length || 0}</span>
+                </button>
+                <div className="flex items-center gap-2">
+                  <MessageSquare size={18} />
+                  <span>{story.comments?.length || 0}</span>
+                </div>
+                <button
+                  onClick={() => handleShare(story._id)}
+                  className="flex items-center gap-2 hover:text-blue-500 transition"
+                >
+                  <Share2 size={18} />
+                  <span>{story.shares || 0}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        ))
+      )}
     </div>
   );
 };

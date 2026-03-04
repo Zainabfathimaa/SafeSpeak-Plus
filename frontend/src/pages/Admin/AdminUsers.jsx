@@ -129,7 +129,7 @@ export default function AdminUsers() {
                                                                         {user.fullName || (user.anonymousCode ? `Anon: ${user.anonymousCode}` : 'Unnamed User')}
                                                                     </div>
                                                                     <div className="text-sm text-gray-500">
-                                                                        {user.email || 'No email (Anonymous)'}
+                                                                        {user.idRevealConsent ? (user.email || 'No email (Anonymous)') : 'Hidden by user'}
                                                                     </div>
                                                                 </div>
                                                             </div>

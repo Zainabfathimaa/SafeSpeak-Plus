@@ -1,5 +1,7 @@
 import Report from '../models/Report.js';
 import User from '../models/User.js';
+import Notification from '../models/Notification.js';
+import { sendEmail } from '../utils/emailService.js';
 
 // Helper to generate unique Report ID
 // Example: SR-2024-001
@@ -51,6 +53,27 @@ export const createReport = async (req, res) => {
             anonymousCode: req.user.anonymousCode
         };
 
+        // Refine Fake-Report logic (check for duplicates within 24 hours)
+        const ONE_DAY = 24 * 60 * 60 * 1000;
+        const recentDuplicate = await Report.findOne({
+            incidentType,
+            location,
+            createdAt: { $gte: new Date(Date.now() - ONE_DAY) }
+        });
+
+        let initialFlags = [];
+        let initialAuthScore = 50; // default base score
+        let verificationStatus = 'Unverified';
+
+        if (recentDuplicate) {
+            initialFlags.push({
+                reason: 'Duplicate Report',
+                notes: `Auto-flagged: Similar incident reported recently (Report ID: ${recentDuplicate.reportId})`
+            });
+            initialAuthScore -= 20; // lower score for duplicate
+            verificationStatus = 'Requires Clarification';
+        }
+
         const report = await Report.create({
             reportId,
             incidentType,
@@ -63,8 +86,22 @@ export const createReport = async (req, res) => {
             evidenceFiles: files || [],
             submittedBy,
             status: 'Open',
-            riskLevel: 'Medium' // Default risk level, can be updated by AI or Admin later
+            riskLevel: 'Medium', // Default risk level, can be updated by AI or Admin later
+            flags: initialFlags,
+            authenticityScore: Math.max(0, initialAuthScore),
+            verificationStatus
         });
+
+        // Flag the old report as well if it isn't already flagged
+        if (recentDuplicate && !recentDuplicate.flags.some(f => f.reason === 'Duplicate Report')) {
+            recentDuplicate.flags.push({
+                reason: 'Duplicate Report',
+                notes: `Auto-flagged: Similar incident reported recently (Report ID: ${report.reportId})`
+            });
+            recentDuplicate.authenticityScore = Math.max(0, recentDuplicate.authenticityScore - 20);
+            recentDuplicate.verificationStatus = 'Requires Clarification';
+            await recentDuplicate.save();
+        }
 
         res.status(201).json({
             success: true,
@@ -183,6 +220,48 @@ export const updateReportStatus = async (req, res) => {
         if (assignedTo) report.assignedTo = assignedTo;
 
         await report.save();
+
+        // Populate submittedBy to get user details
+        await report.populate('submittedBy.userId', 'email fullName');
+
+        // Send email notification if status changed
+        if (status && report.submittedBy?.userId) {
+            const user = report.submittedBy.userId;
+
+            // Create in-app notification
+            const notif = await Notification.create({
+                recipientId: user._id,
+                type: 'report_status_updated',
+                title: 'Report Status Updated',
+                message: `Your report (${report.reportId}) status has been updated to: ${status}`,
+                relatedId: report._id,
+                relatedType: 'Report',
+                priority: 'medium',
+                shouldSendEmail: true
+            });
+
+            // Send email if user has email
+            if (user.email) {
+                const subject = `Update on your Report ${report.reportId}`;
+                const emailMessage = `
+Hello ${user.fullName || 'User'},
+
+The status of your report (${report.reportId}) has been updated.
+
+New Status: ${status}
+${riskLevel ? `New Risk Level: ${riskLevel}` : ''}
+
+Log in to your dashboard to view more details.
+
+Thank you,
+SafeSpeak Admin Team
+                `;
+
+                sendEmail(user.email, subject, emailMessage).catch(err =>
+                    console.error('Failed to send report status email:', err)
+                );
+            }
+        }
 
         res.status(200).json({
             success: true,
