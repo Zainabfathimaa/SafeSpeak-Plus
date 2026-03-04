@@ -2,18 +2,18 @@ import React from 'react';
 
 export function StatCard({ icon: Icon, title, value, subtitle, color = 'primary' }) {
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between">
                 <div>
-                    <p className="text-sm font-medium text-text-secondary mb-2">{title}</p>
-                    <p className="text-3xl font-bold text-gray-900">{value}</p>
+                    <p className="text-xs font-bold text-gray-500 mb-1 uppercase tracking-tight">{title}</p>
+                    <p className="text-2xl font-extrabold text-gray-900">{value}</p>
                     {subtitle && (
-                        <p className="text-xs text-text-secondary mt-2">{subtitle}</p>
+                        <p className="text-[10px] text-gray-400 mt-1 font-medium">{subtitle}</p>
                     )}
                 </div>
                 {Icon && (
-                    <div className={`p-3 rounded-lg bg-${color}/10 text-${color}`}>
-                        <Icon className="h-6 w-6" />
+                    <div className={`p-2 rounded-lg bg-${color.split('-')[0]}-50 text-${color}`}>
+                        <Icon className="h-5 w-5" />
                     </div>
                 )}
             </div>

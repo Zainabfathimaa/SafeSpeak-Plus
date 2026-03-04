@@ -31,7 +31,7 @@ export function DashboardStories() {
     };
 
     return (
-        <div className="mb-8">
+        <div className="mb-6">
             <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold text-gray-800 border-l-4 border-pink-500 pl-4">Community Stories</h3>
                 <Link to="/stories" className="text-sm font-medium text-primary hover:text-primary-dark flex items-center group">
@@ -41,7 +41,7 @@ export function DashboardStories() {
             </div>
 
             {isLoading ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {[1, 2, 3].map(i => (
                         <div key={i} className="bg-gray-100 rounded-lg h-64 animate-pulse" />
                     ))}
@@ -51,7 +51,7 @@ export function DashboardStories() {
                     <p className="text-gray-500">No stories yet. Be the first to share one!</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {recentStories.map(story => (
                         <StoryCard key={story._id} story={story} />
                     ))}

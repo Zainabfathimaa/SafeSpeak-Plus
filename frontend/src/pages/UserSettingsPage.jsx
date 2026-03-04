@@ -238,27 +238,20 @@ export const UserSettingsPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50/50 via-white to-blue-50/50 relative">
-      {/* Decorative Background Elements */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-gradient-to-br from-blue-200/40 to-indigo-300/40 blur-3xl animate-blob"></div>
-        <div className="absolute top-[20%] right-[-10%] w-[30%] h-[50%] rounded-full bg-gradient-to-tl from-purple-200/40 to-pink-200/40 blur-3xl animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-[-20%] left-[20%] w-[50%] h-[50%] rounded-full bg-gradient-to-tr from-cyan-200/40 to-blue-200/40 blur-3xl animate-blob animation-delay-4000"></div>
-      </div>
-
-      <div className="max-w-7xl mx-auto p-6 md:p-10 relative z-10">
-        <div className="mb-10 text-center md:text-left">
-          <h1 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 via-indigo-600 to-purple-600 mb-3 tracking-tight">
+    <div className="min-h-screen bg-gray-50/50 relative">
+      <div className="max-w-6xl mx-auto p-4 md:p-6 lg:p-8 relative z-10">
+        <div className="mb-6">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">
             Account Settings
           </h1>
-          <p className="text-gray-500 text-lg max-w-2xl">
-            Manage your personal profile, security preferences, and customize your experience.
+          <p className="text-gray-500 text-sm">
+            Manage your personal profile, security, and preferences.
           </p>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-8">
+        <div className="flex flex-col md:flex-row gap-6">
           {/* Sidebar Tabs */}
-          <div className="w-full md:w-80 flex-shrink-0 space-y-3">
+          <div className="w-full md:w-64 flex-shrink-0 space-y-2">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -266,20 +259,16 @@ export const UserSettingsPage = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-full group flex items-start text-left p-4 rounded-2xl transition-all duration-300 relative overflow-hidden ${isActive
-                    ? 'bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-xl shadow-blue-500/30 scale-100 ring-1 ring-blue-500/50'
-                    : 'bg-white/80 backdrop-blur-md text-gray-600 hover:bg-white hover:scale-[1.02] border border-gray-200/60 shadow-sm hover:shadow-md'
+                  className={`w-full group flex items-center text-left p-3 rounded-xl transition-all duration-200 ${isActive
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                    : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 shadow-sm'
                     }`}
                 >
-                  {/* Active Tab Glow */}
-                  {isActive && <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] animate-[shimmer_2s_infinite]"></div>}
-
-                  <div className={`p-3 rounded-xl mr-4 transition-transform duration-300 group-hover:scale-110 ${isActive ? 'bg-white/20 text-white shadow-inner' : 'bg-blue-50/80 text-blue-600 group-hover:bg-blue-100'}`}>
-                    <Icon size={22} strokeWidth={2.5} />
+                  <div className={`p-2 rounded-lg mr-3 ${isActive ? 'bg-white/20 text-white' : 'bg-blue-50 text-blue-600'}`}>
+                    <Icon size={18} />
                   </div>
-                  <div className="flex-1 mt-0.5">
-                    <h3 className={`font-bold text-[15px] ${isActive ? 'text-white' : 'text-gray-900 group-hover:text-blue-700'}`}>{tab.label}</h3>
-                    <p className={`text-xs mt-1.5 leading-relaxed ${isActive ? 'text-blue-100' : 'text-gray-500'}`}>{tab.desc}</p>
+                  <div className="flex-1">
+                    <h3 className={`font-semibold text-sm ${isActive ? 'text-white' : 'text-gray-900'}`}>{tab.label}</h3>
                   </div>
                 </button>
               )
@@ -288,9 +277,7 @@ export const UserSettingsPage = () => {
 
           {/* Content Area */}
           <div className="flex-1">
-            <div className="bg-white/60 backdrop-blur-2xl rounded-[2rem] p-8 md:p-10 border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] h-full relative overflow-hidden">
-              {/* Inner Decorative background blob */}
-              <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-100/50 to-indigo-100/50 rounded-full mix-blend-multiply filter blur-3xl opacity-50 translate-x-1/3 -translate-y-1/3 pointer-events-none"></div>
+            <div className="bg-white rounded-2xl p-6 md:p-8 border border-gray-200 shadow-sm h-full relative overflow-hidden">
 
               {/* Profile Tab */}
               {activeTab === 'profile' && (
