@@ -25,6 +25,14 @@ export const submitStory = async (req, res) => {
     const userId = req.user.id;
     const { title, content, category } = req.body;
 
+    // Log minimal payload info for debugging production 500s
+    console.log('submitStory called', {
+      userId,
+      titleLength: title ? title.length : 0,
+      contentLength: content ? content.length : 0,
+      category
+    });
+
     // Validation
     if (!title || !content) {
       return res.status(400).json({
@@ -77,7 +85,7 @@ export const submitStory = async (req, res) => {
             shouldSendEmail: true
           });
         } catch (notifErr) {
-          console.error(`Failed to create notification for admin ${admin._1d}:`, notifErr.message || notifErr);
+          console.error(`Failed to create notification for admin ${admin._id}:`, notifErr && (notifErr.stack || notifErr.message) || notifErr);
         }
       }
     } catch (adminsErr) {
@@ -91,7 +99,7 @@ export const submitStory = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error submitting story:', error);
+    console.error('Error submitting story:', error && (error.stack || error.message) || error);
     // Provide validation details if available
     const errMessage = error?.message || 'Unknown server error';
     // If it's a Mongoose validation error, include details (helpful for debugging)
