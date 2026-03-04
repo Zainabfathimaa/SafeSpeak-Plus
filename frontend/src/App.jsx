@@ -2,6 +2,8 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
+import { ToastContainer } from './components/Toast';
+import useToast from './hooks/useToast';
 
 import LandingPage from './pages/LandingPage';
 import RegisterPage from './pages/RegisterPage';
@@ -30,6 +32,7 @@ import ReportDetail from './pages/Admin/ReportDetail';
 
 function Layout() {
   const location = useLocation();
+  const { toasts, removeToast } = useToast();
 
   const hideGlobalLayoutPrefixes = [
     '/dashboard',
@@ -82,6 +85,7 @@ function Layout() {
         </Routes>
       </main>
       {!shouldHideGlobalLayout && <Footer />}
+      <ToastContainer toasts={toasts} onClose={removeToast} />
     </div>
   );
 }

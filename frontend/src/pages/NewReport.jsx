@@ -9,6 +9,7 @@ import { Step1Type } from '../components/ReportWizard/Step1Type';
 import { Step2Details } from '../components/ReportWizard/Step2Details';
 import { Step3Evidence } from '../components/ReportWizard/Step3Evidence';
 import { Step4Review } from '../components/ReportWizard/Step4Review';
+import toastService from '../services/toastService';
 
 export default function NewReport() {
     const navigate = useNavigate();
@@ -35,11 +36,11 @@ export default function NewReport() {
     const nextStep = () => {
         // Basic validation
         if (currentStep === 1 && (!formData.incidentType || !formData.date || !formData.location)) {
-            alert("Please fill in all required fields.");
+            toastService.error("Please fill in all required fields.");
             return;
         }
         if (currentStep === 2 && !formData.description) {
-            alert("Please provide a description.");
+            toastService.error("Please provide a description.");
             return;
         }
 
@@ -67,7 +68,7 @@ export default function NewReport() {
                 time: formData.time,
                 location: formData.location,
                 description: formData.description,
-                department: formData.department,
+                department: formData.department || 'General',
                 involvedParties: formData.involvedParties,
                 files: formData.files
             };
@@ -75,14 +76,16 @@ export default function NewReport() {
             const response = await createReport(payload);
 
             if (response.success) {
-                alert("Report submitted successfully!");
-                navigate('/report-status');
+                toastService.success('Report submitted successfully! Redirecting to status page...');
+                setTimeout(() => {
+                    navigate('/report-status');
+                }, 1500);
             } else {
-                alert("Failed to submit report: " + response.message);
+                toastService.error("Failed to submit report: " + response.message);
             }
         } catch (error) {
             console.error(error);
-            alert("An error occurred while submitting the report.");
+            toastService.error("An error occurred while submitting the report.");
         } finally {
             setIsSubmitting(false);
         }

@@ -5,6 +5,7 @@ import { Footer } from '../components/Footer';
 import { ReportStatusCard } from '../components/ReportStatus/ReportStatusCard';
 import { Filter } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import toastService from '../services/toastService';
 
 export default function ReportStatus() {
     // Mock Data - In a real app, fetch from API
@@ -18,9 +19,15 @@ export default function ReportStatus() {
                 const response = await getUserReports();
                 if (response.success) {
                     setReports(response.reports);
+                    if (response.reports.length === 0) {
+                        toastService.info('No active reports found');
+                    }
+                } else {
+                    toastService.error('Failed to fetch reports');
                 }
             } catch (error) {
                 console.error('Failed to fetch reports:', error);
+                toastService.error('Error loading reports. Please try again.');
             } finally {
                 setLoading(false);
             }

@@ -26,7 +26,7 @@ export function Step1Type({ formData, updateFormData }) {
 
                 <div className="col-span-1 md:col-span-2">
                     <label className="block text-sm font-medium text-text-secondary mb-2">
-                        Department/Area
+                        Department/Branch
                     </label>
                     <select
                         value={formData.department || ''}
@@ -34,13 +34,17 @@ export function Step1Type({ formData, updateFormData }) {
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                     >
                         <option value="">Select Department (Optional)</option>
-                        <option value="General">General</option>
-                        <option value="HR">HR</option>
-                        <option value="IT">IT</option>
-                        <option value="Finance">Finance</option>
-                        <option value="Operations">Operations</option>
-                        <option value="Marketing">Marketing</option>
-                        <option value="Sales">Sales</option>
+                        <option value="CSE">Computer Science & Engineering (CSE)</option>
+                        <option value="ECE">Electronics & Communication (ECE)</option>
+                        <option value="EEE">Electrical & Electronics (EEE)</option>
+                        <option value="Mechanical">Mechanical Engineering</option>
+                        <option value="Civil">Civil Engineering</option>
+                        <option value="Chemical">Chemical Engineering</option>
+                        <option value="Biotechnology">Biotechnology</option>
+                        <option value="Commerce">Commerce</option>
+                        <option value="Science">Science</option>
+                        <option value="Arts">Arts</option>
+                        <option value="Other">Other</option>
                     </select>
                 </div>
 

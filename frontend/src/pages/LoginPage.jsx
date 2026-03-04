@@ -5,6 +5,7 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { cn } from '../lib/utils';
 import { loginUser, anonymousLogin, saveSession } from '../services/authService';
+import toastService from '../services/toastService';
 
 export default function LoginPage() {
     const navigate = useNavigate();
@@ -15,18 +16,15 @@ export default function LoginPage() {
         password: '',
         rememberMe: false
     });
-    const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
         setFormData({ ...formData, [e.target.name]: value });
-        setError(''); // Clear error when user starts typing
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError('');
         setLoading(true);
 
         try {
@@ -42,13 +40,8 @@ export default function LoginPage() {
 
             // Check if login was successful
             if (response.success) {
-                // DEBUG: Log what we received
-                console.log('=== LOGIN RESPONSE ===');
-                console.log('Full response:', response);
-                console.log('User object:', response.user);
-                console.log('Role received:', response.user?.role);
-                console.log('=====================');
-
+                toastService.success('Login successful! Redirecting to your dashboard...');
+                
                 // Prepare user data
                 const userData = {
                     email: response.user?.email || formData.email,
@@ -62,8 +55,6 @@ export default function LoginPage() {
                 // Save session centrally
                 saveSession(response.token, userData, formData.rememberMe);
 
-                console.log('Login successful!', userData);
-
                 // Route based on role
                 const roleDashboards = {
                     admin: '/admin-dashboard',
@@ -75,15 +66,16 @@ export default function LoginPage() {
                 };
 
                 const redirectUrl = roleDashboards[userData.role] || '/dashboard';
-                console.log('Redirecting to:', redirectUrl, 'for role:', userData.role); // DEBUG
-                navigate(redirectUrl);
+                setTimeout(() => {
+                    navigate(redirectUrl);
+                }, 1500);
             } else {
                 // Login failed, show error message
-                setError(response.message || 'Login failed. Please try again.');
+                toastService.error(response.message || 'Login failed. Please try again.');
             }
         } catch (err) {
             // Handle unexpected errors
-            setError('An error occurred. Please check your connection and try again.');
+            toastService.error('An error occurred. Please check your connection and try again.');
             console.error('Login error:', err);
         } finally {
             setLoading(false);
@@ -139,17 +131,6 @@ export default function LoginPage() {
 
                 {/* Form Container */}
                 <div className="px-8 pb-8">
-                    {/* Error Message Display */}
-                    {error && (
-                        <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex gap-3 items-start">
-                            <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
-                            <div>
-                                <p className="text-sm font-semibold text-red-800">Login Error</p>
-                                <p className="text-sm text-red-700 mt-1">{error}</p>
-                            </div>
-                        </div>
-                    )}
-
                     <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in">
 
                         {loginMethod === 'code' ? (

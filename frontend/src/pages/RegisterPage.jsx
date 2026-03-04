@@ -4,6 +4,7 @@ import { Shield, AlertCircle, CheckCircle, Mail } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { registerUser, anonymousLogin, saveToken } from '../services/authService';
+import toastService from '../services/toastService';
 
 export default function RegisterPage() {
     const navigate = useNavigate();
@@ -11,13 +12,11 @@ export default function RegisterPage() {
         email: '',
         password: ''
     });
-    const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
-        setError('');
     };
 
     const handleSubmit = async (e) => {
@@ -25,21 +24,18 @@ export default function RegisterPage() {
 
         // Validation: Check if email ends with @cmr.edu.in
         if (!formData.email.toLowerCase().endsWith('@cmr.edu.in')) {
-            setError('Please use your college email (@cmr.edu.in)');
+            toastService.error('Please use your college email (@cmr.edu.in)');
             return;
         }
 
         // Validation: Check minimum password length
         if (formData.password.length < 6) {
-            setError('Password must be at least 6 characters long.');
+            toastService.error('Password must be at least 6 characters long.');
             return;
         }
 
-        // Note: Do not collect user's Gmail credentials on frontend.
-
         // Start loading
         setLoading(true);
-        setError('');
 
         try {
             // Call backend API to register user
@@ -50,37 +46,19 @@ export default function RegisterPage() {
 
             // Check if registration was successful
             if (response.success) {
-                // Try to auto-login using anonymous code if provided
-                const code = response.user?.anonymousCode;
-
-                if (code) {
-                    try {
-                        const loginResp = await anonymousLogin(code);
-                        if (loginResp.success) {
-                            saveToken(loginResp.token);
-                            const userSession = { email: response.user.email, token: loginResp.token, loginMethod: 'code', loginTime: new Date().toISOString() };
-                            sessionStorage.setItem('safespeak_session', JSON.stringify(userSession));
-                            navigate('/dashboard');
-                            return;
-                        }
-                    } catch (err) {
-                        console.error('Auto-login failed:', err);
-                    }
-                }
-
-                // Fallback: show success and redirect to login
+                toastService.success('Registration successful! Check your email for the verification code.');
                 setSuccess(true);
 
                 setTimeout(() => {
                     navigate('/login');
-                }, 5000);
+                }, 3000);
             } else {
                 // Registration failed, show error message
-                setError(response.message || 'Registration failed. Please try again.');
+                toastService.error(response.message || 'Registration failed. Please try again.');
             }
         } catch (err) {
             // Handle unexpected errors
-            setError('An error occurred. Please check your connection and try again.');
+            toastService.error('An error occurred. Please check your connection and try again.');
             console.error('Registration error:', err);
         } finally {
             // Stop loading
@@ -159,17 +137,6 @@ export default function RegisterPage() {
                     <h1 className="text-2xl font-bold text-text-primary">Create Anonymous Account</h1>
                     <p className="text-text-secondary mt-2">Register once to receive your anonymous access code</p>
                 </div>
-
-                {/* Error Message Display */}
-                {error && (
-                    <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex gap-3 items-start">
-                        <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
-                        <div>
-                            <p className="text-sm font-semibold text-red-800">Registration Error</p>
-                            <p className="text-sm text-red-700 mt-1">{error}</p>
-                        </div>
-                    </div>
-                )}
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <Input
