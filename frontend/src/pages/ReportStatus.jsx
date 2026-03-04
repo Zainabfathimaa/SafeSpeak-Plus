@@ -42,9 +42,11 @@ export default function ReportStatus() {
         if (selectedStatus === 'all') {
             return reports;
         }
-        return reports.filter(report => 
-            report.status.toLowerCase() === selectedStatus.toLowerCase()
-        );
+        return reports.filter(report => {
+            const status = report.status.toLowerCase().replace(/\s+/g, ' ').trim();
+            const sel = selectedStatus.toLowerCase().replace(/\s+/g, ' ').trim();
+            return status === sel;
+        });
     };
 
     const filteredReports = getFilteredReports();

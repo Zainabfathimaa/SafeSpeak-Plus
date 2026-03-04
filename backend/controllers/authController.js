@@ -79,8 +79,8 @@ export const login = async (req, res) => {
 
     const token = generateToken(user._id, user.email, user.role);
 
-    res.status(200).json({ 
-      success: true, 
+    res.status(200).json({
+      success: true,
       token,
       user: {
         id: user._id,
@@ -110,8 +110,8 @@ export const anonymousLogin = async (req, res) => {
 
     const token = generateToken(user._id, user.email, user.role);
 
-    res.status(200).json({ 
-      success: true, 
+    res.status(200).json({
+      success: true,
       token,
       user: {
         id: user._id,
@@ -166,5 +166,38 @@ export const getCurrentUser = async (req, res) => {
 
   } catch (error) {
     res.status(500).json({ success: false, message: 'Error fetching user' });
+  }
+};
+
+/* Change Password */
+export const changePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({ success: false, message: 'Please provide both old and new passwords' });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({ success: false, message: 'New password must be at least 6 characters' });
+    }
+
+    const user = await User.findById(req.user.userId).select('+password');
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const isMatch = await user.comparePassword(oldPassword);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: 'Incorrect old password' });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.status(200).json({ success: true, message: 'Password changed successfully' });
+  } catch (error) {
+    console.error('Change password error:', error);
+    res.status(500).json({ success: false, message: 'Failed to change password' });
   }
 };

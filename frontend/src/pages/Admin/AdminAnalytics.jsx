@@ -32,31 +32,33 @@ export default function AdminAnalytics() {
         const maxValue = Math.max(...data.map(d => d.value), 1); // Avoid division by zero
 
         return (
-            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                <div className="flex items-center mb-6">
-                    <Icon className={`h-5 w-5 mr-3 ${colorClass}`} />
-                    <h3 className="text-lg font-bold text-gray-800">{title}</h3>
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <div className="flex items-center mb-6 pb-4 border-b border-gray-50">
+                    <div className={`p-3 rounded-lg mr-4 bg-opacity-10 ${colorClass.replace('text-', 'bg-')}`}>
+                        <Icon className={`h-6 w-6 ${colorClass}`} />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-800">{title}</h3>
                 </div>
 
-                <div className="space-y-5">
+                <div className="space-y-6">
                     {data.length > 0 ? data.map((item, index) => {
                         const percentage = Math.round((item.value / maxValue) * 100);
                         return (
-                            <div key={index} className="relative">
-                                <div className="flex justify-between text-sm mb-1 pb-1">
-                                    <span className="font-medium text-gray-700">{item.name}</span>
-                                    <span className="font-bold text-gray-900">{item.value}</span>
+                            <div key={index} className="relative group">
+                                <div className="flex justify-between text-sm mb-2">
+                                    <span className="font-semibold text-gray-700 group-hover:text-gray-900 transition-colors">{item.name}</span>
+                                    <span className="font-bold text-gray-900 bg-gray-50 px-2 py-0.5 rounded-md">{item.value}</span>
                                 </div>
-                                <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+                                <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
                                     <div
-                                        className={`h-2.5 rounded-full ${colorClass.replace('text-', 'bg-')} transition-all duration-1000 ease-out`}
+                                        className={`h-3 rounded-full ${colorClass.replace('text-', 'bg-')} transition-all duration-1000 ease-out group-hover:opacity-80`}
                                         style={{ width: `${percentage}%` }}
                                     ></div>
                                 </div>
                             </div>
                         );
                     }) : (
-                        <div className="text-center text-sm text-gray-500 py-4 italic">No data available</div>
+                        <div className="text-center text-sm text-gray-500 py-8 italic bg-gray-50 rounded-lg">No data available</div>
                     )}
                 </div>
             </div>
@@ -72,9 +74,9 @@ export default function AdminAnalytics() {
                 <main className="flex-1 p-6 lg:p-8 overflow-y-auto">
                     <div className="max-w-7xl mx-auto space-y-8">
                         {/* Header */}
-                        <div>
-                            <h1 className="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
-                            <p className="text-text-secondary mt-2">Platform usage statistics and report metrics</p>
+                        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
+                            <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Analytics Dashboard</h1>
+                            <p className="text-gray-500 mt-3 text-lg font-medium">Platform usage statistics and report metrics</p>
                         </div>
 
                         {loading ? (

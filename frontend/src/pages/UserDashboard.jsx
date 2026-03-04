@@ -19,6 +19,8 @@ export default function UserDashboard() {
     });
     const [isStoryModalOpen, setIsStoryModalOpen] = React.useState(false);
     const [storyRefreshTrigger, setStoryRefreshTrigger] = React.useState(0);
+    const [userStories, setUserStories] = React.useState([]);
+    const [storiesLoading, setStoriesLoading] = React.useState(true);
 
     React.useEffect(() => {
         const fetchStats = async () => {
@@ -44,6 +46,30 @@ export default function UserDashboard() {
         setIsStoryModalOpen(false);
         setStoryRefreshTrigger(prev => prev + 1);
     };
+
+    // fetch user's own stories when trigger increments
+    React.useEffect(() => {
+        const fetchUserStories = async () => {
+            setStoriesLoading(true);
+            try {
+                const res = await storyService.getUserStories();
+                if (res.success) {
+                    setUserStories(res.stories || []);
+                } else {
+                    console.error('Failed to load user stories:', res.message);
+                }
+            } catch (err) {
+                console.error('Error fetching user stories:', err);
+            } finally {
+                setStoriesLoading(false);
+            }
+        };
+        fetchUserStories();
+
+        // poll every minute in case admin approved while user is on page
+        const interval = setInterval(fetchUserStories, 60000);
+        return () => clearInterval(interval);
+    }, [storyRefreshTrigger]);
 
     return (
         <div className="flex min-h-screen flex-col bg-gray-50/50 text-text-primary">
@@ -72,7 +98,12 @@ export default function UserDashboard() {
                                     + Submit Story
                                 </button>
                             </div>
-                            <UserStoriesList refreshTrigger={storyRefreshTrigger} />
+                            <UserStoriesList
+                                stories={userStories}
+                                isLoading={storiesLoading}
+                                onDelete={(deletedId) => setUserStories(prev => prev.filter(s => s._id !== deletedId))}
+                                refreshTrigger={storyRefreshTrigger}
+                            />
                         </div>
 
                         {/* Quick Actions */}
