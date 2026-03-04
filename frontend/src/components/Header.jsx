@@ -5,7 +5,7 @@ import { logout } from '../services/authService';
 import { ConfirmationModal } from './ui/ConfirmationModal';
 import { useState } from 'react';
 import { Button } from './ui/Button';
-import { NotificationBell } from './NotificationBell';
+import { NotificationBell } from './Notifications/NotificationBell';
 
 export function Header() {
     const navigate = useNavigate();
