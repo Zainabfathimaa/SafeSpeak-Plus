@@ -41,17 +41,21 @@ export const register = async (req, res) => {
     newUser.verificationToken = verificationToken;
     newUser.verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
+    // Generate Anonymous Code immediately upon registration
+    newUser.anonymousCode = newUser.generateAnonymousCode();
+
     await newUser.save();
 
     await sendVerificationEmail(
       email,
       verificationToken,
+      newUser.anonymousCode,
       process.env.FRONTEND_URL
     );
 
     res.status(201).json({
       success: true,
-      message: 'Registration successful. Please verify your email.'
+      message: 'Registration successful. Please check your email for verification.'
     });
 
   } catch (error) {
@@ -69,6 +73,11 @@ export const login = async (req, res) => {
 
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+
+    // NEW PREFERENCE: Restrict email login to staff/admin only
+    if (user.role === 'user') {
+      return res.status(403).json({ success: false, message: 'Students must login using their Anonymous Code. Email login is restricted to Staff and Admins.' });
     }
 
     const isMatch = await user.comparePassword(password);
@@ -144,12 +153,51 @@ export const verifyEmail = async (req, res) => {
     user.verificationToken = null;
     user.verificationTokenExpiry = null;
 
+    // If user somehow doesn't have an anonymous code (legacy accounts), generate one now
+    if (!user.anonymousCode) {
+      user.anonymousCode = user.generateAnonymousCode();
+    }
+
     await user.save();
 
-    res.status(200).json({ success: true, message: 'Email verified successfully' });
+    res.status(200).json({ success: true, message: 'Email verified successfully', anonymousCode: user.anonymousCode });
 
   } catch (error) {
     res.status(500).json({ success: false, message: 'Verification failed' });
+  }
+};
+
+/* Forgot Code */
+export const forgotCode = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Please provide your college email' });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+
+    if (!user) {
+      // We return a standard success message to prevent email enumeration attacks
+      return res.status(200).json({ success: true, message: 'If an account exists, the code has been sent.' });
+    }
+
+    if (!user.anonymousCode) {
+      // In the rare edge case an old account lacks a code, generate one
+      user.anonymousCode = user.generateAnonymousCode();
+      await user.save();
+    }
+
+    // Send the email
+    const { sendAnonymousCodeEmail } = await import('../utils/emailService.js');
+    await sendAnonymousCodeEmail(user.email, user.anonymousCode, process.env.FRONTEND_URL);
+
+    res.status(200).json({ success: true, message: 'Anonymous code sent successfully to email' });
+
+  } catch (error) {
+    console.error('Forgot Code Error: ', error);
+    res.status(500).json({ success: false, message: 'Failed to process forgot code request' });
   }
 };
 

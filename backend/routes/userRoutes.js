@@ -6,7 +6,8 @@ import {
   getUserPreferences,
   updateNotificationPreferences,
   updateIdRevealConsent,
-  getIdRevealConsentStatus
+  getIdRevealConsentStatus,
+  deleteAccount
 } from '../controllers/userController.js';
 import { authenticate } from '../middleware/auth.js';
 
@@ -27,6 +28,9 @@ router.get('/profile', authenticate, getCurrentUser);
 
 // Update user profile (PUT /api/user/profile)
 router.put('/profile', authenticate, updateUserProfile);
+
+// Delete User Account (DELETE /api/user/account)
+router.delete('/account', authenticate, deleteAccount);
 
 // ===================================
 // NOTIFICATION & PREFERENCES
