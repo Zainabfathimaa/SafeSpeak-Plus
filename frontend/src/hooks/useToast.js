@@ -22,7 +22,17 @@ export const useToast = () => {
     setToasts(prev => prev.filter(t => t.id !== id));
   }, []);
 
-  return { toasts, removeToast };
+  // helper that frontend components expect
+  const addToast = useCallback((type, message, duration, action) => {
+    // type should be one of 'success','error','warning','info','custom'
+    if (typeof toastService[type] === 'function') {
+      return toastService[type](message, duration, action);
+    }
+    console.warn(`toastService has no method for type '${type}', defaulting to info`);
+    return toastService.info(message, duration, action);
+  }, []);
+
+  return { toasts, removeToast, addToast };
 };
 
 export default useToast;
