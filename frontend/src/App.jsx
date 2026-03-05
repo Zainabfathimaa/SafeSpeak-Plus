@@ -16,7 +16,6 @@ import ReportStatus from './pages/ReportStatus';
 import Messages from './pages/Messages';
 import EscalatePage from './pages/EscalatePage';
 import StoriesPage from './pages/StoriesPage';
-import SettingsPage from './pages/SettingsPage';
 import UserSettingsPage from './pages/UserSettingsPage';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminUsers from './pages/Admin/AdminUsers';
