@@ -228,11 +228,6 @@ const userSchema = new mongoose.Schema({
       type: String,
       enum: ['light', 'dark'],
       default: 'light'
-    },
-    accentColor: {
-      type: String,
-      enum: ['blue', 'indigo', 'emerald', 'rose', 'violet', 'orange'],
-      default: 'blue'
     }
   },
 
