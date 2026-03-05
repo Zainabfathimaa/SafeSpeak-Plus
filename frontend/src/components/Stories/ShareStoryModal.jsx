@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { X, Send, Lock } from 'lucide-react';
+import { useToast } from '../../hooks/useToast';
 
 export function ShareStoryModal({ isOpen, onClose }) {
+    const { addToast } = useToast();
     const [formData, setFormData] = useState({
         title: '',
         content: '',
@@ -14,7 +16,7 @@ export function ShareStoryModal({ isOpen, onClose }) {
     const handleSubmit = (e) => {
         e.preventDefault();
         // Simulate API call
-        alert("Your story has been submitted for review!");
+        addToast('success', "Your story has been submitted for review!");
         onClose();
         setFormData({ title: '', content: '', isAnonymous: true, tags: '' });
     };

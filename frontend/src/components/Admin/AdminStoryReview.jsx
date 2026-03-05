@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CheckCircle, XCircle, MessageSquare, Trash2 } from 'lucide-react';
 import storyService from '../../services/storyService';
 import { useToast } from '../../hooks/useToast';
+import { ConfirmationModal } from '../ui/ConfirmationModal';
 
 export const AdminStoryReview = ({ stories, onRefresh }) => {
   const { addToast } = useToast();
@@ -9,6 +10,8 @@ export const AdminStoryReview = ({ stories, onRefresh }) => {
   const [rejectReason, setRejectReason] = useState({});
   const [showRejectForm, setShowRejectForm] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [storyToDelete, setStoryToDelete] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handleApprove = async (storyId) => {
     setProcessingId(storyId);
@@ -54,20 +57,26 @@ export const AdminStoryReview = ({ stories, onRefresh }) => {
     }
   };
 
-  const handleDelete = async (storyId) => {
-    if (window.confirm('Are you sure you want to permanently delete this story? This action cannot be undone.')) {
-      setProcessingId(storyId);
-      try {
-        const response = await storyService.deleteStory(storyId);
-        if (response.success) {
-          addToast('success', 'Story deleted successfully');
-          onRefresh();
-        }
-      } catch (error) {
-        addToast('error', error.message || 'Failed to delete story');
-      } finally {
-        setProcessingId(null);
+  const handleDeleteClick = (storyId) => {
+    setStoryToDelete(storyId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const executeDelete = async () => {
+    if (!storyToDelete) return;
+    setIsDeleteModalOpen(false);
+    setProcessingId(storyToDelete);
+    try {
+      const response = await storyService.deleteStory(storyToDelete);
+      if (response.success) {
+        addToast('success', 'Story deleted successfully');
+        onRefresh();
       }
+    } catch (error) {
+      addToast('error', error.message || 'Failed to delete story');
+    } finally {
+      setProcessingId(null);
+      setStoryToDelete(null);
     }
   };
 
@@ -175,7 +184,7 @@ export const AdminStoryReview = ({ stories, onRefresh }) => {
               ) : (
                 <>
                   <button
-                    onClick={() => handleDelete(story._id)}
+                    onClick={() => handleDeleteClick(story._id)}
                     disabled={processingId === story._id}
                     className="mr-auto px-4 py-2 border border-red-200 text-red-500 rounded-lg hover:bg-red-50 disabled:opacity-50 text-sm font-medium transition flex items-center gap-2"
                     title="Permanently delete story"
@@ -214,6 +223,16 @@ export const AdminStoryReview = ({ stories, onRefresh }) => {
           </div>
         </div>
       ))}
+
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={executeDelete}
+        title="Delete Story"
+        message="Are you sure you want to permanently delete this story? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+      />
     </div>
   );
 };

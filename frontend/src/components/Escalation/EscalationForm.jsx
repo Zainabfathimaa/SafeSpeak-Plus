@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AlertTriangle, Send } from 'lucide-react';
+import { useToast } from '../../hooks/useToast';
 
 export function EscalationForm({ type, onCancel }) {
     const [formData, setFormData] = useState({
@@ -8,6 +9,7 @@ export function EscalationForm({ type, onCancel }) {
         previousReportId: ''
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const { addToast } = useToast();
 
     // Dynamic content based on selection
     const isSuperAdmin = type === 'admin';
@@ -21,7 +23,7 @@ export function EscalationForm({ type, onCancel }) {
         // Simulate API
         setTimeout(() => {
             setIsSubmitting(false);
-            alert(`Escalation sent to ${isSuperAdmin ? 'Super Admin' : 'Ngo Partners'}!`);
+            addToast('success', `Escalation sent to ${isSuperAdmin ? 'Super Admin' : 'Ngo Partners'}!`);
             // Navigate or reset would happen here
         }, 1500);
     };

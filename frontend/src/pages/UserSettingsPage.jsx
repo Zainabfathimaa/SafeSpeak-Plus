@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Save, AlertCircle, Trash2, Shield, BellRing, User, Lock, Palette, CheckCircle2 } from 'lucide-react';
 import userService from '../services/userService';
 import { useToast } from '../hooks/useToast';
+import { ConfirmationModal } from '../components/ui/ConfirmationModal';
 
 export const UserSettingsPage = () => {
   const { addToast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // Appearance state (Mocked for premium feel)
   const [appearance, setAppearance] = useState({
@@ -187,26 +189,29 @@ export const UserSettingsPage = () => {
     }
   };
 
-  const handleDeleteAccount = async () => {
-    if (window.confirm('Are you absolutely sure you want to permanently delete your account? This action cannot be undone.')) {
-      setIsSaving(true);
-      try {
-        const response = await userService.deleteAccount();
-        if (response.success) {
-          addToast('success', 'Your account has been deleted.');
-          const { logout } = await import('../services/authService');
-          logout();
-          setTimeout(() => {
-            window.location.href = '/login';
-          }, 1500);
-        } else {
-          addToast('error', response.message || 'Failed to delete account');
-        }
-      } catch (error) {
-        addToast('error', error.message || 'Failed to delete account');
-      } finally {
-        setIsSaving(false);
+  const handleDeleteAccountClick = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const executeDeleteAccount = async () => {
+    setIsDeleteModalOpen(false);
+    setIsSaving(true);
+    try {
+      const response = await userService.deleteAccount();
+      if (response.success) {
+        addToast('success', 'Your account has been deleted.');
+        const { logout } = await import('../services/authService');
+        logout();
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 1500);
+      } else {
+        addToast('error', response.message || 'Failed to delete account');
       }
+    } catch (error) {
+      addToast('error', error.message || 'Failed to delete account');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -670,7 +675,7 @@ export const UserSettingsPage = () => {
                         <p className="text-gray-600 mt-2 max-w-md leading-relaxed font-medium">Permanently delete your account and all associated data. This action cannot be undone.</p>
                       </div>
                       <button
-                        onClick={handleDeleteAccount}
+                        onClick={handleDeleteAccountClick}
                         className="flex-shrink-0 px-8 py-4 bg-white text-red-600 border border-red-200 rounded-2xl hover:bg-red-50 hover:border-red-300 font-bold transition-all duration-300 flex items-center justify-center gap-2 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
                       >
                         <Trash2 size={20} /> Delete Account
@@ -684,6 +689,16 @@ export const UserSettingsPage = () => {
           </div>
         </div>
       </div>
+
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={executeDeleteAccount}
+        title="Delete Account"
+        message="Are you absolutely sure you want to permanently delete your account? This action cannot be undone."
+        confirmText="Delete Account"
+        variant="danger"
+      />
     </div>
   );
 };

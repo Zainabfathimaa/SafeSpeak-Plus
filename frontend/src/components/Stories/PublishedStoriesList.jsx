@@ -3,6 +3,7 @@ import { Heart, MessageSquare, Share2, Trash2 } from 'lucide-react';
 import storyService from '../../services/storyService';
 import { useToast } from '../../hooks/useToast';
 import { getUser } from '../../services/authService';
+import { ConfirmationModal } from '../ui/ConfirmationModal';
 
 export const PublishedStoriesList = ({ stories, isLoading }) => {
   const { addToast } = useToast();
@@ -10,6 +11,8 @@ export const PublishedStoriesList = ({ stories, isLoading }) => {
   const [likedStories, setLikedStories] = useState(new Set());
   const [expandedComments, setExpandedComments] = useState(new Set());
   const [newComment, setNewComment] = useState({});
+  const [storyToDelete, setStoryToDelete] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const user = getUser();
   const isAdmin = user?.role === 'admin';
@@ -106,17 +109,24 @@ export const PublishedStoriesList = ({ stories, isLoading }) => {
     );
   }
 
-  const handleDelete = async (storyId) => {
-    if (window.confirm('Are you sure you want to permanently delete this story? This action cannot be undone.')) {
-      try {
-        const response = await storyService.deleteStory(storyId);
-        if (response.success) {
-          addToast('success', 'Story deleted successfully');
-          setList(prev => prev.filter(s => s._id !== storyId));
-        }
-      } catch (error) {
-        addToast('error', error.message || 'Failed to delete story');
+  const confirmDelete = (storyId) => {
+    setStoryToDelete(storyId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const executeDelete = async () => {
+    if (!storyToDelete) return;
+    try {
+      const response = await storyService.deleteStory(storyToDelete);
+      if (response.success) {
+        addToast('success', 'Story deleted successfully');
+        setList(prev => prev.filter(s => s._id !== storyToDelete));
       }
+    } catch (error) {
+      addToast('error', error.message || 'Failed to delete story');
+    } finally {
+      setIsDeleteModalOpen(false);
+      setStoryToDelete(null);
     }
   };
 
@@ -158,7 +168,7 @@ export const PublishedStoriesList = ({ stories, isLoading }) => {
                 )}
                 {isAdmin && (
                   <button
-                    onClick={() => handleDelete(story._id)}
+                    onClick={() => confirmDelete(story._id)}
                     className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors border border-red-100 shadow-sm"
                     title="Delete story (Admin)"
                   >
@@ -261,6 +271,16 @@ export const PublishedStoriesList = ({ stories, isLoading }) => {
           </div>
         </div>
       ))}
+
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={executeDelete}
+        title="Delete Story"
+        message="Are you sure you want to permanently delete this story? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+      />
     </div>
   );
 };
