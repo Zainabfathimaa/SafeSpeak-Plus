@@ -17,27 +17,17 @@ export const UserSettingsPage = () => {
   const [appearance, setAppearance] = useState(() => {
     // Load from local storage or default
     const savedTheme = localStorage.getItem('safeSpeak_theme');
-    const savedAccent = localStorage.getItem('safeSpeak_accent');
     return {
-      theme: savedTheme || 'light',
-      accentColor: savedAccent || 'blue'
+      theme: savedTheme || 'light'
     };
   });
 
-  // Apply Theme & Color Changes
+  // Apply Theme Changes
   useEffect(() => {
     document.documentElement.className = appearance.theme;
 
-    // Quick CSS variable injection for accent color
-    const colors = {
-      blue: '#2563eb', indigo: '#4f46e5', emerald: '#059669',
-      rose: '#e11d48', violet: '#7c3aed', orange: '#ea580c'
-    };
-    document.documentElement.style.setProperty('--color-primary', colors[appearance.accentColor] || colors.blue);
-
     // Save to local storage instantly for immediate persistence without Backend API
     localStorage.setItem('safeSpeak_theme', appearance.theme);
-    localStorage.setItem('safeSpeak_accent', appearance.accentColor);
   }, [appearance]);
 
   // Security tab state
@@ -309,11 +299,11 @@ export const UserSettingsPage = () => {
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
                       className={`w-full group flex items-center text-left p-3 rounded-xl transition-all duration-200 ${isActive
-                        ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                        ? 'bg-primary text-white shadow-md shadow-primary/20'
                         : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 shadow-sm'
                         }`}
                     >
-                      <div className={`p-2 rounded-lg mr-3 ${isActive ? 'bg-white/20 text-white' : 'bg-blue-50 text-blue-600'}`}>
+                      <div className={`p-2 rounded-lg mr-3 ${isActive ? 'bg-white/20 text-white' : 'bg-primary/5 text-primary'}`}>
                         <Icon size={18} />
                       </div>
                       <div className="flex-1">
@@ -344,7 +334,7 @@ export const UserSettingsPage = () => {
                             name="fullName"
                             value={profile.fullName}
                             onChange={handleProfileChange}
-                            className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
+                            className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
                             placeholder="Your full name"
                           />
                         </div>
@@ -356,7 +346,7 @@ export const UserSettingsPage = () => {
                             name="phone"
                             value={profile.phone}
                             onChange={handleProfileChange}
-                            className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
+                            className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
                             placeholder="+1 (555) 000-0000"
                           />
                         </div>
@@ -368,7 +358,7 @@ export const UserSettingsPage = () => {
                             name="department"
                             value={profile.department}
                             onChange={handleProfileChange}
-                            className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
+                            className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
                             placeholder="e.g. Computer Science"
                           />
                         </div>
@@ -378,7 +368,7 @@ export const UserSettingsPage = () => {
                         <button
                           onClick={handleSaveProfile}
                           disabled={isSaving}
-                          className="px-8 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 disabled:opacity-70 font-bold transition-all duration-300 flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
+                          className="px-8 py-3.5 bg-gradient-to-r from-primary to-primary-light text-white rounded-2xl shadow-lg shadow-primary/20 hover:shadow-primary/40 disabled:opacity-70 font-bold transition-all duration-300 flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
                         >
                           {isSaving ? (
                             <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...</>
@@ -430,35 +420,14 @@ export const UserSettingsPage = () => {
                           </div>
                         </div>
 
-                        {/* Accent Colors */}
-                        <div className="pt-6 border-t border-gray-100">
-                          <h3 className="text-sm font-semibold text-gray-700 mb-4 block">Accent Color</h3>
-                          <div className="flex items-center gap-4 flex-wrap">
-                            {[
-                              { id: 'blue', hex: 'bg-blue-600' },
-                              { id: 'indigo', hex: 'bg-indigo-600' },
-                              { id: 'emerald', hex: 'bg-emerald-600' },
-                              { id: 'rose', hex: 'bg-rose-600' },
-                              { id: 'violet', hex: 'bg-violet-600' },
-                              { id: 'orange', hex: 'bg-orange-500' }
-                            ].map(color => (
-                              <button
-                                key={color.id}
-                                onClick={() => setAppearance(prev => ({ ...prev, accentColor: color.id }))}
-                                className={`w-12 h-12 rounded-full ${color.hex} flex items-center justify-center transition-transform hover:scale-110 shadow-sm ${appearance.accentColor === color.id ? 'ring-4 ring-offset-2 ring-gray-300 scale-110' : ''}`}
-                              >
-                                {appearance.accentColor === color.id && <CheckCircle2 className="text-white w-5 h-5" />}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
+
                       </div>
 
                       <div className="pt-8 mt-4 border-t border-gray-100 flex justify-end">
                         <button
                           onClick={handleSaveAppearance}
                           disabled={isSaving}
-                          className="px-8 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 disabled:opacity-70 font-bold transition-all duration-300 flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
+                          className="px-8 py-3.5 bg-gradient-to-r from-primary to-primary-light text-white rounded-2xl shadow-lg shadow-primary/20 hover:shadow-primary/40 disabled:opacity-70 font-bold transition-all duration-300 flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
                         >
                           {isSaving ? (
                             <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...</>
@@ -481,17 +450,17 @@ export const UserSettingsPage = () => {
                       <div className="grid md:grid-cols-2 gap-10">
                         <div className="space-y-6">
                           <div className="flex items-center gap-2 mb-2">
-                            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">@</div>
+                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">@</div>
                             <h3 className="font-bold text-gray-800">Email Alerts</h3>
                           </div>
                           {Object.entries(notifyPrefs.emailNotifications).map(([key, value]) => (
-                            <label key={key} className="flex items-center justify-between cursor-pointer group p-4 bg-white/60 border border-gray-100 hover:border-blue-200 hover:bg-blue-50/50 rounded-2xl transition-all shadow-sm mb-3">
-                              <span className="text-gray-700 font-medium group-hover:text-blue-900 capitalize text-[15px]">
+                            <label key={key} className="flex items-center justify-between cursor-pointer group p-4 bg-white/60 border border-gray-100 hover:border-primary/30 hover:bg-primary/5/50 rounded-2xl transition-all shadow-sm mb-3">
+                              <span className="text-gray-700 font-medium group-hover:text-primary-dark capitalize text-[15px]">
                                 {key.replace(/([A-Z])/g, ' $1').trim()}
                               </span>
                               <div className="relative inline-flex items-center">
                                 <input type="checkbox" checked={value} onChange={() => handleNotificationToggle('emailNotifications', key)} className="sr-only peer" />
-                                <div className="w-12 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                <div className="w-12 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                               </div>
                             </label>
                           ))}
@@ -499,17 +468,17 @@ export const UserSettingsPage = () => {
 
                         <div className="space-y-6">
                           <div className="flex items-center gap-2 mb-2">
-                            <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600"><BellRing size={16} /></div>
+                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary"><BellRing size={16} /></div>
                             <h3 className="font-bold text-gray-800">In-App Alerts</h3>
                           </div>
                           {Object.entries(notifyPrefs.inAppNotifications).map(([key, value]) => (
-                            <label key={key} className="flex items-center justify-between cursor-pointer group p-4 bg-white/60 border border-gray-100 hover:border-indigo-200 hover:bg-indigo-50/50 rounded-2xl transition-all shadow-sm mb-3">
-                              <span className="text-gray-700 font-medium group-hover:text-indigo-900 capitalize text-[15px]">
+                            <label key={key} className="flex items-center justify-between cursor-pointer group p-4 bg-white/60 border border-gray-100 hover:border-primary/30 hover:bg-primary/5/50 rounded-2xl transition-all shadow-sm mb-3">
+                              <span className="text-gray-700 font-medium group-hover:text-primary-dark capitalize text-[15px]">
                                 {key.replace(/([A-Z])/g, ' $1').trim()}
                               </span>
                               <div className="relative inline-flex items-center">
                                 <input type="checkbox" checked={value} onChange={() => handleNotificationToggle('inAppNotifications', key)} className="sr-only peer" />
-                                <div className="w-12 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                                <div className="w-12 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                               </div>
                             </label>
                           ))}
@@ -522,7 +491,7 @@ export const UserSettingsPage = () => {
                               type="time"
                               value={notifyPrefs.preferredNotificationTime}
                               onChange={(e) => setNotifyPrefs(prev => ({ ...prev, preferredNotificationTime: e.target.value }))}
-                              className="w-full max-w-[150px] px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
+                              className="w-full max-w-[150px] px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
                             />
                           </div>
                         </div>
@@ -532,7 +501,7 @@ export const UserSettingsPage = () => {
                         <button
                           onClick={handleSaveNotificationPrefs}
                           disabled={isSaving}
-                          className="px-8 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 disabled:opacity-70 font-bold transition-all duration-300 flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
+                          className="px-8 py-3.5 bg-gradient-to-r from-primary to-primary-light text-white rounded-2xl shadow-lg shadow-primary/20 hover:shadow-primary/40 disabled:opacity-70 font-bold transition-all duration-300 flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
                         >
                           {isSaving ? (
                             <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...</>
@@ -552,12 +521,12 @@ export const UserSettingsPage = () => {
                         <p className="text-gray-500 text-sm mt-1">Configure how much of your identity is shared with administrators.</p>
                       </div>
 
-                      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100/50 rounded-2xl p-6 flex gap-4 shadow-sm relative overflow-hidden">
+                      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-primary/20 rounded-2xl p-6 flex gap-4 shadow-sm relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-white/40 rounded-full blur-2xl -mr-10 -mt-10"></div>
-                        <AlertCircle className="text-blue-600 flex-shrink-0 mt-1" size={24} />
-                        <div className="text-blue-900 relative z-10">
+                        <AlertCircle className="text-primary flex-shrink-0 mt-1" size={24} />
+                        <div className="text-primary-dark relative z-10">
                           <p className="font-bold text-lg mb-2">Platform Anonymity Guarantee</p>
-                          <p className="text-blue-800 leading-relaxed font-medium opacity-90">
+                          <p className="text-primary-dark leading-relaxed font-medium opacity-90">
                             By default, everything you submit is cryptographically linked to an anonymous code. Admins cannot see your name or email unless you explicitly provide consent below.
                             Revealing your identity can help expedite highly sensitive cases by preventing fake report flagging.
                           </p>
@@ -566,8 +535,8 @@ export const UserSettingsPage = () => {
 
                       <div className="space-y-4 max-w-2xl">
                         <label className={`block border-2 rounded-3xl p-6 cursor-pointer transition-all duration-500 ${!privacy.idRevealConsent
-                          ? 'border-blue-500 bg-gradient-to-br from-white to-blue-50/50 shadow-xl shadow-blue-500/10 scale-100 ring-2 ring-blue-500/20'
-                          : 'border-white bg-white/60 hover:bg-white hover:border-blue-200 shadow-sm hover:shadow-md scale-[0.98]'
+                          ? 'border-primary bg-gradient-to-br from-white to-blue-50/50 shadow-xl shadow-primary/10 scale-100 ring-2 ring-primary/20'
+                          : 'border-white bg-white/60 hover:bg-white hover:border-primary/30 shadow-sm hover:shadow-md scale-[0.98]'
                           }`}>
                           <div className="flex items-start gap-5">
                             <div className="relative flex items-center justify-center mt-1">
@@ -576,12 +545,12 @@ export const UserSettingsPage = () => {
                                 name="idConsent"
                                 checked={!privacy.idRevealConsent}
                                 onChange={() => handleIdConsentChange(false)}
-                                className="w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2"
+                                className="w-6 h-6 text-primary bg-gray-100 border-gray-300 focus:ring-primary focus:ring-2"
                               />
                             </div>
                             <div className="flex-1">
                               <p className="font-bold text-gray-900 text-xl flex items-center gap-3">
-                                <div className={`p-2 rounded-xl flex items-center justify-center ${!privacy.idRevealConsent ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400'}`}>
+                                <div className={`p-2 rounded-xl flex items-center justify-center ${!privacy.idRevealConsent ? 'bg-primary/10 text-primary' : 'bg-gray-100 text-gray-400'}`}>
                                   <Shield size={20} strokeWidth={2.5} />
                                 </div>
                                 Stay Strictly Anonymous
@@ -592,8 +561,8 @@ export const UserSettingsPage = () => {
                         </label>
 
                         <label className={`block border-2 rounded-3xl p-6 cursor-pointer transition-all duration-500 ${privacy.idRevealConsent
-                          ? 'border-indigo-500 bg-gradient-to-br from-white to-indigo-50/50 shadow-xl shadow-indigo-500/10 scale-100 ring-2 ring-indigo-500/20'
-                          : 'border-white bg-white/60 hover:bg-white hover:border-indigo-200 shadow-sm hover:shadow-md scale-[0.98]'
+                          ? 'border-primary bg-gradient-to-br from-white to-indigo-50/50 shadow-xl shadow-primary/10 scale-100 ring-2 ring-primary/20'
+                          : 'border-white bg-white/60 hover:bg-white hover:border-primary/30 shadow-sm hover:shadow-md scale-[0.98]'
                           }`}>
                           <div className="flex items-start gap-5">
                             <div className="relative flex items-center justify-center mt-1">
@@ -602,12 +571,12 @@ export const UserSettingsPage = () => {
                                 name="idConsent"
                                 checked={privacy.idRevealConsent}
                                 onChange={() => handleIdConsentChange(true)}
-                                className="w-6 h-6 text-indigo-600 bg-gray-100 border-gray-300 focus:ring-indigo-500 focus:ring-2"
+                                className="w-6 h-6 text-primary bg-gray-100 border-gray-300 focus:ring-primary focus:ring-2"
                               />
                             </div>
                             <div className="flex-1">
                               <p className="font-bold text-gray-900 text-xl flex items-center gap-3">
-                                <div className={`p-2 rounded-xl flex items-center justify-center ${privacy.idRevealConsent ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-400'}`}>
+                                <div className={`p-2 rounded-xl flex items-center justify-center ${privacy.idRevealConsent ? 'bg-primary/10 text-primary' : 'bg-gray-100 text-gray-400'}`}>
                                   <User size={20} strokeWidth={2.5} />
                                 </div>
                                 Reveal My Identity
@@ -622,7 +591,7 @@ export const UserSettingsPage = () => {
                         <button
                           onClick={handleSavePrivacy}
                           disabled={isSaving}
-                          className="px-8 py-3.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-2xl shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 disabled:opacity-70 font-bold transition-all duration-300 flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
+                          className="px-8 py-3.5 bg-gradient-to-r from-primary to-primary-light text-white rounded-2xl shadow-lg shadow-primary/20 hover:shadow-primary/40 disabled:opacity-70 font-bold transition-all duration-300 flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
                         >
                           {isSaving ? (
                             <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...</>
@@ -659,7 +628,7 @@ export const UserSettingsPage = () => {
                               required
                               value={securityData.oldPassword}
                               onChange={handleSecurityChange}
-                              className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
+                              className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
                               placeholder="••••••••"
                             />
                           </div>
@@ -673,7 +642,7 @@ export const UserSettingsPage = () => {
                                 required
                                 value={securityData.newPassword}
                                 onChange={handleSecurityChange}
-                                className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
+                                className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
                                 placeholder="••••••••"
                               />
                             </div>
@@ -685,7 +654,7 @@ export const UserSettingsPage = () => {
                                 required
                                 value={securityData.confirmPassword}
                                 onChange={handleSecurityChange}
-                                className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
+                                className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
                                 placeholder="••••••••"
                               />
                             </div>

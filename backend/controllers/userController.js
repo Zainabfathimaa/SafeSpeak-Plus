@@ -273,7 +273,7 @@ export const getIdRevealConsentStatus = async (req, res) => {
 // ===================================
 export const updateAppearancePreferences = async (req, res) => {
     try {
-        const { theme, accentColor } = req.body;
+        const { theme } = req.body;
 
         const user = await User.findById(req.user.id);
         if (!user) {
@@ -285,14 +285,9 @@ export const updateAppearancePreferences = async (req, res) => {
 
         // Validate and update fields
         const validThemes = ['light', 'dark'];
-        const validAccents = ['blue', 'indigo', 'emerald', 'rose', 'violet', 'orange'];
 
         if (theme && validThemes.includes(theme)) {
             user.appearance.theme = theme;
-        }
-
-        if (accentColor && validAccents.includes(accentColor)) {
-            user.appearance.accentColor = accentColor;
         }
 
         await user.save();
