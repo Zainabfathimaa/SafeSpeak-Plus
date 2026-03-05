@@ -43,7 +43,7 @@ import bcryptjs from 'bcryptjs';
  */
 
 const userSchema = new mongoose.Schema({
-  
+
   // EMAIL FIELD
   email: {
     type: String,
@@ -149,7 +149,7 @@ const userSchema = new mongoose.Schema({
   // ===================================
   // PRIVACY & CONSENT
   // ===================================
-  
+
   // Has user consented to reveal their ID to admin?
   idRevealConsent: {
     type: Boolean,
@@ -219,6 +219,23 @@ const userSchema = new mongoose.Schema({
     }
   },
 
+  // ===================================
+  // APPEARANCE PREFERENCES
+  // ===================================
+
+  appearance: {
+    theme: {
+      type: String,
+      enum: ['light', 'dark'],
+      default: 'light'
+    },
+    accentColor: {
+      type: String,
+      enum: ['blue', 'indigo', 'emerald', 'rose', 'violet', 'orange'],
+      default: 'blue'
+    }
+  },
+
   // Last time user read their notifications
   lastReadNotificationTime: {
     type: Date,
@@ -231,9 +248,9 @@ const userSchema = new mongoose.Schema({
     default: 0
   }
 
-}, { 
+}, {
   // Automatically add createdAt and updatedAt timestamps
-  timestamps: true 
+  timestamps: true
 });
 
 /**
@@ -270,7 +287,7 @@ const userSchema = new mongoose.Schema({
  * - Slow on purpose (slows down attackers)
  * - Industry standard for password hashing
  */
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function (next) {
   // Skip if password hasn't been modified
   if (!this.isModified('password')) {
     return next();
@@ -280,12 +297,12 @@ userSchema.pre('save', async function(next) {
     // Generate salt (random data to mix with password)
     // 10 rounds = good balance between security and speed
     const salt = await bcryptjs.genSalt(parseInt(process.env.BCRYPT_ROUNDS || 10));
-    
+
     // Hash the password with the salt
     // this.password = the new password user entered
     // salt = random string to mix with password
     this.password = await bcryptjs.hash(this.password, salt);
-    
+
     // Continue to next middleware
     next();
 
@@ -320,7 +337,7 @@ userSchema.pre('save', async function(next) {
  * encrypt("MyPassword123", salt1) ≠ encrypt("MyPassword123", salt2)
  * BUT bcrypt.compare("MyPassword123", hashedValue) = true
  */
-userSchema.methods.comparePassword = async function(plainPassword) {
+userSchema.methods.comparePassword = async function (plainPassword) {
   // bcryptjs.compare(plainPassword, hashedPassword)
   // Returns true if passwords match, false if they don't
   return await bcryptjs.compare(plainPassword, this.password);
@@ -341,24 +358,24 @@ userSchema.methods.comparePassword = async function(plainPassword) {
  * user.anonymousCode = user.generateAnonymousCode();
  * await user.save();
  */
-userSchema.methods.generateAnonymousCode = function() {
+userSchema.methods.generateAnonymousCode = function () {
   // Character sets for random selection
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
   const numbers = '0123456789';
-  
+
   // Generate random selections
-  const part1 = Array(3).fill(null).map(() => 
+  const part1 = Array(3).fill(null).map(() =>
     letters.charAt(Math.floor(Math.random() * letters.length))
   ).join('');
-  
-  const part2 = Array(3).fill(null).map(() => 
+
+  const part2 = Array(3).fill(null).map(() =>
     numbers.charAt(Math.floor(Math.random() * numbers.length))
   ).join('');
-  
-  const part3 = Array(3).fill(null).map(() => 
+
+  const part3 = Array(3).fill(null).map(() =>
     letters.charAt(Math.floor(Math.random() * letters.length))
   ).join('');
-  
+
   return `${part1}-${part2}-${part3}`;
 };
 

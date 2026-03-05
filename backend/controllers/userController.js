@@ -108,7 +108,7 @@ export const updateUserProfile = async (req, res) => {
 export const getUserPreferences = async (req, res) => {
     try {
         const user = await User.findById(req.user.id)
-            .select('notificationPreferences idRevealConsent lastReadNotificationTime');
+            .select('notificationPreferences idRevealConsent lastReadNotificationTime appearance');
 
         if (!user) {
             return res.status(404).json({
@@ -122,7 +122,8 @@ export const getUserPreferences = async (req, res) => {
             preferences: {
                 notificationPreferences: user.notificationPreferences,
                 idRevealConsent: user.idRevealConsent,
-                lastReadNotificationTime: user.lastReadNotificationTime
+                lastReadNotificationTime: user.lastReadNotificationTime,
+                appearance: user.appearance
             }
         });
 
@@ -268,6 +269,51 @@ export const getIdRevealConsentStatus = async (req, res) => {
 };
 
 // ===================================
+// UPDATE APPEARANCE PREFERENCES
+// ===================================
+export const updateAppearancePreferences = async (req, res) => {
+    try {
+        const { theme, accentColor } = req.body;
+
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        // Validate and update fields
+        const validThemes = ['light', 'dark'];
+        const validAccents = ['blue', 'indigo', 'emerald', 'rose', 'violet', 'orange'];
+
+        if (theme && validThemes.includes(theme)) {
+            user.appearance.theme = theme;
+        }
+
+        if (accentColor && validAccents.includes(accentColor)) {
+            user.appearance.accentColor = accentColor;
+        }
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Appearance preferences updated successfully',
+            appearance: user.appearance
+        });
+
+    } catch (error) {
+        console.error('Error updating appearance preferences:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error updating appearance preferences',
+            error: error.message
+        });
+    }
+};
+
+// ===================================
 // DELETE USER ACCOUNT
 // ===================================
 export const deleteAccount = async (req, res) => {
@@ -316,6 +362,7 @@ export default {
     updateUserProfile,
     getUserPreferences,
     updateNotificationPreferences,
+    updateAppearancePreferences,
     updateIdRevealConsent,
     getIdRevealConsentStatus,
     deleteAccount

@@ -5,6 +5,7 @@ import {
   updateUserProfile,
   getUserPreferences,
   updateNotificationPreferences,
+  updateAppearancePreferences,
   updateIdRevealConsent,
   getIdRevealConsentStatus,
   deleteAccount
@@ -41,6 +42,9 @@ router.get('/preferences', authenticate, getUserPreferences);
 
 // Update notification preferences (PUT /api/user/preferences)
 router.put('/preferences', authenticate, updateNotificationPreferences);
+
+// Update appearance preferences (PUT /api/user/appearance)
+router.put('/appearance', authenticate, updateAppearancePreferences);
 
 // ===================================
 // PRIVACY & CONSENT
