@@ -8,6 +8,8 @@ import { ArrowLeft, Calendar, MapPin, Clock, AlertTriangle, FileText, User, Chec
 import { RiskBadge } from '../../components/Admin/RiskBadge';
 import { StatusBadge } from '../../components/Admin/StatusBadge';
 import { Button } from '../../components/ui/Button';
+import { ConfirmationModal } from '../../components/ui/ConfirmationModal';
+import { useToast } from '../../hooks/useToast';
 
 export default function ReportDetail() {
     const { id } = useParams();
@@ -16,6 +18,9 @@ export default function ReportDetail() {
     const [loading, setLoading] = useState(true);
     const [updating, setUpdating] = useState(false);
     const [error, setError] = useState('');
+    const { addToast } = useToast();
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const [actionType, setActionType] = useState(null);
 
     useEffect(() => {
         const fetchReport = async () => {
@@ -45,10 +50,11 @@ export default function ReportDetail() {
             const response = await updateReportStatus(id, { status: newStatus });
             if (response.success) {
                 setReport(response.report);
+                addToast('success', `Status updated to ${newStatus}`);
             }
         } catch (err) {
             console.error('Failed to update status:', err);
-            alert('Failed to update status');
+            addToast('error', 'Failed to update status');
         } finally {
             setUpdating(false);
         }
@@ -59,14 +65,24 @@ export default function ReportDetail() {
         navigate('/admin/messages', { state: { reportId: id } });
     };
 
-    const handleEscalate = async () => {
-        if (!window.confirm('Are you sure you want to escalate this report to a supervisor?')) return;
-        await handleStatusChange('Escalated');
+    const handleEscalateClick = () => {
+        setActionType('escalate');
+        setIsConfirmModalOpen(true);
     };
 
-    const handleFlagSpam = async () => {
-        if (!window.confirm('Are you sure you want to flag this report as spam? It will be closed.')) return;
-        await handleStatusChange('Closed');
+    const handleFlagSpamClick = () => {
+        setActionType('flag');
+        setIsConfirmModalOpen(true);
+    };
+
+    const executeAction = async () => {
+        setIsConfirmModalOpen(false);
+        if (actionType === 'escalate') {
+            await handleStatusChange('Escalated');
+        } else if (actionType === 'flag') {
+            await handleStatusChange('Closed');
+        }
+        setActionType(null);
     };
 
     if (loading) {
@@ -232,7 +248,7 @@ export default function ReportDetail() {
                                         <Button
                                             className="w-full justify-start"
                                             variant="outline"
-                                            onClick={handleEscalate}
+                                            onClick={handleEscalateClick}
                                             disabled={updating || report.status === 'Escalated'}
                                         >
                                             {report.status === 'Escalated' ? 'Already Escalated' : 'Escalate to Supervisor'}
@@ -240,7 +256,7 @@ export default function ReportDetail() {
                                         <Button
                                             className="w-full justify-start text-red-600 border-red-200 hover:bg-red-50"
                                             variant="outline"
-                                            onClick={handleFlagSpam}
+                                            onClick={handleFlagSpamClick}
                                             disabled={updating || report.status === 'Closed'}
                                         >
                                             Flag as Spam
@@ -255,6 +271,20 @@ export default function ReportDetail() {
             </div>
             {/* Footer */}
             <Footer />
+
+            <ConfirmationModal
+                isOpen={isConfirmModalOpen}
+                onClose={() => setIsConfirmModalOpen(false)}
+                onConfirm={executeAction}
+                title={actionType === 'escalate' ? "Confirm Escalation" : "Flag as Spam"}
+                message={
+                    actionType === 'escalate'
+                        ? "Are you sure you want to escalate this report to a supervisor?"
+                        : "Are you sure you want to flag this report as spam? It will be closed."
+                }
+                confirmText={actionType === 'escalate' ? "Escalate" : "Flag as Spam"}
+                variant={actionType === 'escalate' ? "warning" : "danger"}
+            />
         </div>
     );
 }

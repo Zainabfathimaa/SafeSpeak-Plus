@@ -2,11 +2,14 @@ import React, { useState, useMemo } from 'react';
 import { Trash2, MessageSquare, Heart, Share2, Search } from 'lucide-react';
 import storyService from '../../services/storyService';
 import { useToast } from '../../hooks/useToast';
+import { ConfirmationModal } from '../ui/ConfirmationModal';
 
 export const UserStoriesList = ({ stories, onDelete, isLoading }) => {
   const { addToast } = useToast();
   const [likedStories, setLikedStories] = useState(new Set());
   const [searchQuery, setSearchQuery] = useState('');
+  const [storyToDelete, setStoryToDelete] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const getStatusColor = (status) => {
     const colors = {
@@ -28,17 +31,24 @@ export const UserStoriesList = ({ stories, onDelete, isLoading }) => {
     return icons[status] || '📋';
   };
 
-  const handleDelete = async (storyId) => {
-    if (window.confirm('Are you sure you want to delete this story?')) {
-      try {
-        const response = await storyService.deleteStory(storyId);
-        if (response.success) {
-          addToast('success', 'Story deleted successfully');
-          onDelete(storyId);
-        }
-      } catch (error) {
-        addToast('error', error.message || 'Failed to delete story');
+  const confirmDelete = (storyId) => {
+    setStoryToDelete(storyId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const executeDelete = async () => {
+    if (!storyToDelete) return;
+    try {
+      const response = await storyService.deleteStory(storyToDelete);
+      if (response.success) {
+        addToast('success', 'Story deleted successfully');
+        onDelete(storyToDelete);
       }
+    } catch (error) {
+      addToast('error', error.message || 'Failed to delete story');
+    } finally {
+      setIsDeleteModalOpen(false);
+      setStoryToDelete(null);
     }
   };
 
@@ -135,7 +145,7 @@ export const UserStoriesList = ({ stories, onDelete, isLoading }) => {
               </div>
 
               <button
-                onClick={() => handleDelete(story._id)}
+                onClick={() => confirmDelete(story._id)}
                 className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                 title="Delete story"
               >
@@ -191,6 +201,16 @@ export const UserStoriesList = ({ stories, onDelete, isLoading }) => {
           </div>
         ))
       )}
+
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={executeDelete}
+        title="Delete Story"
+        message="Are you sure you want to delete this story? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+      />
     </div>
   );
 };
