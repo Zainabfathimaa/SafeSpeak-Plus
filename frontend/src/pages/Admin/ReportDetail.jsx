@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AdminHeader } from '../../components/Admin/AdminHeader';
 import { AdminSidebar } from '../../components/Admin/AdminSidebar';
-import { Footer } from '../../components/Footer';
 import { getReportById, updateReportStatus } from '../../services/reportService';
 import { ArrowLeft, Calendar, MapPin, Clock, AlertTriangle, FileText, User, CheckCircle, XCircle } from 'lucide-react';
 import { RiskBadge } from '../../components/Admin/RiskBadge';
@@ -87,7 +86,7 @@ export default function ReportDetail() {
 
     if (loading) {
         return (
-            <div className="flex justify-center items-center min-h-screen bg-gray-50">
+            <div className="flex justify-center items-center h-screen overflow-hidden bg-gray-50">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
         );
@@ -95,7 +94,7 @@ export default function ReportDetail() {
 
     if (error || !report) {
         return (
-            <div className="min-h-screen bg-gray-50 flex flex-col justify-center items-center">
+            <div className="h-screen overflow-hidden bg-gray-50 flex flex-col justify-center items-center">
                 <p className="text-red-600 text-xl mb-4">{error || 'Report not found'}</p>
                 <Button onClick={() => navigate('/admin-dashboard')}>Back to Dashboard</Button>
             </div>
@@ -103,7 +102,7 @@ export default function ReportDetail() {
     }
 
     return (
-        <div className="flex min-h-screen flex-col bg-gray-50/50 text-text-primary">
+        <div className="flex h-screen overflow-hidden flex-col bg-gray-50/50 text-text-primary">
             {/* Header */}
             <AdminHeader roleName="Case Reviewer" />
             <div className="flex flex-1">
@@ -269,8 +268,6 @@ export default function ReportDetail() {
                     </div>
                 </main>
             </div>
-            {/* Footer */}
-            <Footer />
 
             <ConfirmationModal
                 isOpen={isConfirmModalOpen}

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AdminHeader } from '../../components/Admin/AdminHeader';
 import { AdminSidebar } from '../../components/Admin/AdminSidebar';
-import { Footer } from '../../components/Footer';
 import userService from '../../services/userService';
 import { Search, Shield, User, CheckCircle2, XCircle, MailWarning } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
@@ -52,7 +51,7 @@ export default function AdminUsers() {
     };
 
     return (
-        <div className="flex min-h-screen flex-col bg-gray-50/50 text-text-primary">
+        <div className="flex h-screen overflow-hidden flex-col bg-gray-50/50 text-text-primary">
             <AdminHeader roleName="User Management" />
             <div className="flex flex-1">
                 <AdminSidebar role="admin" />
@@ -183,7 +182,6 @@ export default function AdminUsers() {
                     </div>
                 </main>
             </div>
-            <Footer />
         </div>
     );
 }

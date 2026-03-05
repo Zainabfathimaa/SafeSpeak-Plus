@@ -4,7 +4,7 @@ import { Button } from '../components/ui/Button';
 
 export default function DepartmentHeadDashboard() {
     return (
-        <div className="min-h-screen bg-gray-50/50 p-6">
+        <div className="h-screen overflow-hidden bg-gray-50/50 p-6">
             <div className="max-w-7xl mx-auto space-y-6">
 
                 {/* Header */}

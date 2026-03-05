@@ -132,7 +132,7 @@ export default function AdminSettings() {
     ];
 
     return (
-        <div className="flex min-h-screen flex-col bg-gray-50/50 text-text-primary relative overflow-hidden">
+        <div className="flex h-screen overflow-hidden flex-col bg-gray-50/50 text-text-primary relative overflow-hidden">
             <div className="relative z-10 flex flex-col flex-1 w-full">
                 <AdminHeader roleName="Settings" />
                 <div className="flex flex-1">

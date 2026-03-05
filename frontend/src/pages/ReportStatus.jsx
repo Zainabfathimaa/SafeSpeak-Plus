@@ -1,7 +1,6 @@
 import React from 'react';
 import { Header } from '../components/Header';
 import { Sidebar } from '../components/Sidebar';
-import { Footer } from '../components/Footer';
 import { ReportStatusCard } from '../components/ReportStatus/ReportStatusCard';
 import { Filter } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -48,7 +47,7 @@ export default function ReportStatus() {
     }, [reports, selectedStatus]);
 
     return (
-        <div className="flex min-h-screen flex-col bg-background text-text-primary">
+        <div className="flex h-screen overflow-hidden flex-col bg-background text-text-primary">
             <Header />
             <div className="flex flex-1">
                 <Sidebar />
@@ -116,7 +115,6 @@ export default function ReportStatus() {
                     </div>
                 </main>
             </div>
-            <Footer />
         </div>
     );
 }

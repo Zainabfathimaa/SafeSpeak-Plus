@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from '../components/Header';
 import { Sidebar } from '../components/Sidebar';
-import { Footer } from '../components/Footer';
 import { Save, AlertCircle } from 'lucide-react';
 import userService from '../services/userService';
 import { useToast } from '../hooks/useToast';
@@ -144,7 +143,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50/50 text-text-primary">
+    <div className="flex h-screen overflow-hidden flex-col bg-gray-50/50 text-text-primary">
       {/* Header */}
       <Header />
       <div className="flex flex-1">
@@ -403,8 +402,6 @@ export default function SettingsPage() {
           )}
         </main>
       </div>
-      {/* Footer */}
-      <Footer />
     </div>
   );
 }
