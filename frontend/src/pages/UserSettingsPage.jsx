@@ -103,6 +103,9 @@ export const UserSettingsPage = () => {
         setPrivacy({
           idRevealConsent: prefsResponse.preferences.idRevealConsent || false
         });
+        if (prefsResponse.preferences.appearance) {
+          setAppearance(prefsResponse.preferences.appearance);
+        }
       }
     } catch (error) {
       addToast('error', 'Failed to load settings');
@@ -238,12 +241,18 @@ export const UserSettingsPage = () => {
     }
   };
 
-  const handleSaveAppearance = () => {
+  const handleSaveAppearance = async () => {
     setIsSaving(true);
-    setTimeout(() => {
-      addToast('success', 'Appearance preferences saved globally');
+    try {
+      const response = await userService.updateAppearancePreferences(appearance);
+      if (response.success) {
+        addToast('success', 'Appearance preferences saved globally');
+      }
+    } catch (error) {
+      addToast('error', error.message || 'Failed to save appearance settings');
+    } finally {
       setIsSaving(false);
-    }, 600);
+    }
   };
 
   if (isLoading) {

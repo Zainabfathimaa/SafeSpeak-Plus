@@ -8,9 +8,9 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#2C7A7B', // Soft teal
-          dark: '#234E52', // Deep green
-          light: '#38B2AC',
+          DEFAULT: 'var(--color-primary, #2563eb)',
+          dark: 'var(--color-primary-dark, #1d4ed8)',
+          light: 'var(--color-primary-light, #3b82f6)',
         },
         background: {
           DEFAULT: '#F7FAFC', // Off-white/light gray
