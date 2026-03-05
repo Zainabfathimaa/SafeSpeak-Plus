@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Header } from '../components/Header';
 import { Sidebar } from '../components/Sidebar';
-import { Footer } from '../components/Footer';
 import { StoryCard } from '../components/Stories/StoryCard';
 import { ShareStoryModal } from '../components/Stories/ShareStoryModal';
 import { Search, PenTool } from 'lucide-react';
@@ -11,7 +10,7 @@ export default function StoriesPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     return (
-        <div className="flex min-h-screen flex-col bg-background text-text-primary">
+        <div className="flex h-screen overflow-hidden flex-col bg-background text-text-primary">
             <Header />
             <div className="flex flex-1">
                 <Sidebar />
@@ -62,7 +61,6 @@ export default function StoriesPage() {
                     <ShareStoryModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
                 </main>
             </div>
-            <Footer />
         </div>
     );
 }

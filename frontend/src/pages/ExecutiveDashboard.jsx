@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { AdminHeader } from '../components/Admin/AdminHeader';
 import { AdminSidebar } from '../components/Admin/AdminSidebar';
-import { Footer } from '../components/Footer';
 import { StatCard } from '../components/Admin/StatCard';
 import { TrendingUp, AlertTriangle, CheckCircle, Clock, BarChart3, Activity } from 'lucide-react';
 
@@ -47,7 +46,7 @@ export default function ExecutiveDashboard() {
     };
 
     return (
-        <div className="flex min-h-screen flex-col bg-gray-50/50 text-text-primary">
+        <div className="flex h-screen overflow-hidden flex-col bg-gray-50/50 text-text-primary">
             {/* Header */}
             <AdminHeader roleName="Executive Dashboard" />
             <div className="flex flex-1">
@@ -216,8 +215,6 @@ export default function ExecutiveDashboard() {
                     </div>
                 </main>
             </div>
-            {/* Footer */}
-            <Footer />
         </div>
     );
 }

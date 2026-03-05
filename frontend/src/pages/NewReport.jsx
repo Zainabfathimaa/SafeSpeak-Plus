@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '../components/Header';
 import { Sidebar } from '../components/Sidebar';
-import { Footer } from '../components/Footer';
 import { ChevronRight, ChevronLeft, Save } from 'lucide-react';
 import { StepIndicator } from '../components/ReportWizard/StepIndicator';
 import { Step1Type } from '../components/ReportWizard/Step1Type';
@@ -92,7 +91,7 @@ export default function NewReport() {
     };
 
     return (
-        <div className="flex min-h-screen flex-col bg-background text-text-primary">
+        <div className="flex h-screen overflow-hidden flex-col bg-background text-text-primary">
             {/* Header */}
             <Header />
 
@@ -161,8 +160,6 @@ export default function NewReport() {
                 </main>
             </div>
 
-            {/* Footer */}
-            <Footer />
         </div>
     );
 }

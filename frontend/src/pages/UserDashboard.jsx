@@ -1,7 +1,6 @@
 import React from 'react';
 import { Header } from '../components/Header';
 import { Sidebar } from '../components/Sidebar';
-import { Footer } from '../components/Footer';
 import { WelcomeCard } from '../components/WelcomeCard';
 import { DashboardCard } from '../components/DashboardCard';
 import { DashboardStories } from '../components/DashboardStories';
@@ -73,7 +72,7 @@ export default function UserDashboard() {
     }, [storyRefreshTrigger]);
 
     return (
-        <div className="flex min-h-screen bg-gray-50/50">
+        <div className="flex h-screen overflow-hidden bg-gray-50/50">
             <Sidebar />
             <div className="flex flex-col flex-1">
                 <Header />
@@ -167,7 +166,6 @@ export default function UserDashboard() {
                     onSuccess={handleStorySubmitted}
                 />
 
-                <Footer />
             </div>
         </div>
     );

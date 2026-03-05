@@ -76,7 +76,7 @@ export default function UserReportDetail() {
 
     if (loading) {
         return (
-            <div className="flex min-h-screen flex-col bg-background text-text-primary">
+            <div className="flex h-screen overflow-hidden flex-col bg-background text-text-primary">
                 <Header />
                 <div className="flex flex-1">
                     <Sidebar />
@@ -90,7 +90,7 @@ export default function UserReportDetail() {
 
     if (error || !report) {
         return (
-            <div className="flex min-h-screen flex-col bg-background text-text-primary">
+            <div className="flex h-screen overflow-hidden flex-col bg-background text-text-primary">
                 <Header />
                 <div className="flex flex-1">
                     <Sidebar />
@@ -106,7 +106,7 @@ export default function UserReportDetail() {
     const currentStep = getStatusStep(report.status);
 
     return (
-        <div className="flex min-h-screen flex-col bg-background text-text-primary">
+        <div className="flex h-screen overflow-hidden flex-col bg-background text-text-primary">
             <Header />
             <div className="flex flex-1">
                 <Sidebar />

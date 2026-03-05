@@ -243,7 +243,7 @@ export const UserSettingsPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50/50 relative">
+    <div className="h-screen overflow-hidden bg-gray-50/50 relative">
       <div className="max-w-6xl mx-auto p-4 md:p-6 lg:p-8 relative z-10">
         <div className="mb-6">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">

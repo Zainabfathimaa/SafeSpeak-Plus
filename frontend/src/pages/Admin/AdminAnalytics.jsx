@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AdminHeader } from '../../components/Admin/AdminHeader';
 import { AdminSidebar } from '../../components/Admin/AdminSidebar';
-import { Footer } from '../../components/Footer';
 import { getAnalytics } from '../../services/analyticsService';
 import { StatCard } from '../../components/Admin/StatCard';
 import { FileText, AlertCircle, Clock, Users, BarChart3, PieChart, Activity } from 'lucide-react';
@@ -66,7 +65,7 @@ export default function AdminAnalytics() {
     };
 
     return (
-        <div className="flex min-h-screen flex-col bg-gray-50/50 text-text-primary">
+        <div className="flex h-screen overflow-hidden flex-col bg-gray-50/50 text-text-primary">
             <AdminHeader roleName="Analytics Dashboard" />
             <div className="flex flex-1">
                 <AdminSidebar role="admin" />
@@ -156,7 +155,6 @@ export default function AdminAnalytics() {
                     </div>
                 </main>
             </div>
-            <Footer />
         </div>
     );
 }

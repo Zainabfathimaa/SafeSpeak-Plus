@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Header } from '../components/Header';
 import { Sidebar } from '../components/Sidebar';
-import { Footer } from '../components/Footer';
 import { EscalationPathCard } from '../components/Escalation/EscalationPathCard';
 import { EscalationForm } from '../components/Escalation/EscalationForm';
 import { ShieldAlert, HeartHandshake } from 'lucide-react';
@@ -10,7 +9,7 @@ export default function EscalatePage() {
     const [selectedPath, setSelectedPath] = useState(null); // 'admin' | 'ngo' | null
 
     return (
-        <div className="flex min-h-screen flex-col bg-background text-text-primary">
+        <div className="flex h-screen overflow-hidden flex-col bg-background text-text-primary">
             <Header />
             <div className="flex flex-1">
                 <Sidebar />
@@ -56,7 +55,6 @@ export default function EscalatePage() {
                     </div>
                 </main>
             </div>
-            <Footer />
         </div>
     );
 }

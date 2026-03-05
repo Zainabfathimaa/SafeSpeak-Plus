@@ -4,7 +4,6 @@ import storyService from '../services/storyService';
 import { useNavigate } from 'react-router-dom';
 import { AdminHeader } from '../components/Admin/AdminHeader';
 import { AdminSidebar } from '../components/Admin/AdminSidebar';
-import { Footer } from '../components/Footer';
 import { ReportTable } from '../components/Admin/ReportTable';
 import { FilterPanel } from '../components/Admin/FilterPanel';
 import { StatCard } from '../components/Admin/StatCard';
@@ -111,7 +110,7 @@ export default function AdminDashboard() {
     const escalatedReports = reports.filter(r => r.status === 'Escalated').length;
 
     return (
-        <div className="flex min-h-screen flex-col bg-gray-50/50 text-text-primary">
+        <div className="flex h-screen overflow-hidden flex-col bg-gray-50/50 text-text-primary">
             {/* Header */}
             <AdminHeader roleName="Case Reviewer Dashboard" />
             <div className="flex flex-1">
@@ -228,8 +227,6 @@ export default function AdminDashboard() {
                     </div>
                 </main>
             </div>
-            {/* Footer */}
-            <Footer />
         </div>
     );
 }

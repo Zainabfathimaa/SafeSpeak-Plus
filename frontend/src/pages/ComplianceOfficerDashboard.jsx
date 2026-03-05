@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { AdminHeader } from '../components/Admin/AdminHeader';
 import { AdminSidebar } from '../components/Admin/AdminSidebar';
-import { Footer } from '../components/Footer';
 import { StatusBadge } from '../components/Admin/StatusBadge';
 import { RiskBadge } from '../components/Admin/RiskBadge';
 import { StatCard } from '../components/Admin/StatCard';
@@ -64,7 +63,7 @@ export default function ComplianceOfficerDashboard() {
     };
 
     return (
-        <div className="flex min-h-screen flex-col bg-gray-50/50 text-text-primary">
+        <div className="flex h-screen overflow-hidden flex-col bg-gray-50/50 text-text-primary">
             {/* Header */}
             <AdminHeader roleName="Compliance Officer Dashboard" />
             <div className="flex flex-1">
@@ -267,8 +266,6 @@ export default function ComplianceOfficerDashboard() {
                     </div>
                 </main>
             </div>
-            {/* Footer */}
-            <Footer />
         </div>
     );
 }
