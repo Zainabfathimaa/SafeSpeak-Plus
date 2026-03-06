@@ -67,7 +67,7 @@ export default function AdminAnalytics() {
     return (
         <div className="flex h-screen overflow-hidden flex-col bg-gray-50/50 text-text-primary">
             <AdminHeader roleName="Analytics Dashboard" />
-            <div className="flex flex-1">
+            <div className="flex flex-1 overflow-hidden">
                 <AdminSidebar role="admin" />
 
                 <main className="flex-1 p-6 lg:p-8 overflow-y-auto">

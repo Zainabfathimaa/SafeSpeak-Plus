@@ -28,7 +28,7 @@ export default function ExecutiveDashboard() {
     });
 
     const getRiskColor = (risk) => {
-        switch(risk.toLowerCase()) {
+        switch (risk.toLowerCase()) {
             case 'high': return 'bg-red-500';
             case 'medium': return 'bg-amber-500';
             case 'low': return 'bg-green-500';
@@ -37,7 +37,7 @@ export default function ExecutiveDashboard() {
     };
 
     const getRiskBgColor = (risk) => {
-        switch(risk.toLowerCase()) {
+        switch (risk.toLowerCase()) {
             case 'high': return 'bg-red-50';
             case 'medium': return 'bg-amber-50';
             case 'low': return 'bg-green-50';
@@ -49,7 +49,7 @@ export default function ExecutiveDashboard() {
         <div className="flex h-screen overflow-hidden flex-col bg-gray-50/50 text-text-primary">
             {/* Header */}
             <AdminHeader roleName="Executive Dashboard" />
-            <div className="flex flex-1">
+            <div className="flex flex-1 overflow-hidden">
                 {/* Sidebar */}
                 <AdminSidebar role="executive" />
 
@@ -109,7 +109,7 @@ export default function ExecutiveDashboard() {
                                             <span className="text-sm font-semibold text-red-600">{analyticsData.riskDistribution.high}</span>
                                         </div>
                                         <div className="w-full bg-gray-200 rounded-full h-3">
-                                            <div 
+                                            <div
                                                 className="bg-red-500 h-3 rounded-full transition-all duration-300"
                                                 style={{ width: `${(analyticsData.riskDistribution.high / analyticsData.totalCases) * 100}%` }}
                                             ></div>
@@ -123,7 +123,7 @@ export default function ExecutiveDashboard() {
                                             <span className="text-sm font-semibold text-amber-600">{analyticsData.riskDistribution.medium}</span>
                                         </div>
                                         <div className="w-full bg-gray-200 rounded-full h-3">
-                                            <div 
+                                            <div
                                                 className="bg-amber-500 h-3 rounded-full transition-all duration-300"
                                                 style={{ width: `${(analyticsData.riskDistribution.medium / analyticsData.totalCases) * 100}%` }}
                                             ></div>
@@ -137,7 +137,7 @@ export default function ExecutiveDashboard() {
                                             <span className="text-sm font-semibold text-green-600">{analyticsData.riskDistribution.low}</span>
                                         </div>
                                         <div className="w-full bg-gray-200 rounded-full h-3">
-                                            <div 
+                                            <div
                                                 className="bg-green-500 h-3 rounded-full transition-all duration-300"
                                                 style={{ width: `${(analyticsData.riskDistribution.low / analyticsData.totalCases) * 100}%` }}
                                             ></div>
@@ -179,7 +179,7 @@ export default function ExecutiveDashboard() {
                             </h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
                                 {analyticsData.departmentRisk.map((dept, idx) => (
-                                    <div 
+                                    <div
                                         key={idx}
                                         className={`rounded-lg p-4 ${getRiskBgColor(dept.risk)} border-l-4 ${getRiskColor(dept.risk).replace('bg-', 'border-').replace('-500', '-400')}`}
                                     >

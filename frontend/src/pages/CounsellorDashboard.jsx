@@ -66,7 +66,7 @@ export default function CounsellorDashboard() {
         <div className="flex h-screen overflow-hidden flex-col bg-gray-50/50 text-text-primary">
             {/* Header */}
             <AdminHeader roleName="Counsellor Dashboard" />
-            <div className="flex flex-1">
+            <div className="flex flex-1 overflow-hidden">
                 {/* Sidebar */}
                 <AdminSidebar role="counsellor" />
 
@@ -124,9 +124,8 @@ export default function CounsellorDashboard() {
                                             <button
                                                 key={caseItem.id}
                                                 onClick={() => setSelectedCase(caseItem)}
-                                                className={`w-full p-4 text-left transition-colors hover:bg-gray-50 ${
-                                                    selectedCase?.id === caseItem.id ? 'bg-primary/5 border-l-4 border-primary' : ''
-                                                }`}
+                                                className={`w-full p-4 text-left transition-colors hover:bg-gray-50 ${selectedCase?.id === caseItem.id ? 'bg-primary/5 border-l-4 border-primary' : ''
+                                                    }`}
                                             >
                                                 <div className="flex items-start justify-between mb-2">
                                                     <div className="font-mono text-sm font-semibold text-primary">

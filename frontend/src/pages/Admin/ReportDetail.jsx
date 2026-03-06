@@ -105,7 +105,7 @@ export default function ReportDetail() {
         <div className="flex h-screen overflow-hidden flex-col bg-gray-50/50 text-text-primary">
             {/* Header */}
             <AdminHeader roleName="Case Reviewer" />
-            <div className="flex flex-1">
+            <div className="flex flex-1 overflow-hidden">
                 {/* Sidebar */}
                 <AdminSidebar role="admin" />
 

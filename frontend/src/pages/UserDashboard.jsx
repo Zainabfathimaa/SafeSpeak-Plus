@@ -74,7 +74,7 @@ export default function UserDashboard() {
     return (
         <div className="flex h-screen overflow-hidden bg-gray-50/50">
             <Sidebar />
-            <div className="flex flex-col flex-1">
+            <div className="flex flex-col flex-1 overflow-hidden">
                 <Header />
                 <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
                     <div className="max-w-7xl mx-auto space-y-6">

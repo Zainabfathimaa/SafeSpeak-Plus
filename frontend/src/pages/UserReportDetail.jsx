@@ -78,7 +78,7 @@ export default function UserReportDetail() {
         return (
             <div className="flex h-screen overflow-hidden flex-col bg-background text-text-primary">
                 <Header />
-                <div className="flex flex-1">
+                <div className="flex flex-1 overflow-hidden">
                     <Sidebar />
                     <main className="flex-1 flex items-center justify-center">
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
@@ -92,7 +92,7 @@ export default function UserReportDetail() {
         return (
             <div className="flex h-screen overflow-hidden flex-col bg-background text-text-primary">
                 <Header />
-                <div className="flex flex-1">
+                <div className="flex flex-1 overflow-hidden">
                     <Sidebar />
                     <main className="flex-1 flex flex-col items-center justify-center">
                         <p className="text-red-600 text-xl mb-4">{error || 'Report not found'}</p>
@@ -108,7 +108,7 @@ export default function UserReportDetail() {
     return (
         <div className="flex h-screen overflow-hidden flex-col bg-background text-text-primary">
             <Header />
-            <div className="flex flex-1">
+            <div className="flex flex-1 overflow-hidden">
                 <Sidebar />
 
                 <main className="flex-1 p-6 lg:p-8 overflow-y-auto bg-gray-50/50">
