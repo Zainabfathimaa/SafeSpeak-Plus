@@ -66,7 +66,7 @@ export default function ComplianceOfficerDashboard() {
         <div className="flex h-screen overflow-hidden flex-col bg-gray-50/50 text-text-primary">
             {/* Header */}
             <AdminHeader roleName="Compliance Officer Dashboard" />
-            <div className="flex flex-1">
+            <div className="flex flex-1 overflow-hidden">
                 {/* Sidebar */}
                 <AdminSidebar role="compliance" />
 
@@ -142,9 +142,8 @@ export default function ComplianceOfficerDashboard() {
                                                     setSelectedCase(caseItem);
                                                     setShowAuditLog(false);
                                                 }}
-                                                className={`w-full p-4 text-left transition-colors hover:bg-gray-50 ${
-                                                    selectedCase?.id === caseItem.id ? 'bg-red-50 border-l-4 border-red-600' : ''
-                                                }`}
+                                                className={`w-full p-4 text-left transition-colors hover:bg-gray-50 ${selectedCase?.id === caseItem.id ? 'bg-red-50 border-l-4 border-red-600' : ''
+                                                    }`}
                                             >
                                                 <div className="flex items-start justify-between mb-2">
                                                     <div className="font-mono text-sm font-semibold text-red-600">
@@ -233,21 +232,19 @@ export default function ComplianceOfficerDashboard() {
                                         <div className="flex space-x-3">
                                             <button
                                                 onClick={() => setShowAuditLog(false)}
-                                                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
-                                                    !showAuditLog
+                                                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${!showAuditLog
                                                         ? 'bg-primary text-white'
                                                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                                }`}
+                                                    }`}
                                             >
                                                 Details
                                             </button>
                                             <button
                                                 onClick={() => setShowAuditLog(true)}
-                                                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
-                                                    showAuditLog
+                                                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${showAuditLog
                                                         ? 'bg-primary text-white'
                                                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                                }`}
+                                                    }`}
                                             >
                                                 Audit Trail
                                             </button>

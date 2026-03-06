@@ -12,7 +12,7 @@ export default function StoriesPage() {
     return (
         <div className="flex h-screen overflow-hidden flex-col bg-background text-text-primary">
             <Header />
-            <div className="flex flex-1">
+            <div className="flex flex-1 overflow-hidden">
                 <Sidebar />
                 <main className="flex-1 p-6 md:p-12 overflow-y-auto bg-gray-50 relative">
                     <div className="max-w-6xl mx-auto">

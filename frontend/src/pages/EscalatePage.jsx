@@ -11,7 +11,7 @@ export default function EscalatePage() {
     return (
         <div className="flex h-screen overflow-hidden flex-col bg-background text-text-primary">
             <Header />
-            <div className="flex flex-1">
+            <div className="flex flex-1 overflow-hidden">
                 <Sidebar />
                 <main className="flex-1 p-6 md:p-12 overflow-y-auto bg-gray-50">
                     <div className="max-w-4xl mx-auto">
