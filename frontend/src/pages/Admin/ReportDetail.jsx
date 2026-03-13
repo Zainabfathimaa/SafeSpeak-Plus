@@ -79,7 +79,7 @@ export default function ReportDetail() {
         if (actionType === 'escalate') {
             await handleStatusChange('Escalated');
         } else if (actionType === 'flag') {
-            await handleStatusChange('Closed');
+            await handleStatusChange('Archived/Spam');
         }
         setActionType(null);
     };
@@ -129,16 +129,34 @@ export default function ReportDetail() {
                                     disabled={updating}
                                     className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 transition-colors cursor-pointer min-w-[160px]"
                                 >
+                                    <option value="Pending Validation">Pending Validation</option>
                                     <option value="Open">Open</option>
                                     <option value="In Review">In Review</option>
+                                    <option value="Appealed">Appealed</option>
+                                    <option value="Needs Info">Needs Info</option>
                                     <option value="Requires Clarification">Requires Clarification</option>
                                     <option value="Escalated">Escalated</option>
                                     <option value="Resolved">Resolved</option>
                                     <option value="Closed">Closed</option>
+                                    <option value="Archived/Spam">Archived/Spam</option>
                                 </select>
                                 {updating && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>}
                             </div>
                         </div>
+
+                        {report.status?.toLowerCase() === 'needs info' && (
+                            <div className="mb-6 p-4 bg-orange-50 border-l-4 border-orange-400 rounded-r-lg flex justify-between items-center">
+                                <div>
+                                    <h3 className="text-sm font-bold text-orange-800">You requested more information</h3>
+                                    <p className="text-sm text-orange-700 mt-1">
+                                        The reporter has been notified. Don't forget to send them a specific message using the 'Message Reporter' action below so they know what to provide.
+                                    </p>
+                                </div>
+                                <Button size="sm" onClick={handleMessageReporter} className="ml-4 flex-shrink-0 bg-white border-orange-200 text-orange-700 hover:bg-orange-50" variant="outline">
+                                    Message Now
+                                </Button>
+                            </div>
+                        )}
 
                         {/* Content Grid */}
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -256,9 +274,9 @@ export default function ReportDetail() {
                                             className="w-full justify-start text-red-600 border-red-200 hover:bg-red-50"
                                             variant="outline"
                                             onClick={handleFlagSpamClick}
-                                            disabled={updating || report.status === 'Closed'}
+                                            disabled={updating || report.status === 'Archived/Spam'}
                                         >
-                                            Flag as Spam
+                                            Flag as Spam / Archive
                                         </Button>
                                     </div>
                                 </div>

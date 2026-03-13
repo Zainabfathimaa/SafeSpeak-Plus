@@ -278,11 +278,76 @@ SafeSpeak Admin Team
     }
 };
 
+// @desc    Appeal a closed or archived report
+// @route   POST /api/reports/:id/appeal
+// @access  Private (User who submitted)
+export const appealReport = async (req, res) => {
+    try {
+        const { evidence, reason } = req.body;
+        const report = await Report.findById(req.params.id);
+
+        if (!report) {
+            return res.status(404).json({ success: false, message: 'Report not found' });
+        }
+
+        // Check if user owns report
+        if (report.submittedBy?.userId?.toString() !== req.user.userId?.toString()) {
+            return res.status(403).json({ success: false, message: 'Not authorized to appeal this report' });
+        }
+
+        // Prevent spam appeals
+        if (report.status === 'Appealed') {
+            return res.status(400).json({ success: false, message: 'This report is already under appeal review' });
+        }
+
+        report.status = 'Appealed';
+        report.verificationStatus = 'Under Review';
+        
+        // Add appeal as a special comment/flag
+        report.comments.push({
+            text: `*** APPEAL REQUEST ***\nReason: ${reason}\nAdditional Context: ${evidence || 'None provided'}`,
+            commentedBy: req.user.userId
+        });
+
+        await report.save();
+
+        // Notify admins
+        const admins = await User.find({ role: 'admin' });
+        for (const admin of admins) {
+            await Notification.create({
+                recipientId: admin._id,
+                type: 'report_appealed',
+                title: 'Report Appealed',
+                message: `A user has appealed report ${report.reportId}. Secondary review required.`,
+                relatedId: report._id,
+                relatedType: 'Report',
+                priority: 'high',
+                shouldSendEmail: false
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Appeal submitted successfully',
+            report
+        });
+
+    } catch (error) {
+        console.error('Error appealing report:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to submit appeal',
+            error: error.message
+        });
+    }
+};
+
 //Export all as default object as well for flexibility
 export default {
     createReport,
     getAllReports,
     getUserReports,
     getReportById,
-    updateReportStatus
+    updateReportStatus,
+    appealReport
 };
