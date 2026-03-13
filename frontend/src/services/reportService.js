@@ -38,3 +38,10 @@ export const updateReportStatus = async (id, statusData) => {
         body: JSON.stringify(statusData)
     });
 };
+
+export const appealReport = async (id, appealData) => {
+    return await makeRequest(`/reports/${id}/appeal`, {
+        method: 'POST',
+        body: JSON.stringify(appealData)
+    });
+};

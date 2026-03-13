@@ -6,10 +6,10 @@ export function ReportStatusCard({ report }) {
     // Derive step from status
     const getStepFromStatus = (status) => {
         switch (status?.toLowerCase()) {
-            case 'open': return 1;
-            case 'in-review': case 'in review': return 2;
+            case 'pending validation': case 'needs info': case 'open': return 1;
+            case 'in-review': case 'in review': case 'appealed': return 2;
             case 'in-progress': case 'escalated': return 3;
-            case 'resolved': case 'closed': return 4;
+            case 'resolved': case 'closed': case 'archived/spam': return 4;
             default: return 1;
         }
     };
@@ -26,10 +26,12 @@ export function ReportStatusCard({ report }) {
     const currentStep = report.statusStep || getStepFromStatus(report.status);
 
     const getStatusColor = (status) => {
-        switch (status.toLowerCase()) {
+        switch (status?.toLowerCase()) {
             case 'resolved': return 'bg-green-100 text-green-800 border-green-200';
-            case 'in review': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-            case 'received': return 'bg-blue-100 text-blue-800 border-blue-200';
+            case 'in review': case 'in-review': case 'appealed': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+            case 'received': case 'open': case 'pending validation': return 'bg-blue-100 text-blue-800 border-blue-200';
+            case 'needs info': return 'bg-orange-100 text-orange-800 border-orange-200';
+            case 'closed': case 'archived/spam': return 'bg-red-100 text-red-800 border-red-200';
             default: return 'bg-gray-100 text-gray-800 border-gray-200';
         }
     };

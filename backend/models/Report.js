@@ -41,8 +41,8 @@ const reportSchema = new mongoose.Schema({
     }],
     status: {
         type: String,
-        enum: ['Open', 'In-Review', 'In-Progress', 'Resolved', 'Escalated', 'Closed'],
-        default: 'Open'
+        enum: ['Pending Validation', 'Needs Info', 'Open', 'In-Review', 'In-Progress', 'Resolved', 'Escalated', 'Closed', 'Appealed', 'Archived/Spam'],
+        default: 'Pending Validation'
     },
     riskLevel: {
         type: String,

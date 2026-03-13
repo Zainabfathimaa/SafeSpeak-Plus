@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Header } from '../components/Header';
 import { Sidebar } from '../components/Sidebar';
 import { getReportById } from '../services/reportService';
-import { ArrowLeft, Calendar, MapPin, Clock, AlertTriangle, FileText, User, CheckCircle2 } from 'lucide-react';
+import { appealReport } from '../services/reportService';
+import { ArrowLeft, Calendar, MapPin, Clock, AlertTriangle, FileText, User, CheckCircle2, MessageSquare } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 
 export default function UserReportDetail() {
@@ -12,6 +13,11 @@ export default function UserReportDetail() {
     const [report, setReport] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [isAppealing, setIsAppealing] = useState(false);
+    const [appealReason, setAppealReason] = useState('');
+    const [appealEvidence, setAppealEvidence] = useState('');
+    const [submittingAppeal, setSubmittingAppeal] = useState(false);
+    const [appealSuccess, setAppealSuccess] = useState(false);
 
     useEffect(() => {
         const fetchReport = async () => {
@@ -38,9 +44,10 @@ export default function UserReportDetail() {
     const getStatusColor = (status) => {
         switch (status?.toLowerCase()) {
             case 'resolved': return 'bg-green-100 text-green-800 border-green-200';
-            case 'in review': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-            case 'open': return 'bg-blue-100 text-blue-800 border-blue-200';
-            case 'closed': return 'bg-gray-100 text-gray-800 border-gray-200';
+            case 'in review': case 'in-review': case 'appealed': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+            case 'open': case 'pending validation': return 'bg-blue-100 text-blue-800 border-blue-200';
+            case 'needs info': return 'bg-orange-100 text-orange-800 border-orange-200';
+            case 'closed': case 'archived/spam': return 'bg-red-100 text-red-800 border-red-200';
             case 'escalated': return 'bg-orange-100 text-orange-800 border-orange-200';
             default: return 'bg-gray-100 text-gray-800 border-gray-200';
         }
@@ -58,11 +65,10 @@ export default function UserReportDetail() {
     // Timeline steps
     const getStatusStep = (status) => {
         switch (status?.toLowerCase()) {
-            case 'open': return 1;
-            case 'in review': return 2;
-            case 'escalated': return 3;
-            case 'resolved': return 4;
-            case 'closed': return 4;
+            case 'pending validation': case 'needs info': case 'open': return 1;
+            case 'in review': case 'in-review': case 'appealed': return 2;
+            case 'escalated': case 'in-progress': return 3;
+            case 'resolved': case 'closed': case 'archived/spam': return 4;
             default: return 1;
         }
     };
@@ -71,8 +77,32 @@ export default function UserReportDetail() {
         { id: 1, label: 'Submitted' },
         { id: 2, label: 'In Review' },
         { id: 3, label: 'Processing' },
-        { id: 4, label: 'Resolved' },
+        { id: 4, label: 'Resolved/Closed' },
     ];
+
+    const handleAppeal = async () => {
+        if (!appealReason) {
+            alert('Please provide a reason for your appeal.');
+            return;
+        }
+
+        setSubmittingAppeal(true);
+        try {
+            const res = await appealReport(id, { reason: appealReason, evidence: appealEvidence });
+            if (res.success) {
+                setAppealSuccess(true);
+                setReport(res.report);
+                setIsAppealing(false);
+            } else {
+                alert(res.message || 'Failed to submit appeal');
+            }
+        } catch (err) {
+            alert('An error occurred while submitting your appeal.');
+            console.error(err);
+        } finally {
+            setSubmittingAppeal(false);
+        }
+    };
 
     if (loading) {
         return (
@@ -104,6 +134,7 @@ export default function UserReportDetail() {
     }
 
     const currentStep = getStatusStep(report.status);
+    const canAppeal = report.status?.toLowerCase() === 'closed' || report.status?.toLowerCase() === 'archived/spam';
 
     return (
         <div className="flex h-screen overflow-hidden flex-col bg-background text-text-primary">
@@ -121,6 +152,35 @@ export default function UserReportDetail() {
                             <ArrowLeft className="h-5 w-5 mr-2" />
                             Back to My Reports
                         </button>
+
+                        {/* Banner for specific statuses */}
+                        {report.status?.toLowerCase() === 'needs info' && (
+                            <div className="mb-6 p-4 bg-orange-50 border-l-4 border-orange-400 rounded-r-lg flex items-start">
+                                <AlertTriangle className="h-5 w-5 text-orange-500 mr-3 mt-0.5 flex-shrink-0" />
+                                <div>
+                                    <h3 className="text-sm font-bold text-orange-800">Additional Information Required</h3>
+                                    <p className="text-sm text-orange-700 mt-1">
+                                        An admin needs more details to process this report. Please check your messages and reply with the requested information.
+                                    </p>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="mt-3 bg-white border-orange-200 text-orange-700 hover:bg-orange-50"
+                                        onClick={() => navigate('/messages')}
+                                    >
+                                        <MessageSquare className="w-4 h-4 mr-2" />
+                                        Go to Messages
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+
+                        {appealSuccess && (
+                            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-center">
+                                <CheckCircle2 className="h-5 w-5 text-green-500 mr-2" />
+                                <span className="text-sm text-green-800 font-medium">Your appeal has been successfully submitted and is pending review.</span>
+                            </div>
+                        )}
 
                         {/* Content Grid */}
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -180,6 +240,46 @@ export default function UserReportDetail() {
                                     )}
                                 </div>
 
+                                {/* Appeal Form (Conditionally rendered) */}
+                                {isAppealing && canAppeal && (
+                                    <div className="bg-white rounded-xl shadow-sm border border-primary p-6 form-animate">
+                                        <h3 className="text-lg font-bold text-gray-900 mb-2">Appeal Decision</h3>
+                                        <p className="text-sm text-text-secondary mb-4">
+                                            If you believe this report was closed or archived in error, you can submit additional context to request a secondary review from a senior administrator.
+                                        </p>
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Appeal *</label>
+                                                <textarea
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+                                                    rows="3"
+                                                    value={appealReason}
+                                                    onChange={(e) => setAppealReason(e.target.value)}
+                                                    placeholder="Explain why this decision should be reconsidered..."
+                                                ></textarea>
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Additional Context / Evidence (Optional)</label>
+                                                <textarea
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm"
+                                                    rows="2"
+                                                    value={appealEvidence}
+                                                    onChange={(e) => setAppealEvidence(e.target.value)}
+                                                    placeholder="Links, witness names, or other details..."
+                                                ></textarea>
+                                            </div>
+                                            <div className="flex gap-3 justify-end mt-4">
+                                                <Button variant="outline" onClick={() => setIsAppealing(false)} disabled={submittingAppeal}>
+                                                    Cancel
+                                                </Button>
+                                                <Button onClick={handleAppeal} disabled={submittingAppeal}>
+                                                    {submittingAppeal ? 'Submitting...' : 'Submit Appeal'}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Evidence Section */}
                                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                                     <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
@@ -236,11 +336,22 @@ export default function UserReportDetail() {
                                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                                     <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Quick Actions</h3>
                                     <div className="space-y-3">
+                                        {canAppeal && !isAppealing && (
+                                            <Button
+                                                className="w-full justify-start bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100"
+                                                variant="outline"
+                                                onClick={() => setIsAppealing(true)}
+                                            >
+                                                <AlertTriangle className="w-4 h-4 mr-2" />
+                                                Appeal Decision
+                                            </Button>
+                                        )}
                                         <Button
                                             className="w-full justify-start"
                                             variant="outline"
                                             onClick={() => navigate('/messages')}
                                         >
+                                            <MessageSquare className="w-4 h-4 mr-2" />
                                             Message Admin
                                         </Button>
                                         <Button
