@@ -2,22 +2,34 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Header } from '../components/Header';
 import { Sidebar } from '../components/Sidebar';
-import { getReportById } from '../services/reportService';
-import { appealReport } from '../services/reportService';
-import { ArrowLeft, Calendar, MapPin, Clock, AlertTriangle, FileText, User, CheckCircle2, MessageSquare } from 'lucide-react';
+import { getReportById, appealReport, escalateReport } from '../services/reportService';
+import { ArrowLeft, Calendar, MapPin, Clock, AlertTriangle, FileText, User, CheckCircle2, MessageSquare, ArrowUpRight } from 'lucide-react';
 import { Button } from '../components/ui/Button';
+import useToast from '../hooks/useToast';
+import { ConfirmationModal } from '../components/ui/ConfirmationModal';
 
 export default function UserReportDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { addToast } = useToast();
+
+    // Core Report State
     const [report, setReport] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+
+    // Appeal State
     const [isAppealing, setIsAppealing] = useState(false);
     const [appealReason, setAppealReason] = useState('');
     const [appealEvidence, setAppealEvidence] = useState('');
     const [submittingAppeal, setSubmittingAppeal] = useState(false);
     const [appealSuccess, setAppealSuccess] = useState(false);
+
+    // Escalation State
+    const [isEscalating, setIsEscalating] = useState(false);
+    // const [escalationEmail, setEscalationEmail] = useState(''); // Removed for security hardening
+    const [escalationMessage, setEscalationMessage] = useState('');
+    const [submittingEscalation, setSubmittingEscalation] = useState(false);
 
     useEffect(() => {
         const fetchReport = async () => {
@@ -82,7 +94,7 @@ export default function UserReportDetail() {
 
     const handleAppeal = async () => {
         if (!appealReason) {
-            alert('Please provide a reason for your appeal.');
+            addToast('error', 'Please provide a reason for your appeal.');
             return;
         }
 
@@ -93,14 +105,39 @@ export default function UserReportDetail() {
                 setAppealSuccess(true);
                 setReport(res.report);
                 setIsAppealing(false);
+                addToast('success', 'Your appeal has been successfully submitted.', 5000);
             } else {
-                alert(res.message || 'Failed to submit appeal');
+                addToast('error', res.message || 'Failed to submit appeal');
             }
         } catch (err) {
-            alert('An error occurred while submitting your appeal.');
+            addToast('error', 'An error occurred while submitting your appeal.');
             console.error(err);
         } finally {
             setSubmittingAppeal(false);
+        }
+    };
+
+    const handleEscalate = async () => {
+        setSubmittingEscalation(true);
+        try {
+            const payload = {
+                message: escalationMessage
+            };
+            const res = await escalateReport(id, payload);
+
+            if (res.success) {
+                setReport(res.report);
+                setIsEscalating(false);
+                addToast('warning', '⚠️ You are no longer anonymous for this escalation.', 12000);
+                addToast('success', 'Report escalated successfully and PDF dispatched.', 8000);
+            } else {
+                addToast('error', res.message || 'Failed to escalate report');
+            }
+        } catch (err) {
+            addToast('error', 'An error occurred while escalating your report.');
+            console.error(err);
+        } finally {
+            setSubmittingEscalation(false);
         }
     };
 
@@ -135,6 +172,11 @@ export default function UserReportDetail() {
 
     const currentStep = getStatusStep(report.status);
     const canAppeal = report.status?.toLowerCase() === 'closed' || report.status?.toLowerCase() === 'archived/spam';
+
+    // Escalate Logic: Can escalate if it's open for more than 48 hours OR if it's flagged as Critical, and not already resolved/closed/escalated
+    const isTerminalStatus = ['resolved', 'closed', 'archived/spam', 'escalated'].includes(report.status?.toLowerCase());
+    const reportAgeHours = (new Date() - new Date(report.createdAt)) / (1000 * 60 * 60);
+    const canEscalate = !isTerminalStatus && (reportAgeHours > 48 || report.riskLevel === 'Critical');
 
     return (
         <div className="flex h-screen overflow-hidden flex-col bg-background text-text-primary">
@@ -239,6 +281,44 @@ export default function UserReportDetail() {
                                         </>
                                     )}
                                 </div>
+
+                                {/* Escalation Form (Conditionally rendered) */}
+                                {isEscalating && canEscalate && (
+                                    <div className="bg-white rounded-xl shadow-sm border border-red-200 p-6 form-animate">
+                                        <h3 className="text-lg font-bold text-gray-900 mb-2 flex items-center">
+                                            <ArrowUpRight className="h-5 w-5 mr-2 text-red-600" />
+                                            Escalate Report
+                                        </h3>
+                                        <p className="text-sm text-text-secondary mb-4">
+                                            Escalate this case directly to the official University Super Admin for a final review.
+                                            <strong> Warning: By escalating, your identity will be disclosed to the reviewing authority to facilitate the investigation.</strong>
+                                        </p>
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Escalation (Optional)</label>
+                                                <textarea
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
+                                                    rows="3"
+                                                    value={escalationMessage}
+                                                    onChange={(e) => setEscalationMessage(e.target.value)}
+                                                    placeholder="Explain why this requires urgent higher-level review..."
+                                                ></textarea>
+                                            </div>
+                                            <div className="flex gap-3 justify-end mt-4">
+                                                <Button variant="outline" onClick={() => setIsEscalating(false)} disabled={submittingEscalation}>
+                                                    Cancel
+                                                </Button>
+                                                <Button
+                                                    onClick={handleEscalate}
+                                                    disabled={submittingEscalation}
+                                                    className="bg-red-600 hover:bg-red-700 text-white"
+                                                >
+                                                    {submittingEscalation ? 'Escalating...' : 'Confirm Escalation'}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Appeal Form (Conditionally rendered) */}
                                 {isAppealing && canAppeal && (
@@ -354,13 +434,16 @@ export default function UserReportDetail() {
                                             <MessageSquare className="w-4 h-4 mr-2" />
                                             Message Admin
                                         </Button>
-                                        <Button
-                                            className="w-full justify-start"
-                                            variant="outline"
-                                            onClick={() => navigate('/escalate')}
-                                        >
-                                            Escalate Report
-                                        </Button>
+                                        {canEscalate && !isEscalating && (
+                                            <Button
+                                                className="w-full justify-start text-red-700 border-red-200 hover:bg-red-50 hover:border-red-300"
+                                                variant="outline"
+                                                onClick={() => setIsEscalating(true)}
+                                            >
+                                                <ArrowUpRight className="w-4 h-4 mr-2" />
+                                                Escalate Report
+                                            </Button>
+                                        )}
                                     </div>
                                 </div>
 

@@ -45,3 +45,10 @@ export const appealReport = async (id, appealData) => {
         body: JSON.stringify(appealData)
     });
 };
+
+export const escalateReport = async (id, escalateData) => {
+    return await makeRequest(`/reports/${id}/escalate`, {
+        method: 'POST',
+        body: JSON.stringify(escalateData)
+    });
+};

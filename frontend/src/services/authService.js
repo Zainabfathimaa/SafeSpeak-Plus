@@ -519,60 +519,6 @@ export const verifyToken = async () => {
  * 'UNAUTHORIZED': Token missing or invalid
  */
 
-/**
- * VERIFY EMAIL FUNCTION
- * 
- * Called after user clicks verification link in email
- * Email link includes token: /verify-email?token=abc123
- * 
- * Flow:
- * 1. VerificationPage extracts token from URL
- * 2. Calls verifyEmail(token)
- * 3. Backend validates token (must not be expired)
- * 4. Backend generates anonymous code
- * 5. Returns code to user
- * 
- * @param {string} token - Verification token from email link
- * @returns {Promise<Object>} - Success, message, anonymousCode, user
- */
-export async function verifyEmail(token) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/auth/verify-email`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ token })
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      // Email verified successfully
-      // User now has anonymous code
-      return {
-        success: true,
-        message: data.message,
-        anonymousCode: data.anonymousCode,
-        user: data.user
-      };
-    } else {
-      // Verification failed (invalid/expired token)
-      return {
-        success: false,
-        message: data.message || 'Failed to verify email. Token may be expired.',
-        code: data.code || 'VERIFICATION_FAILED'
-      };
-    }
-  } catch (error) {
-    console.error('Error verifying email:', error);
-    return {
-      success: false,
-      message: 'Failed to verify email. Please try again.',
-      code: 'NETWORK_ERROR'
-    };
-  }
-}
 
 export default {
   registerUser,
@@ -584,7 +530,6 @@ export default {
   getToken,
   isLoggedIn,
   verifyToken,
-  verifyEmail,
   saveSession,
   getUser,
   getRole,

@@ -302,7 +302,7 @@ export const appealReport = async (req, res) => {
 
         report.status = 'Appealed';
         report.verificationStatus = 'Under Review';
-        
+
         // Add appeal as a special comment/flag
         report.comments.push({
             text: `*** APPEAL REQUEST ***\nReason: ${reason}\nAdditional Context: ${evidence || 'None provided'}`,
@@ -342,6 +342,155 @@ export const appealReport = async (req, res) => {
     }
 };
 
+// @desc    Escalate a report to a super admin
+// @route   POST /api/reports/:id/escalate
+// @access  Private (User who submitted)
+export const escalateReport = async (req, res) => {
+    try {
+        const { message } = req.body;
+        const superAdminEmail = process.env.SUPER_ADMIN_EMAIL || 'admin@safespeak.com';
+        const report = await Report.findById(req.params.id);
+
+        if (!report) {
+            return res.status(404).json({ success: false, message: 'Report not found' });
+        }
+
+        // Check if user owns report
+        if (report.submittedBy?.userId?.toString() !== req.user.userId?.toString()) {
+            return res.status(403).json({ success: false, message: 'Not authorized to escalate this report' });
+        }
+
+        if (report.escalationDetails?.isEscalated) {
+            return res.status(400).json({ success: false, message: 'This report has already been escalated.' });
+        }
+
+        // Dynamic import of PDFKit
+        let PDFDocument;
+        try {
+            PDFDocument = (await import('pdfkit')).default;
+        } catch (e) {
+            console.error("PDFKit not found, ensure it is installed", e);
+            return res.status(500).json({ success: false, message: 'PDF generation library missing.' });
+        }
+
+        const doc = new PDFDocument();
+        const pdfChunks = [];
+
+        doc.on('data', chunk => pdfChunks.push(chunk));
+        doc.on('end', async () => {
+            const pdfBuffer = Buffer.concat(pdfChunks);
+
+            // Mark report as escalated
+            report.status = 'Escalated';
+            report.escalationDetails = {
+                isEscalated: true,
+                escalatedTo: superAdminEmail,
+                message: message,
+                identityDisclosed: true,
+                escalatedAt: new Date()
+            };
+
+            await report.save();
+
+            // Notify user of status change and ID disclosure
+            await Notification.create({
+                recipientId: req.user.userId,
+                type: 'system_alert',
+                title: 'Case Escalated',
+                message: `Your report (${report.reportId}) was escalated to ${superAdminEmail}. Note: Anonymity has been lifted for this higher-level review.`,
+                relatedId: report._id,
+                relatedType: 'Report',
+                priority: 'high',
+                shouldSendEmail: true
+            });
+
+            // Dispatch Email to Super Admin with Attachment
+            const subject = `URGENT: Escalated Incident Report - ${report.reportId}`;
+            const emailMessage = `
+Hello,
+
+An incident report has been escalated to you by a user on the SafeSpeak+ platform. 
+They claim standard procedures have failed or they require urgent higher-level review.
+
+Escalation Message from User:
+-------------------------------------------
+${message || 'No additional message provided.'}
+-------------------------------------------
+
+Please find the full case details attached as a PDF. Note: The user's identity has been disclosed for this review and will be visible if they were a registered user.
+
+Best Regards,
+SafeSpeak+ System Security
+            `;
+
+            const attachments = [
+                {
+                    filename: `SafeSpeak_Escalation_${report.reportId}.pdf`,
+                    content: pdfBuffer,
+                    contentType: 'application/pdf'
+                }
+            ];
+
+            try {
+                // Ensure sendEmail signature allows attachments or use standard notification
+                const { transporter } = await import('../utils/emailService.js');
+                await transporter.sendMail({
+                    from: `"Safe Speak Platform" <${process.env.SMTP_USER}>`,
+                    to: superAdminEmail,
+                    subject,
+                    text: emailMessage,
+                    attachments
+                });
+            } catch (err) {
+                console.error('Failed to send escalated email with PDF:', err);
+                // We don't fail the request if email fails, but it's not ideal
+            }
+
+            res.status(200).json({
+                success: true,
+                message: 'Report successfully escalated. A PDF containing your full report history has been sent to the appropriate authority.',
+                report
+            });
+        });
+
+        // Build the PDF Content
+        doc.fontSize(20).text('SafeSpeak+ Escalated Incident Report', { align: 'center' });
+        doc.moveDown();
+        doc.fontSize(12).text(`Report ID: ${report.reportId}`);
+        doc.text(`Incident Type: ${report.incidentType}`);
+        doc.text(`Severity Level: ${report.riskLevel}`);
+        doc.text(`Location: ${report.location} (${report.department})`);
+        doc.text(`Date & Time: ${report.date} ${report.time || ''}`);
+        doc.moveDown();
+
+        doc.fontSize(14).text('Incident Description:', { underline: true });
+        doc.fontSize(12).text(report.description);
+        doc.moveDown();
+
+        if (report.involvedParties) {
+            doc.fontSize(14).text('Involved Parties:', { underline: true });
+            doc.fontSize(12).text(report.involvedParties);
+            doc.moveDown();
+        }
+
+        doc.fontSize(14).text('Escalation Context:', { underline: true });
+        doc.fontSize(12).text(`Escalated by User ID: ${req.user.userId}`);
+        doc.text(`User Message: ${message || 'N/A'}`);
+        doc.moveDown();
+
+        doc.text('This document was automatically generated by the SafeSpeak+ platform upon user escalation.', { align: 'center', color: 'grey' });
+        doc.end();
+
+    } catch (error) {
+        console.error('Error escalating report:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to escalate report',
+            error: error.message
+        });
+    }
+};
+
 //Export all as default object as well for flexibility
 export default {
     createReport,
@@ -349,5 +498,6 @@ export default {
     getUserReports,
     getReportById,
     updateReportStatus,
-    appealReport
+    appealReport,
+    escalateReport
 };

@@ -23,7 +23,8 @@ export default function RegisterPage() {
         e.preventDefault();
 
         // Validation: Check if email ends with @cmr.edu.in
-        if (!formData.email.toLowerCase().endsWith('@cmr.edu.in')) {
+        const sanitizedEmail = formData.email.trim().toLowerCase();
+        if (!sanitizedEmail.endsWith('@cmr.edu.in')) {
             toastService.error('Please use your college email (@cmr.edu.in)');
             return;
         }
@@ -34,19 +35,19 @@ export default function RegisterPage() {
             return;
         }
 
+
         // Start loading
         setLoading(true);
 
         try {
             // Call backend API to register user
             const response = await registerUser(
-                formData.email,
+                sanitizedEmail,
                 formData.password
             );
 
-            // Check if registration was successful
             if (response.success) {
-                toastService.success('Registration successful! Check your email for the verification code.');
+                toastService.success('Registration successful! Check your email for your Anonymous Code.');
                 setSuccess(true);
 
                 setTimeout(() => {
@@ -75,32 +76,32 @@ export default function RegisterPage() {
                             <Mail className="h-12 w-12 text-blue-600" />
                         </div>
                     </div>
-                    <h2 className="text-2xl font-bold text-text-primary mb-2">Check Your Email! 📧</h2>
+                    <h2 className="text-2xl font-bold text-text-primary mb-2">Registration Successful! 📧</h2>
                     <p className="text-text-secondary mb-6">
-                        We've sent a verification link to <span className="font-semibold">{formData.email}</span>
+                        We've securely generated your Anonymous Access Code and sent it to <span className="font-semibold">{formData.email}</span>
                     </p>
-                    
+
                     {/* Instructions Box */}
                     <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-6 text-left">
                         <p className="text-sm font-semibold text-gray-800 mb-3">📧 What to do next:</p>
                         <ol className="text-sm text-gray-700 space-y-2 list-decimal list-inside">
                             <li>Check your college email inbox</li>
-                            <li>Click the verification link</li>
-                            <li>Your anonymous code is in the email</li>
-                            <li>Save the code and use it to login</li>
+                            <li>Find the email titled "Registration Successful"</li>
+                            <li>Locate your unique Anonymous Access Code</li>
+                            <li>Go to the Login page and use it to securely access the platform.</li>
                         </ol>
                     </div>
 
                     {/* Info Box */}
                     <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
                         <p className="text-sm text-amber-800">
-                            <strong>💡 Tip:</strong> Check your spam/junk folder if you don't see the email.
+                            <strong>💡 Note:</strong> Your email address is strictly used for code retrieval and is completely decoupled from your reports to ensure guaranteed anonymity.
                         </p>
                     </div>
 
                     {/* Countdown Message */}
                     <p className="text-xs text-text-secondary mb-6">
-                        Redirecting to login page in 5 seconds...
+                        Redirecting to login page in 3 seconds...
                     </p>
 
                     {/* Manual Navigation Button */}
@@ -161,13 +162,10 @@ export default function RegisterPage() {
                         disabled={loading}
                     />
 
-                    
 
-                    
-
-                    <Button 
-                        type="submit" 
-                        className="w-full" 
+                    <Button
+                        type="submit"
+                        className="w-full"
                         size="lg"
                         disabled={loading}
                     >

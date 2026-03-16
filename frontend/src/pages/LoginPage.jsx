@@ -41,7 +41,7 @@ export default function LoginPage() {
             // Check if login was successful
             if (response.success) {
                 toastService.success('Login successful! Redirecting to your dashboard...');
-                
+
                 // Prepare user data
                 const userData = {
                     email: response.user?.email || formData.email,
@@ -124,7 +124,7 @@ export default function LoginPage() {
                             )}
                         >
                             <Mail className="h-4 w-4" />
-                            Staff & User Login
+                            Admin Login
                         </button>
                     </div>
                 </div>
@@ -166,7 +166,7 @@ export default function LoginPage() {
                                     <Shield className="h-5 w-5 text-purple-600 flex-shrink-0 mt-0.5" />
                                     <div className="text-sm text-purple-800">
                                         <p className="font-semibold mb-1">Administrative Access</p>
-                                        For Admins, Counsellors, Executives, and registered users.
+                                        For Platform Administrators only.
                                     </div>
                                 </div>
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Send, Lock } from 'lucide-react';
 import { useToast } from '../../hooks/useToast';
+import storyService from '../../services/storyService';
 
 export function ShareStoryModal({ isOpen, onClose }) {
     const { addToast } = useToast();
@@ -13,12 +14,35 @@ export function ShareStoryModal({ isOpen, onClose }) {
 
     if (!isOpen) return null;
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Simulate API call
-        addToast('success', "Your story has been submitted for review!");
-        onClose();
-        setFormData({ title: '', content: '', isAnonymous: true, tags: '' });
+        setIsSubmitting(true);
+        try {
+            // Process tags into array
+            const tagsArray = formData.tags ? formData.tags.split(',').map(tag => tag.trim()) : [];
+
+            const payload = {
+                title: formData.title,
+                content: formData.content,
+                isAnonymous: formData.isAnonymous,
+                tags: tagsArray
+            };
+
+            const res = await storyService.submitStory(payload);
+
+            if (res.success) {
+                addToast('success', "Your story has been submitted for review! An admin will review it shortly.");
+                onClose();
+                setFormData({ title: '', content: '', isAnonymous: true, tags: '' });
+            } else {
+                addToast('error', res.message || "Failed to submit story");
+            }
+        } catch (err) {
+            addToast('error', err.message || "An error occurred while sharing your story.");
+            console.error(err);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (

@@ -1,0 +1,54 @@
+﻿
+> frontend@0.0.0 build
+> vite build
+
+[36mvite v5.4.21 [32mbuilding for production...[36m[39m
+transforming...
+[32mΓ£ô[39m 21 modules transformed.
+node.exe : [31mx[39m 
+Build failed in 1.09s
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" 
+"C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
+    + CategoryInfo         
+     : NotSpecified: ([3  
+  1mx[39m Build failed    
+ in 1.09s:String) [], R    
+emoteException
+    + FullyQualifiedErrorI 
+   d : NativeCommandError
+ 
+[31merror during build:
+[31mCould not resolve 
+"./pages/EscalatePage" 
+from "src/App.jsx"[31m
+file: [36mC:/capstone-proj
+ect/safe-speak/safe-speak/f
+rontend/src/App.jsx[31m
+    at getRollupError (file
+:///C:/capstone-project/saf
+e-speak/safe-speak/frontend
+/node_modules/rollup/dist/e
+s/shared/parseAst.js:401:41
+)
+    at error (file:///C:/ca
+pstone-project/safe-speak/s
+afe-speak/frontend/node_mod
+ules/rollup/dist/es/shared/
+parseAst.js:397:42)
+    at ModuleLoader.handleI
+nvalidResolvedId (file:///C
+:/capstone-project/safe-spe
+ak/safe-speak/frontend/node
+_modules/rollup/dist/es/sha
+red/node-entry.js:21710:24)
+    at file:///C:/capstone-
+project/safe-speak/safe-spe
+ak/frontend/node_modules/ro
+llup/dist/es/shared/node-en
+try.js:21670:26[39m

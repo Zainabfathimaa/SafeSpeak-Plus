@@ -5,14 +5,15 @@ import {
     getUserReports,
     getReportById,
     updateReportStatus,
-    appealReport
+    appealReport,
+    escalateReport
 } from '../controllers/reportController.js';
 import { authenticate, authorize } from '../middleware/auth.js';
 import rateLimit from 'express-rate-limit';
 
 // Limit to 5 reports per IP per 24 hours
 const reportLimiter = rateLimit({
-    windowMs: 24 * 60 * 60 * 1000, 
+    windowMs: 24 * 60 * 60 * 1000,
     max: 5,
     message: {
         success: false,
@@ -33,18 +34,21 @@ router.post('/', authenticate, reportLimiter, createReport);
 // Get User's Own Reports
 router.get('/my-reports', authenticate, getUserReports);
 
-// Get All Reports (Admin/Staff only)
+// Get All Reports (Admin only)
 // Explicitly list allowed roles for accessing all reports
-router.get('/', authenticate, authorize('admin', 'counsellor', 'executive', 'compliance-officer', 'department-head'), getAllReports);
+router.get('/', authenticate, authorize('admin'), getAllReports);
 
 // Get Single Report (User sees own, Staff sees all)
 // Logic for permission check is inside the controller
 router.get('/:id', authenticate, getReportById);
 
-// Update Report Status (Admin/Staff only)
-router.patch('/:id/status', authenticate, authorize('admin', 'counsellor', 'executive'), updateReportStatus);
+// Update Report Status (Admin only)
+router.patch('/:id/status', authenticate, authorize('admin'), updateReportStatus);
 
 // Appeal a closed/archived report (User only)
 router.post('/:id/appeal', authenticate, appealReport);
+
+// Escalate a report to super admin (User only)
+router.post('/:id/escalate', authenticate, escalateReport);
 
 export default router;

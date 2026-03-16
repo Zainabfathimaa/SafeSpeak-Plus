@@ -44,9 +44,9 @@ const createTransporter = () => {
   const host = process.env.SMTP_HOST || 'smtp.gmail.com';
   const port = parseInt(process.env.SMTP_PORT || '587');
   const secure = process.env.SMTP_SECURE === 'true';
-  
+
   console.log(`📧 SMTP Transporter: ${host}:${port} (secure: ${secure})`);
-  
+
   return nodemailer.createTransport({
     host: host,
     port: port,
@@ -58,25 +58,21 @@ const createTransporter = () => {
   });
 };
 
-const transporter = createTransporter();
+export const transporter = createTransporter();
 
 /**
- * SEND VERIFICATION EMAIL using server SMTP configuration
+ * SEND REGISTRATION EMAIL using server SMTP configuration
+ * Provides the Anonymous Code without requiring email verification.
  * 
  * @param {string} toEmail - Recipient email address (user's college email)
- * @param {string} verificationToken - Token for verification link
  * @param {string} anonymousCode - Anonymous access code
- * @param {string} baseUrl - Base URL of your app
  */
-export const sendVerificationEmail = async (toEmail, verificationToken, anonymousCode, baseUrl) => {
+export const sendRegistrationEmail = async (toEmail, anonymousCode) => {
   try {
     // Use server SMTP transporter (configured via .env)
-    console.log('📧 Sending verification email via server SMTP');
+    console.log('📧 Sending registration email via server SMTP');
     console.log('   From:', process.env.SMTP_EMAIL);
     console.log('   To:', toEmail);
-
-    // CREATE VERIFICATION LINK
-    const verificationLink = `${baseUrl}/verify-email?token=${verificationToken}`;
 
     // CREATE EMAIL CONTENT (HTML)
     const htmlContent = `
@@ -90,7 +86,6 @@ export const sendVerificationEmail = async (toEmail, verificationToken, anonymou
           .content { margin: 20px 0; padding: 20px; border: 1px solid #eee; border-radius: 5px; }
           .code-box { background: #f0f0f0; padding: 15px; border-left: 4px solid #667eea; margin: 20px 0; }
           .code-text { font-size: 24px; font-weight: bold; color: #667eea; text-align: center; letter-spacing: 2px; }
-          .button { display: inline-block; background: #667eea; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 10px 0; }
           .footer { margin-top: 20px; font-size: 12px; color: #666; border-top: 1px solid #eee; padding-top: 10px; }
         </style>
       </head>
@@ -101,13 +96,8 @@ export const sendVerificationEmail = async (toEmail, verificationToken, anonymou
           </div>
           
           <div class="content">
-            <p>Thank you for registering with your college email!</p>
-            
-            <p>Please verify your email address by clicking the button below.</p>
-            
-            <p style="text-align: center;">
-              <a href="${verificationLink}" class="button">Verify Email Address</a>
-            </p>
+            <p>Thank you for registering your safe space account.</p>
+            <p>Your registration was successful! We have generated your secure, untraceable access identity.</p>
             
             <p><strong>Your Anonymous Access Code:</strong></p>
             <div class="code-box">
@@ -117,14 +107,11 @@ export const sendVerificationEmail = async (toEmail, verificationToken, anonymou
             
             <p><strong>What to do next:</strong></p>
             <ol>
-              <li>Click the button above to verify your email</li>
-              <li>Save your anonymous access code: <strong>${anonymousCode}</strong></li>
-              <li>You can now login anonymously using this code</li>
+              <li>To protect your identity, do NOT share this code with anyone.</li>
+              <li>You can now log in anonymously strictly using this code.</li>
+              <li>Your college email is never attached to your reports.</li>
             </ol>
             
-            <p style="color: #666; font-size: 12px;">
-              <strong>Note:</strong> This link expires in 24 hours for security reasons.
-            </p>
           </div>
           
           <div class="footer">
@@ -141,20 +128,20 @@ export const sendVerificationEmail = async (toEmail, verificationToken, anonymou
     const info = await transporter.sendMail({
       from: process.env.SMTP_EMAIL,
       to: toEmail,
-      subject: '✓ Email Verification - SafeSpeak-Plus | Your Anonymous Code Inside',
+      subject: '✓ Registration Successful - SafeSpeak-Plus | Your Anonymous Code Inside',
       html: htmlContent
     });
 
-    console.log('✓ Verification email sent:', info.messageId);
+    console.log('✓ Registration email sent:', info.messageId);
     return { success: true, messageId: info.messageId };
 
   } catch (error) {
     console.error('✗ Email sending failed:', error.message);
-    
+
     // Return specific error message
-    return { 
-      success: false, 
-      message: error.message.includes('Invalid login') 
+    return {
+      success: false,
+      message: error.message.includes('Invalid login')
         ? 'Invalid Gmail credentials. Please check your Gmail app password.'
         : 'Failed to send email. ' + error.message
     };
@@ -181,15 +168,14 @@ export const sendEmail = async (to, subject, text) => {
 /**
  * SEND ANONYMOUS CODE EMAIL (for forgot-code feature)
  * 
- * User forgot their anonymous code, so we resend it
+ * User successfully reset their anonymous code.
  * 
  * @param {string} toEmail - Recipient email address
- * @param {string} anonymousCode - The anonymous access code
- * @param {string} baseUrl - Base URL of your app
+ * @param {string} anonymousCode - The new anonymous access code
  */
-export const sendAnonymousCodeEmail = async (toEmail, anonymousCode, baseUrl) => {
+export const sendAnonymousCodeEmail = async (toEmail, anonymousCode) => {
   try {
-    console.log('📧 Sending anonymous code to:', toEmail);
+    console.log('📧 Sending new anonymous code to:', toEmail);
 
     const htmlContent = `
       <!DOCTYPE html>
@@ -208,13 +194,14 @@ export const sendAnonymousCodeEmail = async (toEmail, anonymousCode, baseUrl) =>
       <body>
         <div class="container">
           <div class="header">
-            <h1>Your Anonymous Code - SafeSpeak-Plus 🎓</h1>
+            <h1>Your Anonymous Code was Reset - SafeSpeak-Plus 🎓</h1>
           </div>
           
           <div class="content">
-            <p>Here's your anonymous access code. Keep it safe!</p>
+            <p>You requested an Anonymous Code reset from the SafeSpeak portal.</p>
+            <p>Your previous code has been invalidated. Here is your newly generated anonymous access code. Keep it safe!</p>
             
-            <p><strong>Your Anonymous Access Code:</strong></p>
+            <p><strong>Your NEW Anonymous Access Code:</strong></p>
             <div class="code-box">
               <div class="code-text">${anonymousCode}</div>
               <p style="text-align: center; margin: 10px 0 0 0; color: #666; font-size: 12px;">Use this code to login anonymously</p>
@@ -223,13 +210,12 @@ export const sendAnonymousCodeEmail = async (toEmail, anonymousCode, baseUrl) =>
             <p><strong>How to use:</strong></p>
             <ol>
               <li>Go to the login page</li>
-              <li>Select "Anonymous Login"</li>
-              <li>Enter your code: <strong>${anonymousCode}</strong></li>
-              <li>You're logged in anonymously!</li>
+              <li>Select the "Anonymous Code" tab</li>
+              <li>Enter your precise code: <strong>${anonymousCode}</strong></li>
             </ol>
             
             <p style="color: #666; font-size: 12px;">
-              <strong>Security:</strong> This is your unique code. Don't share it with others.
+              <strong>Security:</strong> This is your unique code. Don't share it with others. If you did not request this, please change your password instantly.
             </p>
           </div>
           
@@ -245,7 +231,7 @@ export const sendAnonymousCodeEmail = async (toEmail, anonymousCode, baseUrl) =>
     const info = await transporter.sendMail({
       from: process.env.SMTP_EMAIL,
       to: toEmail,
-      subject: '🔐 Your Anonymous Code - SafeSpeak-Plus',
+      subject: '🔐 Your Reset Anonymous Code - SafeSpeak-Plus',
       html: htmlContent
     });
 
@@ -304,10 +290,10 @@ export const sendPasswordResetEmail = async (email, resetToken, baseUrl) => {
 export const testEmailConnection = async () => {
   try {
     console.log('Testing email connection...');
-    
+
     // Verify SMTP connection
     const verified = await transporter.verify();
-    
+
     if (verified) {
       console.log('✓ Email service is configured correctly!');
       console.log(`  From: ${process.env.SMTP_EMAIL}`);
@@ -325,7 +311,8 @@ export const testEmailConnection = async () => {
 };
 
 export default {
-  sendVerificationEmail,
+  sendRegistrationEmail,
   sendPasswordResetEmail,
-  testEmailConnection
+  testEmailConnection,
+  transporter
 };

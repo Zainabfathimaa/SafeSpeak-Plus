@@ -37,30 +37,6 @@ const testUsers = [
     anonymousCode: generateAnonymousCode()
   },
   {
-    email: 'counsellor@safespeak.com',
-    password: 'Counsellor@12345',
-    fullName: 'Counsellor User',
-    role: 'counsellor',
-    isEmailVerified: true,
-    anonymousCode: generateAnonymousCode()
-  },
-  {
-    email: 'executive@safespeak.com',
-    password: 'Executive@12345',
-    fullName: 'Executive User',
-    role: 'executive',
-    isEmailVerified: true,
-    anonymousCode: generateAnonymousCode()
-  },
-  {
-    email: 'compliance@safespeak.com',
-    password: 'Compliance@12345',
-    fullName: 'Compliance Officer',
-    role: 'compliance-officer',
-    isEmailVerified: true,
-    anonymousCode: generateAnonymousCode()
-  },
-  {
     email: 'user@safespeak.com',
     password: 'User@12345',
     fullName: 'Regular User',
@@ -92,21 +68,21 @@ async function seedRoles() {
     console.log('═══════════════════════════════════════════════════════');
     console.log('          LOGIN CREDENTIALS FOR TESTING');
     console.log('═══════════════════════════════════════════════════════\n');
-    
+
     // Print email/password login
     console.log('EMAIL & PASSWORD LOGIN:');
     console.log('─────────────────────────');
     testUsers.forEach(u => {
       console.log(`${u.role.toUpperCase().padEnd(19)}: ${u.email.padEnd(30)} / ${u.password}`);
     });
-    
+
     // Print anonymous code login
     console.log('\n\nANONYMOUS CODE LOGIN:');
     console.log('────────────────────');
     testUsers.forEach(u => {
       console.log(`${u.role.toUpperCase().padEnd(19)}: ${u.anonymousCode}`);
     });
-    
+
     console.log('\n═══════════════════════════════════════════════════════\n');
 
     process.exit(0);

@@ -16,7 +16,6 @@ export function Sidebar() {
         { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
         { path: '/report-status', label: 'My Reports', icon: FileText },
         { path: '/messages', label: 'Messages', icon: MessageSquare },
-        { path: '/escalate', label: 'Escalate', icon: ArrowUpRight },
         { path: '/stories', label: 'Stories', icon: BookOpen },
     ];
 

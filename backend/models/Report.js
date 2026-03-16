@@ -147,6 +147,32 @@ const reportSchema = new mongoose.Schema({
         type: String,
         enum: ['Low', 'Medium', 'High'],
         default: 'Medium'
+    },
+
+    // ===================================
+    // ESCALATION DETAILS
+    // ===================================
+    escalationDetails: {
+        isEscalated: {
+            type: Boolean,
+            default: false
+        },
+        escalatedTo: {
+            type: String,
+            default: null
+        },
+        message: {
+            type: String,
+            default: null
+        },
+        identityDisclosed: {
+            type: Boolean,
+            default: false
+        },
+        escalatedAt: {
+            type: Date,
+            default: null
+        }
     }
 
 }, {

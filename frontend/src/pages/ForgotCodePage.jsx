@@ -7,6 +7,7 @@ import { Input } from '../components/ui/Input';
 export default function ForgotCodePage() {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -14,6 +15,11 @@ export default function ForgotCodePage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
+
+        if (!email || !password) {
+            setError('Both college email and password are required.');
+            return;
+        }
 
         // Validate email
         if (!email.toLowerCase().endsWith('@cmr.edu.in')) {
@@ -29,7 +35,7 @@ export default function ForgotCodePage() {
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
+                    body: JSON.stringify({ email, password })
                 }
             );
 
@@ -121,6 +127,16 @@ export default function ForgotCodePage() {
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        disabled={loading}
+                    />
+
+                    <Input
+                        label="Account Password"
+                        type="password"
+                        placeholder="••••••••"
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                         disabled={loading}
                     />
 

@@ -1,7 +1,6 @@
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
-import crypto from 'crypto';
-import { sendVerificationEmail } from '../utils/emailService.js';
+import { sendRegistrationEmail } from '../utils/emailService.js';
 
 /* Generate JWT */
 const generateToken = (userId, email, role) => {
@@ -15,14 +14,10 @@ const generateToken = (userId, email, role) => {
 /* Register */
 export const register = async (req, res) => {
   try {
-    const { email, password, confirmPassword, fullName } = req.body;
+    const { email, password, fullName } = req.body;
 
-    if (!email || !password || !confirmPassword) {
+    if (!email || !password) {
       return res.status(400).json({ success: false, message: 'Missing fields' });
-    }
-
-    if (password !== confirmPassword) {
-      return res.status(400).json({ success: false, message: 'Passwords do not match' });
     }
 
     const existingUser = await User.findOne({ email: email.toLowerCase() });
@@ -34,28 +29,22 @@ export const register = async (req, res) => {
       email: email.toLowerCase(),
       password,
       fullName: fullName || null,
-      isEmailVerified: false
+      isEmailVerified: true // Automatically verified
     });
-
-    const verificationToken = crypto.randomBytes(32).toString('hex');
-    newUser.verificationToken = verificationToken;
-    newUser.verificationTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
     // Generate Anonymous Code immediately upon registration
     newUser.anonymousCode = newUser.generateAnonymousCode();
 
     await newUser.save();
 
-    await sendVerificationEmail(
+    await sendRegistrationEmail(
       email,
-      verificationToken,
-      newUser.anonymousCode,
-      process.env.FRONTEND_URL
+      newUser.anonymousCode
     );
 
     res.status(201).json({
       success: true,
-      message: 'Registration successful. Please check your email for verification.'
+      message: 'Registration successful. Please check your email for your anonymous code.'
     });
 
   } catch (error) {
@@ -135,65 +124,38 @@ export const anonymousLogin = async (req, res) => {
   }
 };
 
-/* Verify Email */
-export const verifyEmail = async (req, res) => {
-  try {
-    const { token } = req.body;
 
-    const user = await User.findOne({
-      verificationToken: token,
-      verificationTokenExpiry: { $gt: new Date() }
-    });
-
-    if (!user) {
-      return res.status(400).json({ success: false, message: 'Invalid or expired token' });
-    }
-
-    user.isEmailVerified = true;
-    user.verificationToken = null;
-    user.verificationTokenExpiry = null;
-
-    // If user somehow doesn't have an anonymous code (legacy accounts), generate one now
-    if (!user.anonymousCode) {
-      user.anonymousCode = user.generateAnonymousCode();
-    }
-
-    await user.save();
-
-    res.status(200).json({ success: true, message: 'Email verified successfully', anonymousCode: user.anonymousCode });
-
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Verification failed' });
-  }
-};
 
 /* Forgot Code */
 export const forgotCode = async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email, password } = req.body;
 
-    if (!email) {
-      return res.status(400).json({ success: false, message: 'Please provide your college email' });
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: 'Please provide both your college email and your account password' });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
 
     if (!user) {
-      // We return a standard success message to prevent email enumeration attacks
-      return res.status(200).json({ success: true, message: 'If an account exists, the code has been sent.' });
+      return res.status(401).json({ success: false, message: 'Incorrect identity credentials.' });
     }
 
-    if (!user.anonymousCode) {
-      // In the rare edge case an old account lacks a code, generate one
-      user.anonymousCode = user.generateAnonymousCode();
-      await user.save();
+    // Verify ownership by checking the password
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, message: 'Incorrect identity credentials.' });
     }
 
-    // Send the email
+    // Regenerate and reset the Anonymous Code for security
+    user.anonymousCode = user.generateAnonymousCode();
+    await user.save();
+
+    // Send the email with the new code
     const { sendAnonymousCodeEmail } = await import('../utils/emailService.js');
-    await sendAnonymousCodeEmail(user.email, user.anonymousCode, process.env.FRONTEND_URL);
+    await sendAnonymousCodeEmail(user.email, user.anonymousCode);
 
-    res.status(200).json({ success: true, message: 'Anonymous code sent successfully to email' });
+    res.status(200).json({ success: true, message: 'Your identity was verified and a new anonymous code was sent to your email.' });
 
   } catch (error) {
     console.error('Forgot Code Error: ', error);
