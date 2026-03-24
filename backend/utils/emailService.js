@@ -147,25 +147,35 @@ export const sendRegistrationEmail = async (toEmail, anonymousCode) => {
 
     // SEND EMAIL using server transporter
     const transporter = getTransporter();
+    console.log(`⏳ Nodemailer: Sending to [${toEmail}] from [${process.env.SMTP_EMAIL}]`);
+    
     const info = await transporter.sendMail({
-      from: process.env.SMTP_EMAIL,
+      from: process.env.SMTP_EMAIL, // Simplified From header
       to: toEmail,
       subject: '✓ Registration Successful - SafeSpeak-Plus | Your Anonymous Code Inside',
       html: htmlContent
     });
 
-    console.log('✓ Registration email sent:', info.messageId);
-    return { success: true, messageId: info.messageId };
+    console.log('✅ Email Result:', {
+      messageId: info.messageId,
+      accepted: info.accepted,
+      rejected: info.rejected,
+      response: info.response
+    });
+
+    if (info.accepted.length > 0) {
+      console.log(`✓ Email successfully accepted for delivery to: ${info.accepted.join(', ')}`);
+      return { success: true, messageId: info.messageId };
+    } else {
+      console.warn('⚠️ Email was not accepted by any recipient.');
+      return { success: false, message: 'Email was not accepted by the mail server.' };
+    }
 
   } catch (error) {
-    console.error('✗ Email sending failed:', error.message);
-
-    // Return specific error message
+    console.error('✗ CRITICAL Email Error:', error);
     return {
       success: false,
-      message: error.message.includes('Invalid login')
-        ? 'Invalid Gmail credentials. Please check your Gmail app password.'
-        : 'Failed to send email. ' + error.message
+      message: error.message
     };
   }
 };
