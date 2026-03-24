@@ -22,10 +22,10 @@ export default function RegisterPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Validation: Check if email ends with @cmr.edu.in
+        // Validation: Verify it's a valid email format
         const sanitizedEmail = formData.email.trim().toLowerCase();
-        if (!sanitizedEmail.endsWith('@cmr.edu.in')) {
-            toastService.error('Please use your college email (@cmr.edu.in)');
+        if (!sanitizedEmail.includes('@')) {
+            toastService.error('Please enter a valid email address');
             return;
         }
 
