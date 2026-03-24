@@ -41,23 +41,40 @@ import nodemailer from 'nodemailer';
  */
 
 const createTransporter = () => {
+  const service = process.env.SMTP_SERVICE;
   const host = process.env.SMTP_HOST || 'smtp.gmail.com';
   const port = parseInt(process.env.SMTP_PORT || '587');
   const secure = process.env.SMTP_SECURE === 'true';
 
-  console.log(`📧 SMTP Transporter: ${host}:${port} (secure: ${secure})`);
+  const auth = {
+    user: process.env.SMTP_EMAIL || '',
+    pass: process.env.SMTP_PASSWORD || ''
+  };
 
+  const commonConfig = {
+    auth,
+    connectionTimeout: 10000, 
+    greetingTimeout: 10000,   
+    socketTimeout: 15000      
+  };
+
+  // If a service (like 'gmail') is specified, use it directly.
+  // Shorthand 'service' is often better for Cloud providers like Render/Vercel.
+  if (service && service.toLowerCase() !== 'custom') {
+    console.log(`📧 SMTP Transporter using Service: ${service}`);
+    return nodemailer.createTransport({
+      service: service,
+      ...commonConfig
+    });
+  }
+
+  // Fallback to host/port configuration
+  console.log(`📧 SMTP Transporter using Host: ${host}:${port} (secure: ${secure})`);
   return nodemailer.createTransport({
     host: host,
     port: port,
     secure: secure,
-    auth: {
-      user: process.env.SMTP_EMAIL || '',
-      pass: process.env.SMTP_PASSWORD || ''
-    },
-    connectionTimeout: 10000, // 10 seconds
-    greetingTimeout: 10000,   // 10 seconds
-    socketTimeout: 15000      // 15 seconds
+    ...commonConfig
   });
 };
 
