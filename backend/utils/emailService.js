@@ -187,9 +187,19 @@ export const sendRegistrationEmail = async (toEmail, anonymousCode) => {
         html: htmlContent
       };
       
-      const [response] = await sgMail.send(msg);
-      console.log('✅ SendGrid Success:', response.statusCode);
-      return { success: true, messageId: response.headers['x-message-id'] };
+      try {
+        const [response] = await sgMail.send(msg);
+        console.log('✅ SendGrid Success:', response.statusCode);
+        return { success: true, messageId: response.headers['x-message-id'] };
+      } catch (sgErr) {
+        console.error('❌ SendGrid API Error:');
+        if (sgErr.response && sgErr.response.body) {
+          console.error(JSON.stringify(sgErr.response.body, null, 2));
+        } else {
+          console.error(sgErr.message);
+        }
+        return { success: false, message: sgErr.message };
+      }
     }
 
     // FALLBACK TO NODEMAILER/SMTP (Original logic, remains for local dev)
@@ -356,9 +366,19 @@ export const sendAnonymousCodeEmail = async (toEmail, anonymousCode) => {
         html: htmlContent
       };
       
-      const [response] = await sgMail.send(msg);
-      console.log('✅ SendGrid Success:', response.statusCode);
-      return { success: true, messageId: response.headers['x-message-id'] };
+      try {
+        const [response] = await sgMail.send(msg);
+        console.log('✅ SendGrid Success:', response.statusCode);
+        return { success: true, messageId: response.headers['x-message-id'] };
+      } catch (sgErr) {
+        console.error('❌ SendGrid API Error (Reset Code):');
+        if (sgErr.response && sgErr.response.body) {
+          console.error(JSON.stringify(sgErr.response.body, null, 2));
+        } else {
+          console.error(sgErr.message);
+        }
+        return { success: false, message: sgErr.message };
+      }
     }
 
     // FALLBACK TO NODEMAILER
