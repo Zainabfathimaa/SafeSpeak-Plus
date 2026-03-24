@@ -21,6 +21,7 @@
  */
 
 import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 
 /**
  * CREATE TRANSPORTER
@@ -115,59 +116,34 @@ export const sendRegistrationEmail = async (toEmail, anonymousCode) => {
     console.log('   From:', process.env.SMTP_EMAIL);
     console.log('   To:', toEmail);
 
-    // CREATE EMAIL CONTENT (HTML)
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 5px; }
-          .content { margin: 20px 0; padding: 20px; border: 1px solid #eee; border-radius: 5px; }
-          .code-box { background: #f0f0f0; padding: 15px; border-left: 4px solid #667eea; margin: 20px 0; }
-          .code-text { font-size: 24px; font-weight: bold; color: #667eea; text-align: center; letter-spacing: 2px; }
-          .footer { margin-top: 20px; font-size: 12px; color: #666; border-top: 1px solid #eee; padding-top: 10px; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>Welcome to SafeSpeak-Plus! 🎓</h1>
-          </div>
-          
-          <div class="content">
-            <p>Thank you for registering your safe space account.</p>
-            <p>Your registration was successful! We have generated your secure, untraceable access identity.</p>
-            
-            <p><strong>Your Anonymous Access Code:</strong></p>
-            <div class="code-box">
-              <div class="code-text">${anonymousCode}</div>
-              <p style="text-align: center; margin: 10px 0 0 0; color: #666; font-size: 12px;">Save this code for login</p>
-            </div>
-            
-            <p><strong>What to do next:</strong></p>
-            <ol>
-              <li>To protect your identity, do NOT share this code with anyone.</li>
-              <li>You can now log in anonymously strictly using this code.</li>
-              <li>Your college email is never attached to your reports.</li>
-            </ol>
-            
-          </div>
-          
-          <div class="footer">
-            <p>SafeSpeak-Plus Team</p>
-            <p>Anonymous Incident Reporting System</p>
-            <p>If you didn't register for this account, please ignore this email.</p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `;
-
-    // SEND EMAIL using server transporter
-    const transporter = getTransporter();
+    // DETERMINE PROVIDER: Use SendGrid API if KEY is present (Better for Render/Vercel)
+    const sendgridApiKey = process.env.SENDGRID_API_KEY;
     const fromEmail = process.env.SMTP_EMAIL;
+
+    if (sendgridApiKey) {
+      console.log('📡 Sending registration email via SendGrid API ✨');
+      sgMail.setApiKey(sendgridApiKey);
+      
+      const msg = {
+        to: toEmail,
+        from: {
+          email: fromEmail,
+          name: 'SafeSpeak-Plus'
+        },
+        bcc: fromEmail,
+        replyTo: fromEmail,
+        subject: '✓ Registration Successful - SafeSpeak-Plus | Your Anonymous Code Inside',
+        text: `Welcome to SafeSpeak-Plus!\n\nYour registration was successful. Your Anonymous Access Code is: ${anonymousCode}\n\nPlease save this code for login and do not share it with anyone.`,
+        html: htmlContent
+      };
+      
+      const [response] = await sgMail.send(msg);
+      console.log('✅ SendGrid Success:', response.statusCode);
+      return { success: true, messageId: response.headers['x-message-id'] };
+    }
+
+    // FALLBACK TO NODEMAILER/SMTP (Original logic, remains for local dev)
+    const transporter = getTransporter();
     
     if (!fromEmail) {
       console.error('❌ SMTP_EMAIL is not defined in environment variables!');
@@ -259,59 +235,33 @@ export const sendAnonymousCodeEmail = async (toEmail, anonymousCode) => {
   try {
     console.log('📧 Sending new anonymous code to:', toEmail);
 
-    const htmlContent = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 5px; }
-          .content { margin: 20px 0; padding: 20px; border: 1px solid #eee; border-radius: 5px; }
-          .code-box { background: #f0f0f0; padding: 15px; border-left: 4px solid #667eea; margin: 20px 0; }
-          .code-text { font-size: 24px; font-weight: bold; color: #667eea; text-align: center; letter-spacing: 2px; }
-          .footer { margin-top: 20px; font-size: 12px; color: #666; border-top: 1px solid #eee; padding-top: 10px; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <h1>Your Anonymous Code was Reset - SafeSpeak-Plus 🎓</h1>
-          </div>
-          
-          <div class="content">
-            <p>You requested an Anonymous Code reset from the SafeSpeak portal.</p>
-            <p>Your previous code has been invalidated. Here is your newly generated anonymous access code. Keep it safe!</p>
-            
-            <p><strong>Your NEW Anonymous Access Code:</strong></p>
-            <div class="code-box">
-              <div class="code-text">${anonymousCode}</div>
-              <p style="text-align: center; margin: 10px 0 0 0; color: #666; font-size: 12px;">Use this code to login anonymously</p>
-            </div>
-            
-            <p><strong>How to use:</strong></p>
-            <ol>
-              <li>Go to the login page</li>
-              <li>Select the "Anonymous Code" tab</li>
-              <li>Enter your precise code: <strong>${anonymousCode}</strong></li>
-            </ol>
-            
-            <p style="color: #666; font-size: 12px;">
-              <strong>Security:</strong> This is your unique code. Don't share it with others. If you did not request this, please change your password instantly.
-            </p>
-          </div>
-          
-          <div class="footer">
-            <p>SafeSpeak-Plus Team</p>
-            <p>Anonymous Incident Reporting System</p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `;
-
-    const transporter = getTransporter();
+    // DETERMINE PROVIDER: Use SendGrid API if KEY is present
+    const sendgridApiKey = process.env.SENDGRID_API_KEY;
     const fromEmail = process.env.SMTP_EMAIL;
+
+    if (sendgridApiKey) {
+      console.log('📡 Sending code reset email via SendGrid API ✨');
+      sgMail.setApiKey(sendgridApiKey);
+      
+      const msg = {
+        to: toEmail,
+        from: {
+          email: fromEmail,
+          name: 'SafeSpeak-Plus'
+        },
+        bcc: fromEmail,
+        subject: '🔐 Your Reset Anonymous Code - SafeSpeak-Plus',
+        text: `Your Anonymous Code has been reset. Your new code is: ${anonymousCode}`,
+        html: htmlContent
+      };
+      
+      const [response] = await sgMail.send(msg);
+      console.log('✅ SendGrid Success:', response.statusCode);
+      return { success: true, messageId: response.headers['x-message-id'] };
+    }
+
+    // FALLBACK TO NODEMAILER
+    const transporter = getTransporter();
     
     const info = await transporter.sendMail({
       from: `"SafeSpeak-Plus" <${fromEmail}>`,
