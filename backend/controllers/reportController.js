@@ -435,7 +435,7 @@ SafeSpeak+ System Security
                 // Ensure sendEmail signature allows attachments or use standard notification
                 const { transporter } = await import('../utils/emailService.js');
                 await transporter.sendMail({
-                    from: `"Safe Speak Platform" <${process.env.SMTP_USER}>`,
+                    from: `"Safe Speak Platform" <${process.env.SMTP_EMAIL}>`,
                     to: superAdminEmail,
                     subject,
                     text: emailMessage,
