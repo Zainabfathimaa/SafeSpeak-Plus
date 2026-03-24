@@ -265,6 +265,21 @@ export const sendRegistrationEmailWithTimeout = async (toEmail, anonymousCode, t
   ]);
 };
 
+/**
+ * SEND ANONYMOUS CODE EMAIL WITH TIMEOUT
+ */
+export const sendAnonymousCodeEmailWithTimeout = async (toEmail, anonymousCode, timeoutMs = 15000) => {
+  return Promise.race([
+    sendAnonymousCodeEmail(toEmail, anonymousCode),
+    new Promise((resolve) => 
+      setTimeout(() => {
+        console.warn(`🕒 Code reset email timed out for ${toEmail} after ${timeoutMs}ms`);
+        resolve({ success: false, message: 'timeout' });
+      }, timeoutMs)
+    )
+  ]);
+};
+
 // generic email helper for other notifications
 export const sendEmail = async (to, subject, text) => {
   try {

@@ -4,6 +4,7 @@ import userService from '../../services/userService';
 import { useToast } from '../../hooks/useToast';
 import { AdminHeader } from '../../components/Admin/AdminHeader';
 import { AdminSidebar } from '../../components/Admin/AdminSidebar';
+import { Input } from '../../components/ui/Input';
 
 export default function AdminSettings() {
     const { addToast } = useToast();
@@ -317,42 +318,38 @@ export default function AdminSettings() {
                                                                 Rotate Password
                                                             </h3>
 
-                                                            <div>
-                                                                <label className="block text-sm font-semibold text-gray-700 mb-2">Current Admin Password</label>
-                                                                <input
+                                                            <div className="space-y-4">
+                                                                <Input
+                                                                    label="Current Admin Password"
                                                                     type="password"
                                                                     name="oldPassword"
                                                                     required
                                                                     value={securityData.oldPassword}
                                                                     onChange={handleSecurityChange}
-                                                                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 font-medium text-gray-800"
                                                                     placeholder="••••••••"
+                                                                    className="bg-white"
                                                                 />
-                                                            </div>
 
-                                                            <div className="grid grid-cols-2 gap-4">
-                                                                <div>
-                                                                    <label className="block text-sm font-semibold text-gray-700 mb-2">New Password</label>
-                                                                    <input
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                    <Input
+                                                                        label="New Password"
                                                                         type="password"
                                                                         name="newPassword"
                                                                         required
                                                                         value={securityData.newPassword}
                                                                         onChange={handleSecurityChange}
-                                                                        className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 font-medium text-gray-800"
                                                                         placeholder="••••••••"
+                                                                        className="bg-white"
                                                                     />
-                                                                </div>
-                                                                <div>
-                                                                    <label className="block text-sm font-semibold text-gray-700 mb-2">Confirm Password</label>
-                                                                    <input
+                                                                    <Input
+                                                                        label="Confirm Password"
                                                                         type="password"
                                                                         name="confirmPassword"
                                                                         required
                                                                         value={securityData.confirmPassword}
                                                                         onChange={handleSecurityChange}
-                                                                        className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 font-medium text-gray-800"
                                                                         placeholder="••••••••"
+                                                                        className="bg-white"
                                                                     />
                                                                 </div>
                                                             </div>

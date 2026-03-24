@@ -5,6 +5,7 @@ import { useToast } from '../hooks/useToast';
 import { ConfirmationModal } from '../components/ui/ConfirmationModal';
 import { Header } from '../components/Header';
 import { Sidebar } from '../components/Sidebar';
+import { Input } from '../components/ui/Input';
 
 export const UserSettingsPage = () => {
   const { addToast } = useToast();
@@ -620,42 +621,38 @@ export const UserSettingsPage = () => {
                             Change Password
                           </h3>
 
-                          <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider text-xs">Current Password</label>
-                            <input
+                          <div className="space-y-4">
+                            <Input
+                              label="Current Password"
                               type="password"
                               name="oldPassword"
                               required
                               value={securityData.oldPassword}
                               onChange={handleSecurityChange}
-                              className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
                               placeholder="••••••••"
+                              className="bg-white/70"
                             />
-                          </div>
 
-                          <div className="grid grid-cols-2 gap-5">
-                            <div>
-                              <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider text-xs">New Password</label>
-                              <input
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                              <Input
+                                label="New Password"
                                 type="password"
                                 name="newPassword"
                                 required
                                 value={securityData.newPassword}
                                 onChange={handleSecurityChange}
-                                className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
                                 placeholder="••••••••"
+                                className="bg-white/70"
                               />
-                            </div>
-                            <div>
-                              <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider text-xs">Confirm Password</label>
-                              <input
+                              <Input
+                                label="Confirm Password"
                                 type="password"
                                 name="confirmPassword"
                                 required
                                 value={securityData.confirmPassword}
                                 onChange={handleSecurityChange}
-                                className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
                                 placeholder="••••••••"
+                                className="bg-white/70"
                               />
                             </div>
                           </div>
