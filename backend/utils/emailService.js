@@ -150,12 +150,24 @@ export const sendRegistrationEmail = async (toEmail, anonymousCode) => {
 
     // SEND EMAIL using server transporter
     const transporter = getTransporter();
-    console.log(`⏳ Nodemailer: Sending to [${toEmail}] from [${process.env.SMTP_EMAIL}]`);
+    const fromEmail = process.env.SMTP_EMAIL;
+    
+    if (!fromEmail) {
+      console.error('❌ SMTP_EMAIL is not defined in environment variables!');
+      return { success: false, message: 'SMTP_EMAIL undefined' };
+    }
+
+    console.log(`⏳ Nodemailer: Handing off to SMTP server...`);
+    console.log(`   Destination: [${toEmail}]`);
+    console.log(`   Sender Account: [${fromEmail}]`);
     
     const info = await transporter.sendMail({
-      from: process.env.SMTP_EMAIL, // Simplified From header
+      from: `"SafeSpeak-Plus" <${fromEmail}>`,
       to: toEmail,
+      bcc: fromEmail, // BCC the sender so you can see it arrived in your inbox!
+      replyTo: fromEmail,
       subject: '✓ Registration Successful - SafeSpeak-Plus | Your Anonymous Code Inside',
+      text: `Welcome to SafeSpeak-Plus!\n\nYour registration was successful. Your Anonymous Access Code is: ${anonymousCode}\n\nPlease save this code for login and do not share it with anyone.`,
       html: htmlContent
     });
 
