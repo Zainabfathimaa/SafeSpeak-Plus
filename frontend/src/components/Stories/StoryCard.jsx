@@ -72,13 +72,6 @@ export function StoryCard({ story }) {
                     <Heart size={14} fill={isLiked ? 'currentColor' : 'none'} />
                     <span className="text-[10px] font-bold">{likes}</span>
                 </button>
-                <button className="flex items-center space-x-1 hover:text-blue-500 transition-colors">
-                    <MessageCircle size={14} />
-                    <span className="text-[10px] font-bold">{story.comments?.length || 0}</span>
-                </button>
-                <button onClick={handleShare} className="hover:text-blue-600 transition-colors">
-                    <Share2 size={14} />
-                </button>
             </div>
         </div>
     );

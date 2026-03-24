@@ -20,32 +20,32 @@ export const Toast = ({
 
   const styles = {
     success: {
-      bg: 'bg-green-50',
-      border: 'border-green-200',
+      bg: 'bg-white/80 backdrop-blur-md',
+      border: 'border-l-4 border-l-green-500 border-gray-100',
       icon: CheckCircle,
-      iconColor: 'text-green-600',
-      textColor: 'text-green-800'
+      iconColor: 'text-green-500',
+      textColor: 'text-gray-800'
     },
     error: {
-      bg: 'bg-red-50',
-      border: 'border-red-200',
+      bg: 'bg-white/80 backdrop-blur-md',
+      border: 'border-l-4 border-l-red-500 border-gray-100',
       icon: AlertCircle,
-      iconColor: 'text-red-600',
-      textColor: 'text-red-800'
+      iconColor: 'text-red-500',
+      textColor: 'text-gray-800'
     },
     warning: {
-      bg: 'bg-yellow-50',
-      border: 'border-yellow-200',
+      bg: 'bg-white/80 backdrop-blur-md',
+      border: 'border-l-4 border-l-yellow-500 border-gray-100',
       icon: AlertTriangle,
-      iconColor: 'text-yellow-600',
-      textColor: 'text-yellow-800'
+      iconColor: 'text-yellow-500',
+      textColor: 'text-gray-800'
     },
     info: {
-      bg: 'bg-blue-50',
-      border: 'border-blue-200',
+      bg: 'bg-white/80 backdrop-blur-md',
+      border: 'border-l-4 border-l-blue-500 border-gray-100',
       icon: Info,
-      iconColor: 'text-blue-600',
-      textColor: 'text-blue-800'
+      iconColor: 'text-blue-500',
+      textColor: 'text-gray-800'
     }
   };
 
@@ -54,12 +54,14 @@ export const Toast = ({
 
   return (
     <div
-      className={`${style.bg} ${style.border} border rounded-lg shadow-lg p-4 flex items-start gap-3 animate-slideIn`}
+      className={`${style.bg} ${style.border} rounded-xl shadow-xl p-4 flex items-center gap-4 animate-slideDown pointer-events-auto border border-gray-100/50`}
       role="alert"
     >
-      <IconComponent className={`h-5 w-5 flex-shrink-0 mt-0.5 ${style.iconColor}`} />
+      <div className={`p-2 rounded-full ${style.bg.replace('bg-white/80', 'bg-white')} shadow-sm`}>
+        <IconComponent className={`h-5 w-5 flex-shrink-0 ${style.iconColor}`} />
+      </div>
       <div className="flex-1 min-w-0">
-        <p className={`text-sm font-medium ${style.textColor}`}>{message}</p>
+        <p className={`text-sm font-bold tracking-tight ${style.textColor}`}>{message}</p>
       </div>
       {action && (
         <button
@@ -71,9 +73,9 @@ export const Toast = ({
       )}
       <button
         onClick={() => onClose(id)}
-        className={`${style.textColor} hover:opacity-75 flex-shrink-0`}
+        className="text-gray-400 hover:text-gray-600 transition-colors flex-shrink-0 p-1 rounded-full hover:bg-gray-100"
       >
-        <X className="h-5 w-5" />
+        <X className="h-4 w-4" />
       </button>
     </div>
   );
@@ -81,7 +83,7 @@ export const Toast = ({
 
 export const ToastContainer = ({ toasts, onClose }) => {
   return (
-    <div className="fixed bottom-4 right-4 space-y-3 z-50 pointer-events-auto max-w-sm">
+    <div className="fixed top-6 left-1/2 -translate-x-1/2 space-y-3 z-[9999] pointer-events-none w-full max-w-md px-4">
       {toasts.map((toast) => (
         <Toast
           key={toast.id}
