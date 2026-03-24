@@ -54,7 +54,10 @@ const createTransporter = () => {
     auth: {
       user: process.env.SMTP_EMAIL || '',
       pass: process.env.SMTP_PASSWORD || ''
-    }
+    },
+    connectionTimeout: 10000, // 10 seconds
+    greetingTimeout: 10000,   // 10 seconds
+    socketTimeout: 15000      // 15 seconds
   });
 };
 
@@ -178,6 +181,23 @@ export const sendRegistrationEmail = async (toEmail, anonymousCode) => {
       message: error.message
     };
   }
+};
+
+/**
+ * SEND REGISTRATION EMAIL WITH TIMEOUT
+ * This version ensures that the registration process never hangs, 
+ * even if the email server is slow or unresponsive.
+ */
+export const sendRegistrationEmailWithTimeout = async (toEmail, anonymousCode, timeoutMs = 8000) => {
+  return Promise.race([
+    sendRegistrationEmail(toEmail, anonymousCode),
+    new Promise((resolve) => 
+      setTimeout(() => {
+        console.warn(`🕒 Email delivery timed out for ${toEmail} after ${timeoutMs}ms`);
+        resolve({ success: false, message: 'timeout' });
+      }, timeoutMs)
+    )
+  ]);
 };
 
 // generic email helper for other notifications
