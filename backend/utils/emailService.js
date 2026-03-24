@@ -58,7 +58,28 @@ const createTransporter = () => {
   });
 };
 
-export const transporter = createTransporter();
+let _transporter = null;
+
+const getTransporter = () => {
+  if (!_transporter) {
+    _transporter = createTransporter();
+  }
+  return _transporter;
+};
+
+// For testing only
+export const testEmailConnection = async () => {
+  try {
+    const transporter = getTransporter();
+    console.log('Testing email connection...');
+    const verified = await transporter.verify();
+    if (verified) {
+      console.log('✓ Email service is configured correctly!');
+    }
+  } catch (error) {
+    console.log('✗ Email connection error:', error.message);
+  }
+};
 
 /**
  * SEND REGISTRATION EMAIL using server SMTP configuration
@@ -125,6 +146,7 @@ export const sendRegistrationEmail = async (toEmail, anonymousCode) => {
     `;
 
     // SEND EMAIL using server transporter
+    const transporter = getTransporter();
     const info = await transporter.sendMail({
       from: process.env.SMTP_EMAIL,
       to: toEmail,
@@ -151,6 +173,7 @@ export const sendRegistrationEmail = async (toEmail, anonymousCode) => {
 // generic email helper for other notifications
 export const sendEmail = async (to, subject, text) => {
   try {
+    const transporter = getTransporter();
     const info = await transporter.sendMail({
       from: process.env.SMTP_EMAIL,
       to,
@@ -228,6 +251,7 @@ export const sendAnonymousCodeEmail = async (toEmail, anonymousCode) => {
       </html>
     `;
 
+    const transporter = getTransporter();
     const info = await transporter.sendMail({
       from: process.env.SMTP_EMAIL,
       to: toEmail,
@@ -266,6 +290,7 @@ export const sendPasswordResetEmail = async (email, resetToken, baseUrl) => {
       </div>
     `;
 
+    const transporter = getTransporter();
     const info = await transporter.sendMail({
       from: process.env.SMTP_EMAIL,
       to: email,
@@ -287,32 +312,9 @@ export const sendPasswordResetEmail = async (email, resetToken, baseUrl) => {
  * EXAMPLE:
  * node -e "import('./utils/emailService.js').then(m => m.testEmailConnection())"
  */
-export const testEmailConnection = async () => {
-  try {
-    console.log('Testing email connection...');
-
-    // Verify SMTP connection
-    const verified = await transporter.verify();
-
-    if (verified) {
-      console.log('✓ Email service is configured correctly!');
-      console.log(`  From: ${process.env.SMTP_EMAIL}`);
-      console.log(`  Service: ${process.env.SMTP_SERVICE}`);
-    } else {
-      console.log('✗ Email service verification failed');
-    }
-  } catch (error) {
-    console.log('✗ Email connection error:', error.message);
-    console.log('  Make sure these are set in .env:');
-    console.log('  - SMTP_SERVICE (gmail, outlook, etc)');
-    console.log('  - SMTP_EMAIL (your email)');
-    console.log('  - SMTP_PASSWORD (app password for Gmail)');
-  }
-};
-
 export default {
   sendRegistrationEmail,
   sendPasswordResetEmail,
   testEmailConnection,
-  transporter
+  getTransporter
 };

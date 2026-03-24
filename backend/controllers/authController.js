@@ -37,14 +37,18 @@ export const register = async (req, res) => {
 
     await newUser.save();
 
-    await sendRegistrationEmail(
-      email,
-      newUser.anonymousCode
-    );
-
+    // Send success response immediately so the user isn't stuck waiting
     res.status(201).json({
       success: true,
       message: 'Registration successful. Please check your email for your anonymous code.'
+    });
+
+    // Send the email in the background (important: catch errors so it doesn't crash the server)
+    sendRegistrationEmail(
+      email.toLowerCase(),
+      newUser.anonymousCode
+    ).catch(err => {
+      console.error('Background registration email failed:', err);
     });
 
   } catch (error) {
