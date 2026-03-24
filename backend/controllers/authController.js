@@ -1,6 +1,6 @@
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
-import { sendRegistrationEmail } from '../utils/emailService.js';
+import { sendRegistrationEmailWithTimeout } from '../utils/emailService.js';
 
 /* Generate JWT */
 const generateToken = (userId, email, role) => {
@@ -37,24 +37,30 @@ export const register = async (req, res) => {
 
     await newUser.save();
 
-    // Send the email (awaiting it ensures it finishes before the response, which is more reliable)
-    const targetEmail = email.toLowerCase().trim();
-    console.log(`📧 DEBUG: authController is calling sendRegistrationEmail for: "${targetEmail}"`);
-    
-    try {
-      const emailResult = await sendRegistrationEmail(
-        targetEmail,
-        newUser.anonymousCode
-      );
-      console.log('✅ Registration email response:', emailResult);
-    } catch (emailErr) {
-      console.error('⚠️ Registration email failed during registration:', emailErr);
-      // We don't fail the whole registration if just the email fails
-    }
-
+    // EXTREMELY IMPORTANT: Send the response FIRST. 
+    // This prevents the "Infinite Load" on the frontend.
     res.status(201).json({
       success: true,
-      message: 'Registration successful. Please check your email for your anonymous code.'
+      message: 'Registration successful. Your Anonymous Code has been sent to your email.'
+    });
+
+    // Send the email in the background (Non-blocking)
+    const targetEmail = email.toLowerCase().trim();
+    console.log(`📡 Background task: Sending registration email to ${targetEmail}...`);
+    
+    // Using the timeout version for extra safety
+    sendRegistrationEmailWithTimeout(
+      targetEmail,
+      newUser.anonymousCode,
+      15000 // 15 second limit for background task
+    ).then(result => {
+      if (result && result.success) {
+        console.log(`✅ Background email SUCCESS for ${targetEmail}`);
+      } else {
+        console.warn(`⚠️ Background email FAILURE/TIMEOUT for ${targetEmail}:`, result?.message);
+      }
+    }).catch(err => {
+      console.error(`❌ Background email CRASH for ${targetEmail}:`, err);
     });
 
   } catch (error) {
