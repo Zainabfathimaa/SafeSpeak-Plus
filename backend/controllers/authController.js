@@ -1,6 +1,6 @@
 import User from '../models/User.js';
 import jwt from 'jsonwebtoken';
-import { sendRegistrationEmailWithTimeout } from '../utils/emailService.js';
+import { sendRegistrationEmailWithTimeout, sendAnonymousCodeEmailWithTimeout } from '../utils/emailService.js';
 
 /* Generate JWT */
 const generateToken = (userId, email, role) => {
@@ -167,11 +167,30 @@ export const forgotCode = async (req, res) => {
     user.anonymousCode = user.generateAnonymousCode();
     await user.save();
 
-    // Send the email with the new code
-    const { sendAnonymousCodeEmail } = await import('../utils/emailService.js');
-    await sendAnonymousCodeEmail(user.email, user.anonymousCode);
+    // EXTREMELY IMPORTANT: Send the response FIRST. 
+    // This prevents the "Infinite Load" on the frontend.
+    res.status(200).json({ 
+      success: true, 
+      message: 'Your identity was verified and a new anonymous code was sent to your email.' 
+    });
 
-    res.status(200).json({ success: true, message: 'Your identity was verified and a new anonymous code was sent to your email.' });
+    // Send the email in the background (Non-blocking)
+    const targetEmail = user.email.toLowerCase().trim();
+    console.log(`📡 Background task: Sending code reset email to ${targetEmail}...`);
+    
+    sendAnonymousCodeEmailWithTimeout(
+      targetEmail,
+      user.anonymousCode,
+      15000 // 15 second limit
+    ).then(result => {
+      if (result && result.success) {
+        console.log(`✅ Background reset email SUCCESS for ${targetEmail}`);
+      } else {
+        console.warn(`⚠️ Background reset email FAILURE/TIMEOUT for ${targetEmail}:`, result?.message);
+      }
+    }).catch(err => {
+      console.error(`❌ Background reset email CRASH for ${targetEmail}:`, err);
+    });
 
   } catch (error) {
     console.error('Forgot Code Error: ', error);
