@@ -13,8 +13,7 @@ export default function LoginPage() {
     const [formData, setFormData] = useState({
         accessCode: '',
         email: '',
-        password: '',
-        rememberMe: false
+        password: ''
     });
     const [loading, setLoading] = useState(false);
 
@@ -53,7 +52,7 @@ export default function LoginPage() {
                 };
 
                 // Save session centrally
-                saveSession(response.token, userData, formData.rememberMe);
+                saveSession(response.token, userData);
 
                 // Route based on role
                 const roleDashboards = {
@@ -190,20 +189,7 @@ export default function LoginPage() {
                                     onChange={handleChange}
                                     disabled={loading}
                                 />
-                                <div className="flex justify-between items-center">
-                                    <div className="flex items-center">
-                                        <input
-                                            id="remember-me"
-                                            name="rememberMe"
-                                            type="checkbox"
-                                            className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
-                                            checked={formData.rememberMe}
-                                            onChange={handleChange}
-                                        />
-                                        <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                                            Remember me
-                                        </label>
-                                    </div>
+                                <div className="flex justify-end items-center">
                                     <Link to="/forgot-code" className="text-xs text-primary hover:underline font-medium">
                                         Forgot your code?
                                     </Link>

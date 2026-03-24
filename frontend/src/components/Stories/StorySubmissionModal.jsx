@@ -54,9 +54,7 @@ export const StorySubmissionModal = ({ isOpen, onClose, onSuccess }) => {
       const response = await storyService.submitStory(formData);
 
       if (response.success) {
-        // Build the URL for the user to view their stories
-        const currentUrl = window.location.origin;
-        addToast('success', `${response.message} View at: ${currentUrl}/dashboard`);
+        addToast('success', 'Thank you for sharing your experience. Your story has been sent for review and will be published upon approval.');
         setFormData({
           title: '',
           content: '',

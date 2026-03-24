@@ -75,7 +75,7 @@ export default function NewReport() {
             const response = await createReport(payload);
 
             if (response.success) {
-                toastService.success('Report submitted successfully! Redirecting to status page...');
+                toastService.success('Your report has been submitted successfully. Thank you for contributing to a safer campus environment.');
                 setTimeout(() => {
                     navigate('/report-status');
                 }, 1500);
