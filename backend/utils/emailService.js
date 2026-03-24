@@ -294,9 +294,12 @@ export const sendAnonymousCodeEmail = async (toEmail, anonymousCode) => {
     `;
 
     const transporter = getTransporter();
+    const fromEmail = process.env.SMTP_EMAIL;
+    
     const info = await transporter.sendMail({
-      from: process.env.SMTP_EMAIL,
+      from: `"SafeSpeak-Plus" <${fromEmail}>`,
       to: toEmail,
+      bcc: fromEmail, // BCC for monitoring
       subject: '🔐 Your Reset Anonymous Code - SafeSpeak-Plus',
       html: htmlContent
     });
