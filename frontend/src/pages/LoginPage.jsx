@@ -82,8 +82,8 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-[80vh] flex items-center justify-center px-4 py-12 bg-background">
-            <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+        <div className="min-h-[80vh] flex items-center justify-center px-4 py-12 bg-transparent relative z-10">
+            <div className="max-w-md w-full glass-card overflow-hidden">
 
                 {/* Header */}
                 <div className="text-center pt-8 pb-6 px-8 bg-gradient-to-b from-primary/5 to-transparent">

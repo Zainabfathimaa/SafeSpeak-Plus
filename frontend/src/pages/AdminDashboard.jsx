@@ -110,7 +110,10 @@ export default function AdminDashboard() {
     const escalatedReports = reports.filter(r => r.status === 'Escalated').length;
 
     return (
-        <div className="flex h-screen overflow-hidden flex-col bg-gray-50/50 text-text-primary">
+        <div className="flex h-screen overflow-hidden flex-col bg-transparent text-slate-800 relative">
+            {/* Subtle background glow for the admin side as well */}
+            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[100px] pointer-events-none -z-10"></div>
+            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-blue-400/5 rounded-full blur-[100px] pointer-events-none -z-10"></div>
             {/* Header */}
             <AdminHeader roleName="Case Reviewer Dashboard" />
             <div className="flex flex-1 overflow-hidden">

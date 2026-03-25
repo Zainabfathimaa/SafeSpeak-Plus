@@ -18,20 +18,23 @@ export function DashboardCard({ icon: Icon, title, description, buttonText, to, 
     // For now, let's just make it look good with a default premium look, and maybe vary slightly if needed.
 
     return (
-        <div className="group bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col justify-between hover:shadow-lg transition-all duration-300 hover:-translate-y-1 relative overflow-hidden">
+        <div className="group glass-card p-6 flex flex-col justify-between hover:-translate-y-1.5 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] relative overflow-hidden h-full">
+            {/* Soft decorative background glow */}
+            <div className={`absolute -bottom-10 -right-10 w-32 h-32 bg-${color}/5 rounded-full blur-3xl group-hover:bg-${color}/10 transition-colors duration-500`} />
+            
             {/* Colored Top Border Indicator */}
-            <div className={`absolute top-0 left-0 w-full h-1 bg-${color}`}></div>
+            <div className={`absolute top-0 left-0 w-full h-1.5 bg-${color} opacity-80 group-hover:opacity-100 transition-opacity`}></div>
 
             <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center space-x-4">
                     {/* Icon with background bubble */}
                     {Icon && (
-                        <div className={`p-3 rounded-xl bg-${color}/10 text-${color} group-hover:bg-${color}/20 transition-colors`}>
-                            <Icon className="h-6 w-6" />
+                        <div className={`p-3.5 rounded-2xl bg-${color}/10 text-${color} group-hover:bg-${color}/20 group-hover:scale-110 transition-all duration-300 shadow-inner`}>
+                            <Icon className="h-6 w-6 drop-shadow-sm" />
                         </div>
                     )}
                     <div>
-                        <h2 className="text-lg font-bold text-gray-900 group-hover:text-primary transition-colors">{title}</h2>
+                        <h2 className="text-lg font-bold text-gray-900 group-hover:text-primary transition-colors tracking-tight">{title}</h2>
                     </div>
                 </div>
             </div>
@@ -44,10 +47,10 @@ export function DashboardCard({ icon: Icon, title, description, buttonText, to, 
                 )}
             </div>
 
-            <Link to={to} className="mt-auto w-full">
+            <Link to={to} className="mt-auto w-full relative z-10">
                 <Button
-                    className={`w-full justify-center shadow-none border hover:shadow-md transition-all 
-                    bg-white text-${color} border-${color} hover:bg-${color} hover:text-white`}
+                    className={`w-full justify-center shadow-sm border-2 transition-all duration-300 font-bold
+                    bg-white/50 text-${color} border-${color}/20 hover:bg-${color} hover:text-white hover:border-${color} hover:shadow-md`}
                 >
                     {buttonText}
                 </Button>

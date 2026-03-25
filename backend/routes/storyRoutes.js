@@ -10,6 +10,7 @@ import {
   commentOnStory,
   deleteStory,
   shareStory,
+  updateStory,
   getStoryStats
 } from '../controllers/storyController.js';
 import { authenticate } from '../middleware/auth.js';
@@ -43,6 +44,9 @@ router.post('/:storyId/comment', authenticate, commentOnStory);
 
 // Share story (POST /api/stories/:storyId/share)
 router.post('/:storyId/share', authenticate, shareStory);
+
+// Update story (PUT /api/stories/:storyId)
+router.put('/:storyId', authenticate, updateStory);
 
 // Delete story (DELETE /api/stories/:storyId)
 router.delete('/:storyId', authenticate, deleteStory);

@@ -17,6 +17,20 @@ const storyService = {
     }
   },
 
+  // Update existing story
+  updateStory: async (storyId, storyData) => {
+    try {
+      const response = await axios.put(`${API_BASE_URL}/stories/${storyId}`, storyData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
   // Get user's own stories
   getUserStories: async (status = null) => {
     try {
