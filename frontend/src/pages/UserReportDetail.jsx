@@ -387,6 +387,17 @@ export default function UserReportDetail() {
                                                 <p className="text-xs text-gray-500 mt-1">Upload a screenshot showing the admin's unhelpful response or lack thereof.</p>
                                             </div>
 
+                                            {/* Report Auto-Attach Notice */}
+                                            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2">
+                                                <ShieldAlert className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                                                <div>
+                                                    <p className="text-xs font-semibold text-blue-800">Your original report is automatically included</p>
+                                                    <p className="text-xs text-blue-600 mt-0.5">
+                                                        Report <strong>#{report.reportId}</strong> will be converted to PDF and attached alongside your complaint. The higher authority will receive the full incident details.
+                                                    </p>
+                                                </div>
+                                            </div>
+
                                             <div className="flex gap-3 justify-end mt-4">
                                                 <Button variant="outline" onClick={() => setIsEscalating(false)} disabled={submittingEscalation}>
                                                     Cancel
