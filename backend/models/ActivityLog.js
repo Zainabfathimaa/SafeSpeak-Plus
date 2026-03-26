@@ -9,7 +9,7 @@ const activityLogSchema = new mongoose.Schema({
   },
   action: {
     type: String,
-    enum: ['story_posted', 'story_liked', 'story_deleted', 'report_submitted', 'report_escalated'],
+    enum: ['story_posted', 'story_liked', 'story_deleted', 'report_submitted', 'report_escalated', 'story_liked_by_other', 'story_edited'],
     required: true
   },
   targetType: {

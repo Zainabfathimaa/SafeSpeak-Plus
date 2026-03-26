@@ -406,6 +406,16 @@ export const likeStory = async (req, res) => {
           targetId: story._id,
           details: { title: story.title }
         });
+
+        if (story.submittedBy.toString() !== userId) {
+          await ActivityLog.create({
+            userId: story.submittedBy,
+            action: 'story_liked_by_other',
+            targetType: 'Story',
+            targetId: story._id,
+            details: { title: story.title }
+          });
+        }
       } catch (logErr) {
         console.error('Activity Log Error:', logErr);
       }
@@ -506,6 +516,18 @@ export const updateStory = async (req, res) => {
     story.isPublished = false;
 
     await story.save();
+
+    try {
+      await ActivityLog.create({
+        userId,
+        action: 'story_edited',
+        targetType: 'Story',
+        targetId: story._id,
+        details: { title: story.title }
+      });
+    } catch (logErr) {
+      console.error('Activity Log Error:', logErr);
+    }
 
     res.status(200).json({
       success: true,
