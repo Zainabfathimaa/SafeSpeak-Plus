@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Save, AlertCircle, Trash2, Shield, BellRing, User, Lock, Palette, CheckCircle2 } from 'lucide-react';
+import { Save, AlertCircle, Trash2, Shield, BellRing, User, Lock, Palette, CheckCircle2, LogOut } from 'lucide-react';
 import userService from '../services/userService';
 import { useToast } from '../hooks/useToast';
 import { ConfirmationModal } from '../components/ui/ConfirmationModal';
 import { Header } from '../components/Header';
 import { Sidebar } from '../components/Sidebar';
 import { Input } from '../components/ui/Input';
+import { logout } from '../services/authService';
+import { useNavigate } from 'react-router-dom';
 
 export const UserSettingsPage = () => {
   const { addToast } = useToast();
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false);
 
   // Appearance state (Functional)
   const [appearance, setAppearance] = useState(() => {
@@ -673,6 +677,26 @@ export const UserSettingsPage = () => {
                         </div>
                       </form>
 
+                      {/* Sign Out Section */}
+                      <div className="mt-10 pt-8 border-t border-gray-200/50">
+                        <h3 className="font-bold text-gray-700 flex items-center gap-2 mb-4">
+                          <div className="p-1.5 bg-gray-100 rounded-lg"><LogOut size={16} /></div>
+                          Sign Out
+                        </h3>
+                        <div className="p-6 border border-gray-200 bg-gray-50 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+                          <div>
+                            <h4 className="font-bold text-gray-900">Sign out of SafeSpeak+</h4>
+                            <p className="text-gray-500 text-sm mt-1">You will be redirected to the login page.</p>
+                          </div>
+                          <button
+                            onClick={() => setIsSignOutModalOpen(true)}
+                            className="flex-shrink-0 px-6 py-3 bg-white text-gray-700 border border-gray-200 rounded-2xl hover:bg-gray-100 hover:border-gray-300 font-bold transition flex items-center gap-2"
+                          >
+                            <LogOut size={18} /> Sign Out
+                          </button>
+                        </div>
+                      </div>
+
                       {/* Danger Zone */}
                       <div className="mt-14 pt-10 border-t border-red-100/50">
                         <h3 className="font-bold text-red-600 flex items-center gap-2 mb-5">
@@ -708,6 +732,15 @@ export const UserSettingsPage = () => {
         title="Delete Account"
         message="Are you absolutely sure you want to permanently delete your account? This action cannot be undone."
         confirmText="Delete Account"
+        variant="danger"
+      />
+      <ConfirmationModal
+        isOpen={isSignOutModalOpen}
+        onClose={() => setIsSignOutModalOpen(false)}
+        onConfirm={() => { logout(); navigate('/login'); }}
+        title="Sign Out"
+        message="Are you sure you want to sign out of SafeSpeak+?"
+        confirmText="Sign Out"
         variant="danger"
       />
     </div>

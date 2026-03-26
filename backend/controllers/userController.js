@@ -19,10 +19,22 @@ export const getAllUsers = async (req, res) => {
             .select('-password -verificationToken -verificationTokenExpiry')
             .sort({ createdAt: -1 });
 
+        // Mask PII for users who have NOT given identity reveal consent
+        const sanitizedUsers = users.map(u => {
+            const obj = u.toObject();
+            if (!obj.idRevealConsent) {
+                obj.fullName = 'Anonymous User';
+                obj.phone = '---';
+                obj.department = obj.department ? '(hidden)' : '---';
+                obj.email = '***@***.***';
+            }
+            return obj;
+        });
+
         res.status(200).json({
             success: true,
-            count: users.length,
-            users
+            count: sanitizedUsers.length,
+            users: sanitizedUsers
         });
 
     } catch (error) {
