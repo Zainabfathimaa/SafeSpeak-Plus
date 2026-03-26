@@ -6,7 +6,6 @@ import { DashboardCard } from '../components/DashboardCard';
 import { DashboardStories } from '../components/DashboardStories';
 import { StorySubmissionModal } from '../components/Stories/StorySubmissionModal';
 import { UserStoriesList } from '../components/Stories/UserStoriesList';
-import { UserActivityTimeline } from '../components/UserActivityTimeline';
 import { PlusCircle, FileText, MessageSquare, ArrowUpRight, BookOpen } from 'lucide-react';
 
 import { getUser } from '../services/authService';
@@ -125,9 +124,6 @@ export default function UserDashboard() {
                             </div>
                         </div>
 
-                        {/* Activity Timeline Section */}
-                        <UserActivityTimeline />
-
                         {/* Quick Actions */}
                         <div>
                             <h3 className="text-xl font-semibold text-gray-800 mb-4 border-l-4 border-primary pl-4">Quick Actions</h3>
@@ -166,9 +162,9 @@ export default function UserDashboard() {
                                 <DashboardCard
                                     icon={ArrowUpRight}
                                     title="Escalate"
-                                    description="Request review."
+                                    description="Select report for review."
                                     buttonText="Escalate"
-                                    to="/escalate"
+                                    to="/report-status"
                                     color="orange-600"
                                 />
                                 <DashboardCard
