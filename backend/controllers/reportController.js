@@ -1,6 +1,7 @@
 import Report from '../models/Report.js';
 import User from '../models/User.js';
 import Notification from '../models/Notification.js';
+import ActivityLog from '../models/ActivityLog.js';
 import { sendEmail } from '../utils/emailService.js';
 
 // Helper to generate unique Report ID
@@ -103,6 +104,18 @@ export const createReport = async (req, res) => {
             recentDuplicate.authenticityScore = Math.max(0, recentDuplicate.authenticityScore - 20);
             recentDuplicate.verificationStatus = 'Requires Clarification';
             await recentDuplicate.save();
+        }
+
+        try {
+            await ActivityLog.create({
+                userId: req.user.userId,
+                action: 'report_submitted',
+                targetType: 'Report',
+                targetId: report._id,
+                details: { reportId: report.reportId, incidentType: report.incidentType }
+            });
+        } catch (logErr) {
+            console.error('Activity Log Error:', logErr);
         }
 
         res.status(201).json({
@@ -349,8 +362,10 @@ export const appealReport = async (req, res) => {
 // @access  Private (User who submitted)
 export const escalateReport = async (req, res) => {
     try {
-        const { message } = req.body;
-        const superAdminEmail = process.env.SUPER_ADMIN_EMAIL || 'admin@safespeak.com';
+        const { message, contactMethod, contactValue } = req.body;
+        // contactMethod: 'email' or 'whatsapp'
+        // contactValue: admin's email or phone number
+        
         const report = await Report.findById(req.params.id);
 
         if (!report) {
@@ -386,29 +401,56 @@ export const escalateReport = async (req, res) => {
             report.status = 'Escalated';
             report.escalationDetails = {
                 isEscalated: true,
-                escalatedTo: superAdminEmail,
+                escalatedTo: contactValue,
+                contactMethod: contactMethod,
                 message: message,
                 identityDisclosed: true,
-                escalatedAt: new Date()
+                escalatedAt: new Date(),
+                pdfContent: pdfBuffer // Storing buffer in mongo for easy retrieval later! Wait, let's just save to disk instead.
             };
 
+            // To make the WhatsApp link work, let's write to disk
+            const fs = await import('fs');
+            const path = await import('path');
+            const dir = path.join(process.cwd(), 'uploads', 'escalations');
+            if (!fs.existsSync(dir)) {
+                fs.mkdirSync(dir, { recursive: true });
+            }
+            const pdfFilePath = path.join(dir, `escalation_${report.reportId}.pdf`);
+            fs.writeFileSync(pdfFilePath, pdfBuffer);
+
+            report.escalationDetails.pdfPath = pdfFilePath;
             await report.save();
+
+            // Activity Log
+            try {
+                await ActivityLog.create({
+                    userId: req.user.userId,
+                    action: 'report_escalated',
+                    targetType: 'Report',
+                    targetId: report._id,
+                    details: { reportId: report.reportId, contactMethod, contactValue }
+                });
+            } catch (logErr) {
+                console.error('Activity Log Error:', logErr);
+            }
 
             // Notify user of status change and ID disclosure
             await Notification.create({
                 recipientId: req.user.userId,
                 type: 'system_alert',
                 title: 'Case Escalated',
-                message: `Your report (${report.reportId}) was escalated to ${superAdminEmail}. Note: Anonymity has been lifted for this higher-level review.`,
+                message: `Your report (${report.reportId}) was escalated to ${contactValue}. Note: Anonymity has been lifted for this higher-level review.`,
                 relatedId: report._id,
                 relatedType: 'Report',
                 priority: 'high',
                 shouldSendEmail: true
             });
 
-            // Dispatch Email to Super Admin with Attachment
-            const subject = `URGENT: Escalated Incident Report - ${report.reportId}`;
-            const emailMessage = `
+            if (contactMethod === 'email') {
+                // Dispatch Email to Admin
+                const subject = `URGENT: Escalated Incident Report - ${report.reportId}`;
+                const emailMessage = `
 Hello,
 
 An incident report has been escalated to you by a user on the SafeSpeak+ platform. 
@@ -423,36 +465,53 @@ Please find the full case details attached as a PDF. Note: The user's identity h
 
 Best Regards,
 SafeSpeak+ System Security
-            `;
+                `;
 
-            const attachments = [
-                {
-                    filename: `SafeSpeak_Escalation_${report.reportId}.pdf`,
-                    content: pdfBuffer,
-                    contentType: 'application/pdf'
+                const attachments = [
+                    {
+                        filename: `SafeSpeak_Escalation_${report.reportId}.pdf`,
+                        content: pdfBuffer,
+                        contentType: 'application/pdf'
+                    }
+                ];
+
+                try {
+                    const { transporter } = await import('../utils/emailService.js');
+                    await transporter.sendMail({
+                        from: `"Safe Speak Platform" <${process.env.SMTP_EMAIL}>`,
+                        to: contactValue,
+                        subject,
+                        text: emailMessage,
+                        attachments
+                    });
+                } catch (err) {
+                    console.error('Failed to send escalated email with PDF:', err);
                 }
-            ];
 
-            try {
-                // Ensure sendEmail signature allows attachments or use standard notification
-                const { transporter } = await import('../utils/emailService.js');
-                await transporter.sendMail({
-                    from: `"Safe Speak Platform" <${process.env.SMTP_EMAIL}>`,
-                    to: superAdminEmail,
-                    subject,
-                    text: emailMessage,
-                    attachments
+                res.status(200).json({
+                    success: true,
+                    message: `Report successfully escalated. A PDF has been dispatched via email to ${contactValue}.`,
+                    report
                 });
-            } catch (err) {
-                console.error('Failed to send escalated email with PDF:', err);
-                // We don't fail the request if email fails, but it's not ideal
-            }
 
-            res.status(200).json({
-                success: true,
-                message: 'Report successfully escalated. A PDF containing your full report history has been sent to the appropriate authority.',
-                report
-            });
+            } else if (contactMethod === 'whatsapp') {
+                // Generate WhatsApp Link
+                const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+                const pdfDownloadUrl = `${backendUrl}/api/reports/${report._id}/escalation-pdf`;
+                
+                const waMessage = `*URGENT ESCALATION: SafeSpeak+ Incident*\n\nReport ID: ${report.reportId}\nUser Message: ${message || 'N/A'}\n\nPlease review the attached secure PDF report here: ${pdfDownloadUrl}`;
+                
+                // Clean phone number (remove +, spaces, dashes)
+                const cleanPhone = contactValue.replace(/[^0-9]/g, '');
+                const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(waMessage)}`;
+
+                res.status(200).json({
+                    success: true,
+                    message: 'Report successfully escalated. WhatsApp link generated.',
+                    whatsappUrl,
+                    report
+                });
+            }
         });
 
         // Build the PDF Content
@@ -493,7 +552,30 @@ SafeSpeak+ System Security
     }
 };
 
-//Export all as default object as well for flexibility
+// @desc    Download the escalated PDF
+// @route   GET /api/reports/:id/escalation-pdf
+// @access  Public (or protected if token provided, but WA links need it public theoretically. For security, we can make it public if ID is known)
+export const getEscalationPdf = async (req, res) => {
+    try {
+        const report = await Report.findById(req.params.id);
+        if (!report || !report.escalationDetails || !report.escalationDetails.pdfPath) {
+            return res.status(404).send('Escalation PDF not found.');
+        }
+
+        const fs = await import('fs');
+        if (!fs.existsSync(report.escalationDetails.pdfPath)) {
+            return res.status(404).send('PDF file no longer exists on server.');
+        }
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `inline; filename="SafeSpeak_Escalation_${report.reportId}.pdf"`);
+        const stream = fs.createReadStream(report.escalationDetails.pdfPath);
+        stream.pipe(res);
+    } catch (error) {
+        res.status(500).send('Error retrieving PDF');
+    }
+};
+
 export default {
     createReport,
     getAllReports,
@@ -501,5 +583,6 @@ export default {
     getReportById,
     updateReportStatus,
     appealReport,
-    escalateReport
+    escalateReport,
+    getEscalationPdf
 };
