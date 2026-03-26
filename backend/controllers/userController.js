@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import ActivityLog from '../models/ActivityLog.js';
 
 // ===================================
 // GET ALL USERS (Admin only)
@@ -351,6 +352,51 @@ export const deleteAccount = async (req, res) => {
     }
 };
 
+// ===================================
+// GET USER ACTIVITY & METRICS
+// ===================================
+export const getUserActivity = async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        // Fetch logs
+        const logs = await ActivityLog.find({ userId })
+            .sort({ createdAt: -1 })
+            .lean();
+
+        // Calculate metrics
+        const metrics = {
+            storiesPosted: 0,
+            storiesLiked: 0,
+            reportsSubmitted: 0,
+            reportsEscalated: 0,
+            storiesDeleted: 0
+        };
+
+        logs.forEach(log => {
+            if (log.action === 'story_posted') metrics.storiesPosted++;
+            if (log.action === 'story_liked') metrics.storiesLiked++;
+            if (log.action === 'report_submitted') metrics.reportsSubmitted++;
+            if (log.action === 'report_escalated') metrics.reportsEscalated++;
+            if (log.action === 'story_deleted') metrics.storiesDeleted++;
+        });
+
+        res.status(200).json({
+            success: true,
+            metrics,
+            timeline: logs
+        });
+
+    } catch (error) {
+        console.error('Error fetching user activity:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching user activity',
+            error: error.message
+        });
+    }
+};
+
 export default {
     getAllUsers,
     getCurrentUser,
@@ -360,6 +406,7 @@ export default {
     updateAppearancePreferences,
     updateIdRevealConsent,
     getIdRevealConsentStatus,
-    deleteAccount
+    deleteAccount,
+    getUserActivity
 };
 

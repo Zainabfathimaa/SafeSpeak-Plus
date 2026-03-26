@@ -1,6 +1,7 @@
 import Story from '../models/Story.js';
 import User from '../models/User.js';
 import Notification from '../models/Notification.js';
+import ActivityLog from '../models/ActivityLog.js';
 import { sendEmail } from '../utils/emailService.js';
 
 /**
@@ -67,6 +68,18 @@ export const submitStory = async (req, res) => {
 
     await story.save();
     await story.populate('submittedBy', 'fullName email');
+
+    try {
+      await ActivityLog.create({
+        userId,
+        action: 'story_posted',
+        targetType: 'Story',
+        targetId: story._id,
+        details: { title: story.title }
+      });
+    } catch (logErr) {
+      console.error('Activity Log Error:', logErr);
+    }
 
     // Create notification for admins
     // create admin notifications but don't let a notification failure
@@ -372,6 +385,8 @@ export const likeStory = async (req, res) => {
       story.likes = story.likes.filter(id => id.toString() !== userId);
       await story.save();
 
+      // Optionally, we could remove the ActivityLog for the like, but simple log is fine.
+
       return res.status(200).json({
         success: true,
         message: 'Story unliked',
@@ -382,6 +397,18 @@ export const likeStory = async (req, res) => {
       // Like
       story.likes.push(userId);
       await story.save();
+
+      try {
+        await ActivityLog.create({
+          userId,
+          action: 'story_liked',
+          targetType: 'Story',
+          targetId: story._id,
+          details: { title: story.title }
+        });
+      } catch (logErr) {
+        console.error('Activity Log Error:', logErr);
+      }
 
       res.status(200).json({
         success: true,
@@ -516,7 +543,20 @@ export const deleteStory = async (req, res) => {
       });
     }
 
+    const title = story.title;
     await Story.findByIdAndDelete(storyId);
+
+    try {
+      await ActivityLog.create({
+        userId,
+        action: 'story_deleted',
+        targetType: 'Story',
+        targetId: null, // Story is gone
+        details: { title }
+      });
+    } catch (logErr) {
+      console.error('Activity Log Error:', logErr);
+    }
 
     res.status(200).json({
       success: true,

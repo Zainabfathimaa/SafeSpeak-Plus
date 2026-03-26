@@ -27,7 +27,8 @@ export default function UserReportDetail() {
 
     // Escalation State
     const [isEscalating, setIsEscalating] = useState(false);
-    // const [escalationEmail, setEscalationEmail] = useState(''); // Removed for security hardening
+    const [escalationMethod, setEscalationMethod] = useState('email');
+    const [escalationContact, setEscalationContact] = useState('');
     const [escalationMessage, setEscalationMessage] = useState('');
     const [submittingEscalation, setSubmittingEscalation] = useState(false);
 
@@ -118,10 +119,17 @@ export default function UserReportDetail() {
     };
 
     const handleEscalate = async () => {
+        if (!escalationContact) {
+            addToast('error', `Please provide an ${escalationMethod === 'email' ? 'email address' : 'phone number'}.`);
+            return;
+        }
+        
         setSubmittingEscalation(true);
         try {
             const payload = {
-                message: escalationMessage
+                message: escalationMessage,
+                contactMethod: escalationMethod,
+                contactValue: escalationContact
             };
             const res = await escalateReport(id, payload);
 
@@ -129,7 +137,11 @@ export default function UserReportDetail() {
                 setReport(res.report);
                 setIsEscalating(false);
                 addToast('warning', '⚠️ You are no longer anonymous for this escalation.', 12000);
-                addToast('success', 'Report escalated successfully and PDF dispatched.', 8000);
+                addToast('success', res.message || 'Report escalated successfully.', 8000);
+                
+                if (res.whatsappUrl) {
+                    window.open(res.whatsappUrl, '_blank');
+                }
             } else {
                 addToast('error', res.message || 'Failed to escalate report');
             }
@@ -173,10 +185,14 @@ export default function UserReportDetail() {
     const currentStep = getStatusStep(report.status);
     const canAppeal = report.status?.toLowerCase() === 'closed' || report.status?.toLowerCase() === 'archived/spam';
 
-    // Escalate Logic: Can escalate if it's open for more than 48 hours OR if it's flagged as Critical, and not already resolved/closed/escalated
+    // Escalate Logic: Can escalate if untouched > 48h, or flagged as Critical, or closed/archived. Not allowed if already escalated or resolved.
     const isTerminalStatus = ['resolved', 'closed', 'archived/spam', 'escalated'].includes(report.status?.toLowerCase());
     const reportAgeHours = (new Date() - new Date(report.createdAt)) / (1000 * 60 * 60);
-    const canEscalate = !isTerminalStatus && (reportAgeHours > 48 || report.riskLevel === 'Critical');
+    const canEscalate = report.status?.toLowerCase() !== 'escalated' && report.status?.toLowerCase() !== 'resolved' && (
+        reportAgeHours > 48 || 
+        report.riskLevel === 'Critical' || 
+        ['closed', 'archived/spam'].includes(report.status?.toLowerCase())
+    );
 
     return (
         <div className="flex h-screen overflow-hidden flex-col bg-background text-text-primary">
@@ -294,14 +310,54 @@ export default function UserReportDetail() {
                                             <strong> Warning: By escalating, your identity will be disclosed to the reviewing authority to facilitate the investigation.</strong>
                                         </p>
                                         <div className="space-y-4">
+                                            {/* Contact Method Toggles */}
+                                            <div className="flex gap-4">
+                                                <label className="flex items-center cursor-pointer">
+                                                    <input 
+                                                        type="radio" 
+                                                        name="escalateMethod" 
+                                                        value="email" 
+                                                        checked={escalationMethod === 'email'} 
+                                                        onChange={() => setEscalationMethod('email')}
+                                                        className="mr-2 h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300"
+                                                    />
+                                                    <span className="text-sm font-medium text-gray-700">Send via Email</span>
+                                                </label>
+                                                <label className="flex items-center cursor-pointer">
+                                                    <input 
+                                                        type="radio" 
+                                                        name="escalateMethod" 
+                                                        value="whatsapp" 
+                                                        checked={escalationMethod === 'whatsapp'} 
+                                                        onChange={() => setEscalationMethod('whatsapp')}
+                                                        className="mr-2 h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300"
+                                                    />
+                                                    <span className="text-sm font-medium text-gray-700">Send via WhatsApp</span>
+                                                </label>
+                                            </div>
+
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Escalation (Optional)</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                    Authority {escalationMethod === 'email' ? 'Email Address' : 'Phone Number'} *
+                                                </label>
+                                                <input
+                                                    type={escalationMethod === 'email' ? 'email' : 'tel'}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm mb-4"
+                                                    value={escalationContact}
+                                                    onChange={(e) => setEscalationContact(e.target.value)}
+                                                    placeholder={escalationMethod === 'email' ? 'e.g., higheradmin@university.edu' : 'e.g., +1234567890'}
+                                                    required
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Complaint & Escalation</label>
                                                 <textarea
                                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
                                                     rows="3"
                                                     value={escalationMessage}
                                                     onChange={(e) => setEscalationMessage(e.target.value)}
-                                                    placeholder="Explain why this requires urgent higher-level review..."
+                                                    placeholder="Explain why this requires urgent higher-level review and why you are bypassing standard procedures..."
                                                 ></textarea>
                                             </div>
                                             <div className="flex gap-3 justify-end mt-4">
