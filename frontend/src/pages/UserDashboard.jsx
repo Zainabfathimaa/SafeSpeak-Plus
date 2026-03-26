@@ -6,7 +6,7 @@ import { DashboardCard } from '../components/DashboardCard';
 import { DashboardStories } from '../components/DashboardStories';
 import { StorySubmissionModal } from '../components/Stories/StorySubmissionModal';
 import { UserStoriesList } from '../components/Stories/UserStoriesList';
-import { PlusCircle, FileText, MessageSquare, ArrowUpRight, BookOpen } from 'lucide-react';
+import { PlusCircle, FileText, MessageSquare, BookOpen } from 'lucide-react';
 
 import { getUser } from '../services/authService';
 import storyService from '../services/storyService';
@@ -158,14 +158,6 @@ export default function UserDashboard() {
                                     buttonText="Open"
                                     to="/messages"
                                     color="violet-600"
-                                />
-                                <DashboardCard
-                                    icon={ArrowUpRight}
-                                    title="Escalate"
-                                    description="Select report for review."
-                                    buttonText="Escalate"
-                                    to="/report-status"
-                                    color="orange-600"
                                 />
                                 <DashboardCard
                                     icon={BookOpen}
