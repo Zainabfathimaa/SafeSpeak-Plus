@@ -30,6 +30,10 @@ const reportSchema = new mongoose.Schema({
         type: String,
         default: 'General'
     },
+    course: {
+        type: String,
+        default: null
+    },
     involvedParties: {
         type: String,
         required: false

@@ -22,6 +22,7 @@ export default function NewReport() {
         location: '',
         description: '',
         department: '',
+        course: '',
         involvedParties: '',
         files: []
     });
@@ -68,6 +69,7 @@ export default function NewReport() {
                 location: formData.location,
                 description: formData.description,
                 department: formData.department || 'General',
+                course: formData.course || null,
                 involvedParties: formData.involvedParties,
                 files: formData.files
             };

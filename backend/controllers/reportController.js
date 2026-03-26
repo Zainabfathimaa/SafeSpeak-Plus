@@ -39,6 +39,7 @@ export const createReport = async (req, res) => {
             description,
             involvedParties,
             department,
+            course,
             files
         } = req.body;
 
@@ -82,6 +83,7 @@ export const createReport = async (req, res) => {
             location,
             description,
             department: department || 'General', // Default if not provided
+            course: course || null,
             involvedParties,
             evidenceFiles: files || [],
             submittedBy,

@@ -263,7 +263,7 @@ export default function UserReportDetail() {
                                         </div>
                                         <div className="flex items-center text-text-secondary">
                                             <User className="h-4 w-4 mr-2" />
-                                            <span>{report.department}</span>
+                                            <span>{report.department}{report.course ? ` - ${report.course}` : ''}</span>
                                         </div>
                                     </div>
 
