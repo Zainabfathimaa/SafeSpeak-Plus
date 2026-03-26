@@ -26,6 +26,12 @@ export function Step4Review({ formData }) {
                     <div className="col-span-2 text-sm text-text-primary font-semibold">{formData.incidentType || 'Not specified'}</div>
                 </div>
                 <div className="p-4 grid grid-cols-3 gap-4">
+                    <div className="col-span-1 text-sm font-medium text-text-secondary">Department & Course</div>
+                    <div className="col-span-2 text-sm text-text-primary">
+                        {formData.department ? `${formData.department}${formData.course ? ` - ${formData.course}` : ''}` : 'Not specified'}
+                    </div>
+                </div>
+                <div className="p-4 grid grid-cols-3 gap-4">
                     <div className="col-span-1 text-sm font-medium text-text-secondary">Date & Time</div>
                     <div className="col-span-2 text-sm text-text-primary">
                         {formData.date || 'Not specified'} {formData.time ? `at ${formData.time}` : ''}

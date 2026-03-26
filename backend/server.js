@@ -184,11 +184,11 @@ app.use(cors({
 // Frontend sends: '{"email":"test@college.edu"}'
 // Express converts to: { email: 'test@college.edu' }
 // Now we can use: req.body.email
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
 
 // URL Encoded Parser
 // For form submissions (less common in APIs)
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // ===================================
 // STEP 5: Connect to Database
