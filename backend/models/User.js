@@ -164,6 +164,22 @@ const userSchema = new mongoose.Schema({
   },
 
   // ===================================
+  // PASSWORD RESET OTP
+  // ===================================
+
+  passwordResetOtp: {
+    type: String,
+    default: null,
+    select: false
+  },
+
+  passwordResetOtpExpiry: {
+    type: Date,
+    default: null,
+    select: false
+  },
+
+  // ===================================
   // NOTIFICATION PREFERENCES
   // ===================================
 
