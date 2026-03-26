@@ -127,8 +127,8 @@ export default function RegisterPage() {
     }
 
     return (
-        <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
-            <div className="max-w-md w-full bg-white p-8 rounded-xl shadow-lg border border-gray-100">
+        <div className="min-h-[80vh] flex items-center justify-center px-4 py-12 relative z-10">
+            <div className="max-w-md w-full glass-card p-8">
                 <div className="text-center mb-8">
                     <div className="flex justify-center mb-4">
                         <div className="p-2 bg-primary/10 rounded-full">

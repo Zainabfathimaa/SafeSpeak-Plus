@@ -51,9 +51,11 @@ export function DashboardStories() {
                     <p className="text-gray-500">No stories yet. Be the first to share one!</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {recentStories.map(story => (
-                        <StoryCard key={story._id} story={story} />
+                        <div key={story._id} className="scale-95 hover:scale-100 transition-transform duration-300">
+                             <StoryCard story={story} />
+                        </div>
                     ))}
                 </div>
             )}

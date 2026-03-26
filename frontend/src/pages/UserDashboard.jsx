@@ -21,6 +21,7 @@ export default function UserDashboard() {
     const [storyRefreshTrigger, setStoryRefreshTrigger] = React.useState(0);
     const [userStories, setUserStories] = React.useState([]);
     const [storiesLoading, setStoriesLoading] = React.useState(true);
+    const [editingStory, setEditingStory] = React.useState(null);
 
     React.useEffect(() => {
         const fetchStats = async () => {
@@ -44,7 +45,18 @@ export default function UserDashboard() {
 
     const handleStorySubmitted = () => {
         setIsStoryModalOpen(false);
+        setEditingStory(null);
         setStoryRefreshTrigger(prev => prev + 1);
+    };
+
+    const handleEditStory = (story) => {
+        setEditingStory(story);
+        setIsStoryModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsStoryModalOpen(false);
+        setEditingStory(null);
     };
 
     // fetch user's own stories when trigger increments
@@ -84,22 +96,32 @@ export default function UserDashboard() {
                         <DashboardStories />
 
                         {/* Your Stories Section */}
-                        <div>
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-xl font-semibold text-gray-800 border-l-4 border-blue-500 pl-4">Your Stories</h3>
+                        <div className="bg-white/40 backdrop-blur-xl rounded-2xl border border-white/40 shadow-xl overflow-hidden">
+                            <div className="px-6 py-5 border-b border-gray-100/50 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-blue-50/30 to-transparent">
+                                <div>
+                                    <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                                        <div className="w-1.5 h-6 bg-blue-600 rounded-full" />
+                                        Your Stories
+                                    </h3>
+                                    <p className="text-xs text-text-secondary mt-0.5 ml-3.5 italic">Manage your shared experiences</p>
+                                </div>
                                 <button
-                                    onClick={() => setIsStoryModalOpen(true)}
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+                                    onClick={() => { setEditingStory(null); setIsStoryModalOpen(true); }}
+                                    className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl transition-all shadow-lg shadow-blue-200 hover:shadow-blue-300 font-bold text-sm flex items-center gap-2 group transform hover:-translate-y-0.5"
                                 >
-                                    + Submit Story
+                                    <PlusCircle size={18} className="group-hover:rotate-90 transition-transform duration-300" />
+                                    Submit New Story
                                 </button>
                             </div>
-                            <UserStoriesList
-                                stories={userStories}
-                                isLoading={storiesLoading}
-                                onDelete={(deletedId) => setUserStories(prev => prev.filter(s => s._id !== deletedId))}
-                                refreshTrigger={storyRefreshTrigger}
-                            />
+                            <div className="p-6">
+                                <UserStoriesList
+                                    stories={userStories}
+                                    isLoading={storiesLoading}
+                                    onDelete={(deletedId) => setUserStories(prev => prev.filter(s => s._id !== deletedId))}
+                                    onEdit={handleEditStory}
+                                    refreshTrigger={storyRefreshTrigger}
+                                />
+                            </div>
                         </div>
 
                         {/* Quick Actions */}
@@ -161,9 +183,9 @@ export default function UserDashboard() {
                 {/* Story Submission Modal */}
                 <StorySubmissionModal
                     isOpen={isStoryModalOpen}
-                    onClose={() => setIsStoryModalOpen(false)}
-                    // prop name corrected to match component
+                    onClose={handleCloseModal}
                     onSuccess={handleStorySubmitted}
+                    editData={editingStory}
                 />
 
             </div>

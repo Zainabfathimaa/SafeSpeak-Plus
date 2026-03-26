@@ -3,12 +3,29 @@ import { X } from 'lucide-react';
 import storyService from '../../services/storyService';
 import { useToast } from '../../hooks/useToast';
 
-export const StorySubmissionModal = ({ isOpen, onClose, onSuccess }) => {
+export const StorySubmissionModal = ({ isOpen, onClose, onSuccess, editData = null }) => {
   const [formData, setFormData] = useState({
-    title: '',
-    content: '',
-    category: 'Personal Experience'
+    title: editData?.title || '',
+    content: editData?.content || '',
+    category: editData?.category || 'Personal Experience'
   });
+
+  // Update form if editData changes (e.g. when opening modal with different story)
+  React.useEffect(() => {
+    if (editData) {
+      setFormData({
+        title: editData.title,
+        content: editData.content,
+        category: editData.category
+      });
+    } else {
+      setFormData({
+        title: '',
+        content: '',
+        category: 'Personal Experience'
+      });
+    }
+  }, [editData, isOpen]);
   const [isLoading, setIsLoading] = useState(false);
   const { addToast } = useToast();
 
@@ -50,16 +67,23 @@ export const StorySubmissionModal = ({ isOpen, onClose, onSuccess }) => {
         return;
       }
 
-      // Submit
-      const response = await storyService.submitStory(formData);
+      // Submit or Update
+      const response = editData 
+        ? await storyService.updateStory(editData._id, formData)
+        : await storyService.submitStory(formData);
 
       if (response.success) {
-        addToast('success', 'Thank you for sharing your experience. Your story has been sent for review and will be published upon approval.');
-        setFormData({
-          title: '',
-          content: '',
-          category: 'Personal Experience'
-        });
+        addToast('success', editData 
+          ? 'Story updated successfully and sent for re-review.' 
+          : 'Thank you for sharing your experience. Your story has been sent for review and will be published upon approval.');
+        
+        if (!editData) {
+          setFormData({
+            title: '',
+            content: '',
+            category: 'Personal Experience'
+          });
+        }
         onClose();
         if (onSuccess) onSuccess();
       }
@@ -77,7 +101,9 @@ export const StorySubmissionModal = ({ isOpen, onClose, onSuccess }) => {
       <div className="bg-white rounded-lg shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-b">
-          <h2 className="text-xl font-bold text-gray-900">Share Your Story</h2>
+          <h2 className="text-xl font-bold text-gray-900">
+            {editData ? 'Edit Your Story' : 'Share Your Story'}
+          </h2>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
@@ -174,10 +200,10 @@ export const StorySubmissionModal = ({ isOpen, onClose, onSuccess }) => {
               {isLoading ? (
                 <>
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Submitting...
+                  {editData ? 'Updating...' : 'Submitting...'}
                 </>
               ) : (
-                'Submit Story for Review'
+                editData ? 'Update Story' : 'Submit Story for Review'
               )}
             </button>
           </div>

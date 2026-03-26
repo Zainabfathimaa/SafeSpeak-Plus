@@ -25,7 +25,7 @@ export function Header() {
 
     return (
         <>
-            <nav className="border-b border-primary-dark bg-primary sticky top-0 z-50 shadow-md">
+            <nav className="bg-primary/95 backdrop-blur-md border-b border-white/20 sticky top-0 z-50 shadow-lg shadow-primary/10 transition-all duration-300">
                 <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                     <Link to="/" className="flex items-center space-x-2">
                         <Shield className="h-8 w-8 text-white" />

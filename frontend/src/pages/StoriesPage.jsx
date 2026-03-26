@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Header } from '../components/Header';
 import { Sidebar } from '../components/Sidebar';
 import { StoryCard } from '../components/Stories/StoryCard';
-import { ShareStoryModal } from '../components/Stories/ShareStoryModal';
+import { StorySubmissionModal } from '../components/Stories/StorySubmissionModal';
 import { Search, PenTool, Loader2, AlertCircle } from 'lucide-react';
 import storyService from '../services/storyService';
 
@@ -57,15 +57,15 @@ export default function StoriesPage() {
                                 </p>
                             </div>
                             {/* Search Bar */}
-                            <div className="relative w-full md:w-72">
+                            <div className="relative w-full md:w-80 group">
                                 <input
                                     type="text"
                                     placeholder="Search stories & tags..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                                    className="w-full pl-12 pr-4 py-3 bg-white/40 backdrop-blur-md border border-white/40 rounded-2xl shadow-lg shadow-blue-50/50 focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-400 focus:bg-white/90 transition-all placeholder:text-gray-400 font-medium"
                                 />
-                                <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+                                <Search className="w-5 h-5 text-blue-500 absolute left-4 top-1/2 transform -translate-y-1/2 group-focus-within:text-blue-600 transition-colors" />
                             </div>
                         </div>
 
@@ -130,7 +130,7 @@ export default function StoriesPage() {
                     </button>
 
                     {/* Modal */}
-                    <ShareStoryModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+                    <StorySubmissionModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
                 </main>
             </div>
         </div>

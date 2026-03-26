@@ -451,6 +451,48 @@ export const commentOnStory = async (req, res) => {
 };
 
 // ===================================
+// USER: UPDATE OWN STORY
+// ===================================
+export const updateStory = async (req, res) => {
+  try {
+    const { storyId } = req.params;
+    const { title, content, category } = req.body;
+    const userId = req.user.id;
+
+    const story = await Story.findById(storyId);
+    if (!story) {
+      return res.status(404).json({ success: false, message: 'Story not found' });
+    }
+
+    // Check ownership
+    if (story.submittedBy.toString() !== userId) {
+      return res.status(403).json({ success: false, message: 'You can only edit your own stories' });
+    }
+
+    // Update fields
+    if (title) story.title = title;
+    if (content) story.content = content;
+    if (category) story.category = category;
+
+    // Reset status to Pending Review if content changes
+    story.status = 'Pending Review';
+    story.isPublished = false;
+
+    await story.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Story updated successfully and sent for re-review',
+      story
+    });
+
+  } catch (error) {
+    console.error('Error updating story:', error);
+    res.status(500).json({ success: false, message: 'Error updating story' });
+  }
+};
+
+// ===================================
 // USER: DELETE OWN STORY
 // ===================================
 export const deleteStory = async (req, res) => {

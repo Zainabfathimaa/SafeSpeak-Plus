@@ -1,10 +1,10 @@
 import React, { useState, useMemo } from 'react';
-import { Trash2, MessageSquare, Heart, Share2, Search } from 'lucide-react';
+import { Trash2, MessageSquare, Heart, Share2, Search, Edit3 } from 'lucide-react';
 import storyService from '../../services/storyService';
 import { useToast } from '../../hooks/useToast';
 import { ConfirmationModal } from '../ui/ConfirmationModal';
 
-export const UserStoriesList = ({ stories, onDelete, isLoading }) => {
+export const UserStoriesList = ({ stories, onDelete, onEdit, isLoading }) => {
   const { addToast } = useToast();
   const [likedStories, setLikedStories] = useState(new Set());
   const [searchQuery, setSearchQuery] = useState('');
@@ -105,14 +105,14 @@ export const UserStoriesList = ({ stories, onDelete, isLoading }) => {
   return (
     <div className="space-y-4">
       {/* Search Bar */}
-      <div className="relative mb-6">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Search className="h-5 w-5 text-gray-400" />
+      <div className="relative mb-8 max-w-xl mx-auto md:mx-0 group">
+        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+          <Search className="h-5 w-5 text-blue-500 group-focus-within:text-blue-600 transition-colors" />
         </div>
         <input
           type="text"
-          className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-          placeholder="Search your stories by title, content, or category..."
+          className="block w-full pl-12 pr-4 py-3 bg-white/40 backdrop-blur-md border border-white/40 rounded-2xl shadow-lg shadow-blue-50/50 focus:ring-4 focus:ring-blue-100 focus:border-blue-400 focus:bg-white/90 transition-all sm:text-sm placeholder:text-gray-400 font-medium"
+          placeholder="Search your stories..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
@@ -144,13 +144,22 @@ export const UserStoriesList = ({ stories, onDelete, isLoading }) => {
                 </div>
               </div>
 
-              <button
-                onClick={() => confirmDelete(story._id)}
-                className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                title="Delete story"
-              >
-                <Trash2 size={16} />
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => onEdit(story)}
+                  className="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-colors"
+                  title="Edit story"
+                >
+                  <Edit3 size={16} />
+                </button>
+                <button
+                  onClick={() => confirmDelete(story._id)}
+                  className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                  title="Delete story"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
             </div>
 
             {/* Content Body */}
@@ -164,28 +173,7 @@ export const UserStoriesList = ({ stories, onDelete, isLoading }) => {
               </p>
 
               {/* Engagement Stats & Bottom Actions */}
-              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                <div className="flex gap-6">
-                  <button
-                    onClick={() => handleLike(story._id)}
-                    className="flex items-center gap-1.5 text-gray-400 hover:text-red-500 transition-all font-semibold"
-                  >
-                    <Heart size={16} fill={likedStories.has(story._id) ? '#EF4444' : 'none'} className={likedStories.has(story._id) ? 'text-red-500' : ''} />
-                    <span className="text-xs">{story.likes?.length || 0}</span>
-                  </button>
-                  <div className="flex items-center gap-1.5 text-gray-400 font-semibold">
-                    <MessageSquare size={16} />
-                    <span className="text-xs">{story.comments?.length || 0}</span>
-                  </div>
-                  <button
-                    onClick={() => handleShare(story._id)}
-                    className="flex items-center gap-1.5 text-gray-400 hover:text-blue-500 transition-all font-semibold"
-                  >
-                    <Share2 size={16} />
-                    <span className="text-xs">{story.shares || 0}</span>
-                  </button>
-                </div>
-              </div>
+              {/* Engagement Stats Completely Removed for Personal View */}
 
               {/* Admin Feedback Box */}
               {story.reviewComments && (story.status === 'Rejected' || story.status === 'Approved') && (
