@@ -35,6 +35,10 @@ export function UserActivityTimeline() {
                 return { icon: FileText, color: 'text-blue-500', bg: 'bg-blue-100', text: `You published a story "${log.details?.title || 'Unknown'}"` };
             case 'story_liked':
                 return { icon: Heart, color: 'text-pink-500', bg: 'bg-pink-100', text: `You liked "${log.details?.title || 'Unknown'}"` };
+            case 'story_liked_by_other':
+                return { icon: Heart, color: 'text-red-500', bg: 'bg-red-100', text: `Someone liked your story "${log.details?.title || 'Unknown'}"` };
+            case 'story_edited':
+                return { icon: FileText, color: 'text-indigo-500', bg: 'bg-indigo-100', text: `You edited story "${log.details?.title || 'Unknown'}"` };
             case 'story_deleted':
                 return { icon: Trash2, color: 'text-gray-500', bg: 'bg-gray-100', text: `You deleted story "${log.details?.title || 'Unknown'}"` };
             case 'report_submitted':
@@ -59,30 +63,6 @@ export function UserActivityTimeline() {
             </div>
 
             <div className="p-6">
-                {/* Metrics Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-                    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 text-center">
-                        <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">Stories</p>
-                        <p className="text-2xl font-bold text-blue-600">{metrics?.storiesPosted || 0}</p>
-                    </div>
-                    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 text-center">
-                        <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">Likes Given</p>
-                        <p className="text-2xl font-bold text-pink-600">{metrics?.storiesLiked || 0}</p>
-                    </div>
-                    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 text-center">
-                        <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">Reports</p>
-                        <p className="text-2xl font-bold text-orange-600">{metrics?.reportsSubmitted || 0}</p>
-                    </div>
-                    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 text-center">
-                        <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">Escalations</p>
-                        <p className="text-2xl font-bold text-red-600">{metrics?.reportsEscalated || 0}</p>
-                    </div>
-                    <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 text-center">
-                        <p className="text-xs text-gray-500 font-semibold uppercase tracking-wider mb-1">Deleted</p>
-                        <p className="text-2xl font-bold text-gray-600">{metrics?.storiesDeleted || 0}</p>
-                    </div>
-                </div>
-
                 {/* Timeline */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                     <h4 className="text-sm font-bold text-gray-800 mb-6 uppercase tracking-wider flex items-center">

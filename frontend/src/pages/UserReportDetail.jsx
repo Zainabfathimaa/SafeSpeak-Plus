@@ -30,6 +30,7 @@ export default function UserReportDetail() {
     const [escalationMethod, setEscalationMethod] = useState('email');
     const [escalationContact, setEscalationContact] = useState('');
     const [escalationMessage, setEscalationMessage] = useState('');
+    const [escalationProof, setEscalationProof] = useState(null);
     const [submittingEscalation, setSubmittingEscalation] = useState(false);
 
     useEffect(() => {
@@ -129,7 +130,8 @@ export default function UserReportDetail() {
             const payload = {
                 message: escalationMessage,
                 contactMethod: escalationMethod,
-                contactValue: escalationContact
+                contactValue: escalationContact,
+                ...(escalationProof && { proofImageBase64: escalationProof })
             };
             const res = await escalateReport(id, payload);
 
@@ -351,15 +353,40 @@ export default function UserReportDetail() {
                                             </div>
 
                                             <div>
-                                                <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Complaint & Escalation</label>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Complaint Against Admin / Reason for Escalation</label>
                                                 <textarea
                                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
                                                     rows="3"
                                                     value={escalationMessage}
                                                     onChange={(e) => setEscalationMessage(e.target.value)}
-                                                    placeholder="Explain why this requires urgent higher-level review and why you are bypassing standard procedures..."
+                                                    placeholder="Detail your complaint against the reviewing administration, why it was handled poorly, and why higher-level review is required..."
                                                 ></textarea>
                                             </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                    Attach Proof Screenshot (Optional)
+                                                </label>
+                                                <input 
+                                                    type="file" 
+                                                    accept="image/*"
+                                                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100"
+                                                    onChange={(e) => {
+                                                        const file = e.target.files[0];
+                                                        if (file) {
+                                                            const reader = new FileReader();
+                                                            reader.onloadend = () => {
+                                                                setEscalationProof(reader.result);
+                                                            };
+                                                            reader.readAsDataURL(file);
+                                                        } else {
+                                                            setEscalationProof(null);
+                                                        }
+                                                    }}
+                                                />
+                                                <p className="text-xs text-gray-500 mt-1">Upload a screenshot showing the admin's unhelpful response or lack thereof.</p>
+                                            </div>
+
                                             <div className="flex gap-3 justify-end mt-4">
                                                 <Button variant="outline" onClick={() => setIsEscalating(false)} disabled={submittingEscalation}>
                                                     Cancel
