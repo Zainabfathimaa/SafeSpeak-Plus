@@ -1,132 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { AlertCircle, Trash2, Shield, BellRing, User, Lock, CheckCircle2, LogOut, Eye, EyeOff, Info, Mail } from 'lucide-react';
+import { Save, AlertCircle, Trash2, Shield, BellRing, User, Lock, Palette, CheckCircle2, LogOut, Eye, EyeOff, Info } from 'lucide-react';
 import userService from '../services/userService';
 import { useToast } from '../hooks/useToast';
 import { ConfirmationModal } from '../components/ui/ConfirmationModal';
 import { Header } from '../components/Header';
 import { Sidebar } from '../components/Sidebar';
-import { logout, makeRequest } from '../services/authService';
+import { Input } from '../components/ui/Input';
+import { logout } from '../services/authService';
 import { useNavigate } from 'react-router-dom';
-
-// ──────────────────────────────────────
-// Forgot Password Section Component
-// Allows a user to reset their password via email OTP
-// ──────────────────────────────────────
-function ForgotPasswordSection({ addToast }) {
-  const [step, setStep] = useState(1); // 1=enter email, 2=enter OTP+newpass
-  const [email, setEmail] = useState('');
-  const [otp, setOtp] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [showPass, setShowPass] = useState(false);
-
-  const sendOtp = async () => {
-    if (!email) { addToast('error', 'Please enter your registered email'); return; }
-    setLoading(true);
-    try {
-      const res = await makeRequest('/auth/forgot-password-otp', {
-        method: 'POST',
-        body: JSON.stringify({ email })
-      });
-      if (res.success) {
-        addToast('success', 'OTP sent to your email ✓');
-        setStep(2);
-      } else {
-        addToast('error', res.message || 'Email not found');
-      }
-    } catch (e) {
-      addToast('error', 'Failed to send OTP');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const resetPassword = async () => {
-    if (newPassword !== confirmPassword) { addToast('error', 'Passwords do not match'); return; }
-    if (newPassword.length < 6) { addToast('error', 'Password must be at least 6 characters'); return; }
-    setLoading(true);
-    try {
-      const res = await makeRequest('/auth/reset-password-otp', {
-        method: 'POST',
-        body: JSON.stringify({ email, otp, newPassword })
-      });
-      if (res.success) {
-        addToast('success', 'Password reset successfully! Please log in again.');
-        setStep(1); setEmail(''); setOtp(''); setNewPassword(''); setConfirmPassword('');
-      } else {
-        addToast('error', res.message || 'Invalid or expired OTP');
-      }
-    } catch (e) {
-      addToast('error', 'Failed to reset password');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="mt-6 pt-6 border-t border-dashed border-gray-200">
-      <h3 className="font-bold text-gray-700 flex items-center gap-2 mb-3">
-        <div className="p-1.5 bg-orange-50 rounded-lg"><Mail size={15} className="text-orange-500" /></div>
-        Forgot Current Password?
-      </h3>
-      <div className="bg-orange-50 border border-orange-100 rounded-2xl p-5 max-w-xl space-y-4">
-        <p className="text-xs text-orange-700 font-medium">
-          If you don't remember your current password, enter your registered email. We'll send a one-time code to reset it.
-        </p>
-        {step === 1 ? (
-          <div className="flex gap-3">
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="your@college.edu"
-              className="flex-1 px-4 py-2.5 text-sm border border-orange-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white"
-            />
-            <button onClick={sendOtp} disabled={loading} className="px-5 py-2.5 bg-orange-500 text-white rounded-xl text-sm font-bold hover:bg-orange-600 disabled:opacity-60 transition">
-              {loading ? 'Sending...' : 'Send OTP'}
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <input
-              type="text"
-              value={otp}
-              onChange={e => setOtp(e.target.value)}
-              placeholder="Enter 6-digit OTP from email"
-              className="w-full px-4 py-2.5 text-sm border border-orange-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white tracking-widest font-mono"
-            />
-            <div className="relative">
-              <input
-                type={showPass ? 'text' : 'password'}
-                value={newPassword}
-                onChange={e => setNewPassword(e.target.value)}
-                placeholder="New password"
-                className="w-full px-4 py-2.5 pr-10 text-sm border border-orange-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white"
-              />
-              <button type="button" onClick={() => setShowPass(p => !p)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
-                {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
-              </button>
-            </div>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={e => setConfirmPassword(e.target.value)}
-              placeholder="Confirm new password"
-              className="w-full px-4 py-2.5 text-sm border border-orange-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white"
-            />
-            <div className="flex gap-3">
-              <button onClick={() => setStep(1)} className="px-4 py-2 text-sm text-gray-600 border border-gray-200 rounded-xl hover:bg-gray-50 transition">Back</button>
-              <button onClick={resetPassword} disabled={loading} className="flex-1 py-2 bg-orange-500 text-white rounded-xl text-sm font-bold hover:bg-orange-600 disabled:opacity-60 transition">
-                {loading ? 'Resetting...' : 'Reset Password'}
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
 
 export const UserSettingsPage = () => {
   const { addToast } = useToast();
@@ -336,6 +217,7 @@ export const UserSettingsPage = () => {
 
   const tabs = [
     { id: 'profile', label: 'Personal Profile', icon: User },
+    { id: 'appearance', label: 'Appearance', icon: Palette },
     { id: 'notifications', label: 'Notifications', icon: BellRing },
     { id: 'privacy', label: 'Privacy & Identity', icon: Shield },
     { id: 'security', label: 'Account Security', icon: Lock }
@@ -449,6 +331,37 @@ export const UserSettingsPage = () => {
                       <p className="text-xs text-gray-400 italic flex items-center gap-1.5">
                         <Info size={12} /> These details are stored privately and hidden from admins unless you share your identity in Privacy settings.
                       </p>
+                    </div>
+                  )}
+
+                  {/* ── APPEARANCE TAB ── */}
+                  {activeTab === 'appearance' && (
+                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                      <div className="border-b border-gray-100 pb-5">
+                        <h2 className="text-2xl font-bold text-gray-900">Appearance</h2>
+                        <p className="text-gray-500 text-sm mt-1">Click a theme to apply it instantly.</p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4 max-w-md">
+                        {[
+                          { id: 'light', label: 'Light Mode', preview: 'bg-gray-100', inner: 'bg-white' },
+                          { id: 'dark', label: 'Dark Mode', preview: 'bg-gray-900', inner: 'bg-gray-700' },
+                        ].map(t => (
+                          <button
+                            key={t.id}
+                            onClick={() => handleThemeChange(t.id)}
+                            className={`flex items-center justify-between p-4 border-2 rounded-2xl transition-all ${appearance.theme === t.id ? 'border-primary bg-primary/5 shadow-md' : 'border-gray-200 bg-white hover:border-primary/50'}`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className={`w-10 h-10 rounded-full ${t.preview} flex items-center justify-center border border-gray-300`}>
+                                <div className={`w-5 h-5 rounded-full ${t.inner} border border-gray-300`} />
+                              </div>
+                              <span className="font-semibold text-gray-900">{t.label}</span>
+                            </div>
+                            {appearance.theme === t.id && <CheckCircle2 className="text-primary w-5 h-5" />}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   )}
 
@@ -641,9 +554,6 @@ export const UserSettingsPage = () => {
                           </button>
                         </div>
                       </form>
-
-                      {/* Forgot / Don't know current password */}
-                      <ForgotPasswordSection addToast={addToast} />
 
                       {/* Sign Out */}
                       <div className="mt-8 pt-8 border-t border-gray-200/50">
