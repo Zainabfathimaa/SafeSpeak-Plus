@@ -93,16 +93,6 @@ const userService = {
     } catch (error) {
       throw error.response?.data || error;
     }
-  },
-
-  // Update appearance preferences
-  updateAppearancePreferences: async (appearance) => {
-    try {
-      const response = await axios.put(`${API_BASE_URL}/user/appearance`, { appearance });
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
   }
 };
 

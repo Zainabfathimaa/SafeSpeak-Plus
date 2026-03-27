@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Activity, FileText, Heart, ShieldAlert, Trash2, Clock, Pencil } from 'lucide-react';
+import { Activity, FileText, Heart, ShieldAlert, Trash2, Clock } from 'lucide-react';
 import userService from '../services/userService';
 
 export function UserActivityTimeline() {
@@ -32,49 +32,21 @@ export function UserActivityTimeline() {
     const getActionDetails = (log) => {
         switch (log.action) {
             case 'story_posted':
-                return {
-                    icon: FileText, color: 'text-blue-500', bg: 'bg-blue-100',
-                    text: `You published a story`,
-                    subtitle: `"${log.details?.title || 'Unknown'}" — submitted for admin review.`
-                };
+                return { icon: FileText, color: 'text-blue-500', bg: 'bg-blue-100', text: `You published a story "${log.details?.title || 'Unknown'}"` };
             case 'story_liked':
-                return {
-                    icon: Heart, color: 'text-pink-500', bg: 'bg-pink-100',
-                    text: `You liked a story`,
-                    subtitle: `"${log.details?.title || 'Unknown'}"`
-                };
+                return { icon: Heart, color: 'text-pink-500', bg: 'bg-pink-100', text: `You liked "${log.details?.title || 'Unknown'}"` };
             case 'story_liked_by_other':
-                return {
-                    icon: Heart, color: 'text-red-500', bg: 'bg-red-100',
-                    text: `Someone liked your story`,
-                    subtitle: `"${log.details?.title || 'Unknown'}" — your story is getting engagement! 🎉`
-                };
+                return { icon: Heart, color: 'text-red-500', bg: 'bg-red-100', text: `Someone liked your story "${log.details?.title || 'Unknown'}"` };
             case 'story_edited':
-                return {
-                    icon: Pencil, color: 'text-indigo-500', bg: 'bg-indigo-100',
-                    text: `You edited a story`,
-                    subtitle: `"${log.details?.title || 'Unknown'}" — sent back for re-review.`
-                };
+                return { icon: FileText, color: 'text-indigo-500', bg: 'bg-indigo-100', text: `You edited story "${log.details?.title || 'Unknown'}"` };
             case 'story_deleted':
-                return {
-                    icon: Trash2, color: 'text-gray-500', bg: 'bg-gray-100',
-                    text: `You deleted a story`,
-                    subtitle: `"${log.details?.title || 'Unknown'}" — permanently removed.`
-                };
+                return { icon: Trash2, color: 'text-gray-500', bg: 'bg-gray-100', text: `You deleted story "${log.details?.title || 'Unknown'}"` };
             case 'report_submitted':
-                return {
-                    icon: ShieldAlert, color: 'text-orange-500', bg: 'bg-orange-100',
-                    text: `You filed an incident report`,
-                    subtitle: `Type: ${log.details?.incidentType || 'N/A'} · Report ID: ${log.details?.reportId || 'N/A'}`
-                };
+                return { icon: ShieldAlert, color: 'text-orange-500', bg: 'bg-orange-100', text: `You filed an incident report (${log.details?.incidentType || log.details?.reportId})` };
             case 'report_escalated':
-                return {
-                    icon: Activity, color: 'text-red-500', bg: 'bg-red-100',
-                    text: `You escalated a report to higher authority`,
-                    subtitle: `Report ${log.details?.reportId} · Sent via ${log.details?.contactMethod === 'email' ? 'Email' : 'WhatsApp'} to ${log.details?.contactValue}`
-                };
+                return { icon: Activity, color: 'text-red-500', bg: 'bg-red-100', text: `You escalated report ${log.details?.reportId} to ${log.details?.contactValue}` };
             default:
-                return { icon: Activity, color: 'text-gray-500', bg: 'bg-gray-100', text: 'You performed an action', subtitle: '' };
+                return { icon: Activity, color: 'text-gray-500', bg: 'bg-gray-100', text: 'You performed an action' };
         }
     };
 
@@ -101,19 +73,17 @@ export function UserActivityTimeline() {
                     {timeline && timeline.length > 0 ? (
                         <div className="relative pl-4 border-l-2 border-gray-100 space-y-8">
                             {timeline.map((log) => {
-                                const { icon: Icon, color, bg, text, subtitle } = getActionDetails(log);
+                                const { icon: Icon, color, bg, text } = getActionDetails(log);
                                 return (
                                     <div key={log._id} className="relative">
                                         <div className={`absolute -left-[27px] p-1.5 rounded-full ${bg} ${color} ring-4 ring-white`}>
                                             <Icon className="w-4 h-4" />
                                         </div>
                                         <div className="pl-4">
-                                            <p className="text-sm text-gray-800 font-semibold">{text}</p>
-                                            {subtitle && <p className="text-xs text-gray-500 mt-0.5">{subtitle}</p>}
+                                            <p className="text-sm text-gray-800 font-medium">{text}</p>
                                             <p className="text-xs text-gray-400 mt-1">
                                                 {new Date(log.createdAt).toLocaleDateString('en-US', {
-                                                    weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
-                                                    hour: '2-digit', minute: '2-digit'
+                                                    month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
                                                 })}
                                             </p>
                                         </div>

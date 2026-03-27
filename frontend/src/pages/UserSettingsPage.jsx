@@ -1,40 +1,49 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Save, AlertCircle, Trash2, Shield, BellRing, User, Lock, Palette, CheckCircle2, LogOut, Eye, EyeOff, Info } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Save, AlertCircle, Trash2, Shield, BellRing, User, Lock, Palette, CheckCircle2 } from 'lucide-react';
 import userService from '../services/userService';
 import { useToast } from '../hooks/useToast';
 import { ConfirmationModal } from '../components/ui/ConfirmationModal';
 import { Header } from '../components/Header';
 import { Sidebar } from '../components/Sidebar';
 import { Input } from '../components/ui/Input';
-import { logout } from '../services/authService';
-import { useNavigate } from 'react-router-dom';
 
 export const UserSettingsPage = () => {
   const { addToast } = useToast();
-  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false);
 
-  // Appearance state
+  // Appearance state (Functional)
   const [appearance, setAppearance] = useState(() => {
-    return { theme: localStorage.getItem('safeSpeak_theme') || 'light' };
+    // Load from local storage or default
+    const savedTheme = localStorage.getItem('safeSpeak_theme');
+    return {
+      theme: savedTheme || 'light'
+    };
   });
 
-  // Apply Theme
+  // Apply Theme Changes
   useEffect(() => {
     document.documentElement.className = appearance.theme;
+
+    // Save to local storage instantly for immediate persistence without Backend API
     localStorage.setItem('safeSpeak_theme', appearance.theme);
-  }, [appearance.theme]);
+  }, [appearance]);
 
   // Security tab state
-  const [securityData, setSecurityData] = useState({ oldPassword: '', newPassword: '', confirmPassword: '' });
-  const [showPass, setShowPass] = useState({ old: false, new: false, confirm: false });
+  const [securityData, setSecurityData] = useState({
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
 
   // Profile tab state
-  const [profile, setProfile] = useState({ fullName: '', phone: '', department: '' });
+  const [profile, setProfile] = useState({
+    fullName: '',
+    phone: '',
+    department: ''
+  });
 
   // Notification preferences state
   const [notifyPrefs, setNotifyPrefs] = useState({
@@ -55,7 +64,9 @@ export const UserSettingsPage = () => {
   });
 
   // Privacy state
-  const [privacy, setPrivacy] = useState({ idRevealConsent: false });
+  const [privacy, setPrivacy] = useState({
+    idRevealConsent: false
+  });
 
   // Fetch current settings on mount
   useEffect(() => {
@@ -65,6 +76,8 @@ export const UserSettingsPage = () => {
   const fetchSettings = async () => {
     try {
       setIsLoading(true);
+
+      // Fetch profile
       const userResponse = await userService.getCurrentUser();
       if (userResponse.success && userResponse.user) {
         setProfile({
@@ -72,17 +85,17 @@ export const UserSettingsPage = () => {
           phone: userResponse.user.phone || '',
           department: userResponse.user.department || ''
         });
-        setPrivacy({ idRevealConsent: userResponse.user.idRevealConsent || false });
       }
 
+      // Fetch preferences
       const prefsResponse = await userService.getPreferences();
       if (prefsResponse.success && prefsResponse.preferences) {
-        const prefs = prefsResponse.preferences;
-        if (prefs.notificationPreferences) {
-          setNotifyPrefs(prev => ({ ...prev, ...prefs.notificationPreferences }));
-        }
-        if (prefs.appearance) {
-          setAppearance(prefs.appearance);
+        setNotifyPrefs(prefsResponse.preferences.notificationPreferences || notifyPrefs);
+        setPrivacy({
+          idRevealConsent: prefsResponse.preferences.idRevealConsent || false
+        });
+        if (prefsResponse.preferences.appearance) {
+          setAppearance(prefsResponse.preferences.appearance);
         }
       }
     } catch (error) {
@@ -92,91 +105,98 @@ export const UserSettingsPage = () => {
     }
   };
 
-  // Auto-save profile on field blur
-  const handleProfileBlur = useCallback(async () => {
-    if (!profile.fullName) return;
+  const handleProfileChange = (e) => {
+    const { name, value } = e.target;
+    setProfile(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleNotificationToggle = (category, preference) => {
+    setNotifyPrefs(prev => ({
+      ...prev,
+      [category]: {
+        ...prev[category],
+        [preference]: !prev[category][preference]
+      }
+    }));
+  };
+
+  const handleIdConsentChange = (value) => {
+    setPrivacy(prev => ({
+      ...prev,
+      idRevealConsent: value
+    }));
+  };
+
+  const handleSaveProfile = async () => {
+    setIsSaving(true);
     try {
       const response = await userService.updateProfile(profile);
       if (response.success) {
-        addToast('success', 'Profile auto-saved ✓');
+        addToast('success', 'Profile updated successfully');
       }
     } catch (error) {
-      addToast('error', 'Failed to auto-save profile');
-    }
-  }, [profile]);
-
-  // Save appearance immediately on toggle
-  const handleThemeChange = async (theme) => {
-    const newAppearance = { ...appearance, theme };
-    setAppearance(newAppearance);
-    try {
-      await userService.updateAppearancePreferences(newAppearance);
-      addToast('success', `${theme === 'dark' ? 'Dark' : 'Light'} mode applied ✓`);
-    } catch (error) {
-      addToast('error', 'Failed to save appearance');
+      addToast('error', error.message || 'Failed to save profile');
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  // Save notification toggle immediately
-  const handleNotificationToggle = async (category, preference) => {
-    const updated = {
-      ...notifyPrefs,
-      [category]: {
-        ...notifyPrefs[category],
-        [preference]: !notifyPrefs[category][preference]
-      }
-    };
-    setNotifyPrefs(updated);
+  const handleSaveNotificationPrefs = async () => {
+    setIsSaving(true);
     try {
-      await userService.updateNotificationPreferences(updated);
-      addToast('success', 'Preference updated ✓');
-    } catch (error) {
-      addToast('error', 'Failed to save preference');
-    }
-  };
-
-  // Save notification time on blur
-  const handleNotifTimeBlur = async () => {
-    try {
-      await userService.updateNotificationPreferences(notifyPrefs);
-      addToast('success', 'Notification time saved ✓');
-    } catch (error) {
-      addToast('error', 'Failed to save notification time');
-    }
-  };
-
-  // Save privacy immediately on toggle
-  const handleIdConsentChange = async (value) => {
-    setPrivacy({ idRevealConsent: value });
-    try {
-      const response = await userService.updateIdRevealConsent(value);
+      const response = await userService.updateNotificationPreferences(notifyPrefs);
       if (response.success) {
-        addToast('success', value ? 'Identity revealed to admins ✓' : 'You are now fully anonymous ✓');
+        addToast('success', 'Notification preferences saved');
       }
     } catch (error) {
-      addToast('error', 'Failed to save privacy setting');
+      addToast('error', error.message || 'Failed to save preferences');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSavePrivacy = async () => {
+    setIsSaving(true);
+    try {
+      const response = await userService.updateIdRevealConsent(privacy.idRevealConsent);
+      if (response.success) {
+        addToast('success', response.message);
+      }
+    } catch (error) {
+      addToast('error', error.message || 'Failed to save privacy settings');
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleSecurityChange = (e) => {
     const { name, value } = e.target;
-    setSecurityData(prev => ({ ...prev, [name]: value }));
+    setSecurityData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   const handleChangePassword = async (e) => {
     e.preventDefault();
     if (securityData.newPassword !== securityData.confirmPassword) {
-      addToast('error', 'New passwords do not match'); return;
+      addToast('error', 'New passwords do not match');
+      return;
     }
     if (securityData.newPassword.length < 6) {
-      addToast('error', 'Password must be at least 6 characters'); return;
+      addToast('error', 'New password must be at least 6 characters');
+      return;
     }
+
     setIsSaving(true);
     try {
       const { changePassword } = await import('../services/authService');
       const response = await changePassword(securityData.oldPassword, securityData.newPassword);
       if (response.success) {
-        addToast('success', 'Password changed successfully ✓');
+        addToast('success', 'Password changed successfully');
         setSecurityData({ oldPassword: '', newPassword: '', confirmPassword: '' });
       }
     } catch (error) {
@@ -186,16 +206,22 @@ export const UserSettingsPage = () => {
     }
   };
 
+  const handleDeleteAccountClick = () => {
+    setIsDeleteModalOpen(true);
+  };
+
   const executeDeleteAccount = async () => {
     setIsDeleteModalOpen(false);
     setIsSaving(true);
     try {
       const response = await userService.deleteAccount();
       if (response.success) {
-        addToast('success', 'Account deleted.');
+        addToast('success', 'Your account has been deleted.');
         const { logout } = await import('../services/authService');
         logout();
-        setTimeout(() => { window.location.href = '/login'; }, 1500);
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 1500);
       } else {
         addToast('error', response.message || 'Failed to delete account');
       }
@@ -206,39 +232,46 @@ export const UserSettingsPage = () => {
     }
   };
 
-  // Notification descriptions
-  const notifDescriptions = {
-    reportStatusUpdates: 'Get alerted when your incident report status changes (reviewed, resolved, escalated, etc.)',
-    storyUpdates: 'Get notified when your submitted story is approved, rejected, or gets a comment.',
-    newMessages: 'Get notified when you receive a direct message from an admin or the platform.',
-    systemAlerts: 'Important announcements about the platform, maintenance windows, and policy changes.',
-    weeklyDigest: 'Receive a weekly summary email of your reports, stories, and overall platform activity.'
+  const handleSaveAppearance = async () => {
+    setIsSaving(true);
+    try {
+      const response = await userService.updateAppearancePreferences(appearance);
+      if (response.success) {
+        addToast('success', 'Appearance preferences saved globally');
+      }
+    } catch (error) {
+      addToast('error', error.message || 'Failed to save appearance settings');
+    } finally {
+      setIsSaving(false);
+    }
   };
-
-  const tabs = [
-    { id: 'profile', label: 'Personal Profile', icon: User },
-    { id: 'appearance', label: 'Appearance', icon: Palette },
-    { id: 'notifications', label: 'Notifications', icon: BellRing },
-    { id: 'privacy', label: 'Privacy & Identity', icon: Shield },
-    { id: 'security', label: 'Account Security', icon: Lock }
-  ];
 
   if (isLoading) {
     return (
-      <div className="flex h-screen overflow-hidden flex-col bg-gray-50/50">
+      <div className="flex h-screen overflow-hidden flex-col bg-gray-50/50 text-text-primary">
         <Header />
         <div className="flex flex-1 overflow-hidden">
           <Sidebar />
-          <main className="flex-1 p-6 overflow-y-auto">
-            <div className="max-w-6xl mx-auto animate-pulse flex gap-8 mt-10">
-              <div className="w-64 h-96 bg-gray-200 rounded-2xl" />
-              <div className="flex-1 h-[600px] bg-gray-200 rounded-2xl" />
+          <main className="flex-1 p-6 lg:p-8 overflow-y-auto w-full">
+            <div className="max-w-6xl mx-auto">
+              <div className="animate-pulse flex flex-col md:flex-row gap-8 mt-10">
+                <div className="w-full md:w-64 h-96 bg-gray-200 rounded-2xl" />
+                <div className="flex-1 h-[600px] bg-gray-200 rounded-2xl" />
+              </div>
             </div>
           </main>
         </div>
       </div>
     );
   }
+
+  const tabs = [
+    { id: 'profile', label: 'Personal Profile', icon: User, desc: 'Update your personal details' },
+    { id: 'appearance', label: 'Appearance', icon: Palette, desc: 'Themes & styling' },
+    { id: 'notifications', label: 'Notifications', icon: BellRing, desc: 'Manage alerts & emails' },
+    { id: 'privacy', label: 'Privacy & Identity', icon: Shield, desc: 'Control your anonymity' },
+    { id: 'security', label: 'Account Security', icon: Lock, desc: 'Passwords & authentication' }
+  ];
 
   return (
     <div className="flex h-screen overflow-hidden flex-col bg-gray-50/50 text-text-primary">
@@ -248,8 +281,12 @@ export const UserSettingsPage = () => {
         <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto w-full relative">
           <div className="max-w-6xl mx-auto relative z-10 w-full">
             <div className="mb-6">
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">Account Settings</h1>
-              <p className="text-gray-500 text-sm">All changes are saved automatically when you leave a field.</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">
+                Account Settings
+              </h1>
+              <p className="text-gray-500 text-sm">
+                Manage your personal profile, security, and preferences.
+              </p>
             </div>
 
             <div className="flex flex-col md:flex-row gap-6">
@@ -257,340 +294,399 @@ export const UserSettingsPage = () => {
               <div className="w-full md:w-64 flex-shrink-0 space-y-2">
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
-                  const active = activeTab === tab.id;
+                  const isActive = activeTab === tab.id;
                   return (
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
-                      className={`w-full flex items-center text-left p-3 rounded-xl transition-all duration-200 ${active
+                      className={`w-full group flex items-center text-left p-3 rounded-xl transition-all duration-200 ${isActive
                         ? 'bg-primary text-white shadow-md shadow-primary/20'
-                        : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 shadow-sm'}`}
+                        : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 shadow-sm'
+                        }`}
                     >
-                      <div className={`p-2 rounded-lg mr-3 ${active ? 'bg-white/20 text-white' : 'bg-primary/5 text-primary'}`}>
+                      <div className={`p-2 rounded-lg mr-3 ${isActive ? 'bg-white/20 text-white' : 'bg-primary/5 text-primary'}`}>
                         <Icon size={18} />
                       </div>
-                      <h3 className={`font-semibold text-sm ${active ? 'text-white' : 'text-gray-900'}`}>{tab.label}</h3>
+                      <div className="flex-1">
+                        <h3 className={`font-semibold text-sm ${isActive ? 'text-white' : 'text-gray-900'}`}>{tab.label}</h3>
+                      </div>
                     </button>
-                  );
+                  )
                 })}
               </div>
 
               {/* Content Area */}
               <div className="flex-1">
-                <div className="bg-white rounded-2xl p-6 md:p-8 border border-gray-200 shadow-sm min-h-[500px]">
+                <div className="bg-white rounded-2xl p-6 md:p-8 border border-gray-200 shadow-sm h-full relative overflow-hidden">
 
-                  {/* ── PROFILE TAB ── */}
+                  {/* Profile Tab */}
                   {activeTab === 'profile' && (
-                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="space-y-8 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
                       <div className="border-b border-gray-100 pb-5">
                         <h2 className="text-2xl font-bold text-gray-900">Personal Profile</h2>
-                        <p className="text-gray-500 text-sm mt-1">Changes are auto-saved when you click outside a field.</p>
+                        <p className="text-gray-500 text-sm mt-1">These details are kept private unless explicitly shared.</p>
                       </div>
 
                       <div className="grid gap-6 max-w-xl">
                         <div>
-                          <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">Full Name</label>
+                          <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider text-xs">Full Name</label>
                           <input
                             type="text"
                             name="fullName"
                             value={profile.fullName}
-                            onChange={(e) => setProfile(p => ({ ...p, fullName: e.target.value }))}
-                            onBlur={handleProfileBlur}
-                            className="w-full px-5 py-3.5 bg-white/70 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/50 transition-all font-semibold text-gray-800 shadow-sm"
+                            onChange={handleProfileChange}
+                            className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
                             placeholder="Your full name"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">Phone Number</label>
+                          <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider text-xs">Phone Number</label>
                           <input
                             type="tel"
                             name="phone"
                             value={profile.phone}
-                            onChange={(e) => setProfile(p => ({ ...p, phone: e.target.value }))}
-                            onBlur={handleProfileBlur}
-                            className="w-full px-5 py-3.5 bg-white/70 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/50 transition-all font-semibold text-gray-800 shadow-sm"
-                            placeholder="+91 9876543210"
+                            onChange={handleProfileChange}
+                            className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
+                            placeholder="+1 (555) 000-0000"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">Department / Course</label>
+                          <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider text-xs">Department / Course</label>
                           <input
                             type="text"
                             name="department"
                             value={profile.department}
-                            onChange={(e) => setProfile(p => ({ ...p, department: e.target.value }))}
-                            onBlur={handleProfileBlur}
-                            className="w-full px-5 py-3.5 bg-white/70 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/50 transition-all font-semibold text-gray-800 shadow-sm"
+                            onChange={handleProfileChange}
+                            className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
                             placeholder="e.g. Computer Science"
                           />
                         </div>
                       </div>
 
-                      <p className="text-xs text-gray-400 italic flex items-center gap-1.5">
-                        <Info size={12} /> These details are stored privately and hidden from admins unless you share your identity in Privacy settings.
-                      </p>
+                      <div className="pt-8 mt-4 border-t border-gray-100 flex justify-end">
+                        <button
+                          onClick={handleSaveProfile}
+                          disabled={isSaving}
+                          className="px-8 py-3.5 bg-gradient-to-r from-primary to-primary-light text-white rounded-2xl shadow-lg shadow-primary/20 hover:shadow-primary/40 disabled:opacity-70 font-bold transition-all duration-300 flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
+                        >
+                          {isSaving ? (
+                            <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...</>
+                          ) : (
+                            <><Save size={18} /> Save Changes</>
+                          )}
+                        </button>
+                      </div>
                     </div>
                   )}
 
-                  {/* ── APPEARANCE TAB ── */}
+                  {/* Appearance Tab */}
                   {activeTab === 'appearance' && (
-                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="space-y-8 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
                       <div className="border-b border-gray-100 pb-5">
                         <h2 className="text-2xl font-bold text-gray-900">Appearance</h2>
-                        <p className="text-gray-500 text-sm mt-1">Click a theme to apply it instantly.</p>
+                        <p className="text-gray-500 text-sm mt-1">Customize your platform experience.</p>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4 max-w-md">
-                        {[
-                          { id: 'light', label: 'Light Mode', preview: 'bg-gray-100', inner: 'bg-white' },
-                          { id: 'dark', label: 'Dark Mode', preview: 'bg-gray-900', inner: 'bg-gray-700' },
-                        ].map(t => (
-                          <button
-                            key={t.id}
-                            onClick={() => handleThemeChange(t.id)}
-                            className={`flex items-center justify-between p-4 border-2 rounded-2xl transition-all ${appearance.theme === t.id ? 'border-primary bg-primary/5 shadow-md' : 'border-gray-200 bg-white hover:border-primary/50'}`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className={`w-10 h-10 rounded-full ${t.preview} flex items-center justify-center border border-gray-300`}>
-                                <div className={`w-5 h-5 rounded-full ${t.inner} border border-gray-300`} />
-                              </div>
-                              <span className="font-semibold text-gray-900">{t.label}</span>
-                            </div>
-                            {appearance.theme === t.id && <CheckCircle2 className="text-primary w-5 h-5" />}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* ── NOTIFICATIONS TAB ── */}
-                  {activeTab === 'notifications' && (
-                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                      <div className="border-b border-gray-100 pb-5">
-                        <h2 className="text-2xl font-bold text-gray-900">Notification Preferences</h2>
-                        <p className="text-gray-500 text-sm mt-1">Toggle any preference — it saves automatically.</p>
-                      </div>
-
-                      <div className="grid md:grid-cols-2 gap-10">
-                        {/* Email Notifications */}
+                      <div className="space-y-8 max-w-2xl">
+                        {/* Theme Toggle */}
                         <div>
-                          <div className="flex items-center gap-2 mb-4">
-                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">@</div>
-                            <h3 className="font-bold text-gray-800">Email Alerts</h3>
-                          </div>
-                          <div className="space-y-3">
-                            {Object.entries(notifyPrefs.emailNotifications).map(([key, value]) => (
-                              <label key={key} className="flex items-start gap-3 cursor-pointer group p-3.5 bg-white border border-gray-100 hover:border-primary/30 hover:bg-blue-50/30 rounded-2xl transition-all shadow-sm">
-                                <div className="flex-1">
-                                  <p className="text-sm font-semibold text-gray-800 capitalize">
-                                    {key.replace(/([A-Z])/g, ' $1').trim()}
-                                  </p>
-                                  <p className="text-xs text-gray-500 mt-0.5">{notifDescriptions[key] || ''}</p>
+                          <h3 className="text-sm font-semibold text-gray-700 mb-4 block">System Theme</h3>
+                          <div className="grid grid-cols-2 gap-4">
+                            <button
+                              onClick={() => setAppearance(prev => ({ ...prev, theme: 'light' }))}
+                              className={`flex items-center justify-between p-4 border-2 rounded-2xl transition-all ${appearance.theme === 'light' ? 'border-primary bg-primary/5' : 'border-gray-200 bg-white hover:border-primary/50'}`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200">
+                                  <div className="w-5 h-5 rounded-full bg-white shadow-sm border border-gray-300"></div>
                                 </div>
-                                <div className="relative flex-shrink-0 mt-0.5">
-                                  <input type="checkbox" checked={value} onChange={() => handleNotificationToggle('emailNotifications', key)} className="sr-only peer" />
-                                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary cursor-pointer" />
+                                <span className="font-semibold text-gray-900">Light Mode</span>
+                              </div>
+                              {appearance.theme === 'light' && <CheckCircle2 className="text-primary w-5 h-5 mr-1" />}
+                            </button>
+                            <button
+                              onClick={() => setAppearance(prev => ({ ...prev, theme: 'dark' }))}
+                              className={`flex items-center justify-between p-4 border-2 rounded-2xl transition-all ${appearance.theme === 'dark' ? 'border-primary bg-primary/5' : 'border-gray-200 bg-white hover:border-primary/50'}`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center border border-gray-700">
+                                  <div className="w-5 h-5 rounded-full bg-gray-800 shadow-sm border border-gray-600"></div>
                                 </div>
-                              </label>
-                            ))}
+                                <span className="font-semibold text-gray-900">Dark Mode</span>
+                              </div>
+                              {appearance.theme === 'dark' && <CheckCircle2 className="text-primary w-5 h-5 mr-1" />}
+                            </button>
                           </div>
                         </div>
 
-                        {/* In-App Notifications */}
-                        <div>
-                          <div className="flex items-center gap-2 mb-4">
-                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                              <BellRing size={14} />
-                            </div>
+
+                      </div>
+
+                      <div className="pt-8 mt-4 border-t border-gray-100 flex justify-end">
+                        <button
+                          onClick={handleSaveAppearance}
+                          disabled={isSaving}
+                          className="px-8 py-3.5 bg-gradient-to-r from-primary to-primary-light text-white rounded-2xl shadow-lg shadow-primary/20 hover:shadow-primary/40 disabled:opacity-70 font-bold transition-all duration-300 flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
+                        >
+                          {isSaving ? (
+                            <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...</>
+                          ) : (
+                            <><Palette size={18} /> Apply Appearance</>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Notifications Tab */}
+                  {activeTab === 'notifications' && (
+                    <div className="space-y-8 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                      <div className="border-b border-gray-100 pb-5">
+                        <h2 className="text-2xl font-bold text-gray-900">Notification Preferences</h2>
+                        <p className="text-gray-500 text-sm mt-1">Control how and when we alert you about activity.</p>
+                      </div>
+
+                      <div className="grid md:grid-cols-2 gap-10">
+                        <div className="space-y-6">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">@</div>
+                            <h3 className="font-bold text-gray-800">Email Alerts</h3>
+                          </div>
+                          {Object.entries(notifyPrefs.emailNotifications).map(([key, value]) => (
+                            <label key={key} className="flex items-center justify-between cursor-pointer group p-4 bg-white/60 border border-gray-100 hover:border-primary/30 hover:bg-primary/5/50 rounded-2xl transition-all shadow-sm mb-3">
+                              <span className="text-gray-700 font-medium group-hover:text-primary-dark capitalize text-[15px]">
+                                {key.replace(/([A-Z])/g, ' $1').trim()}
+                              </span>
+                              <div className="relative inline-flex items-center">
+                                <input type="checkbox" checked={value} onChange={() => handleNotificationToggle('emailNotifications', key)} className="sr-only peer" />
+                                <div className="w-12 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                              </div>
+                            </label>
+                          ))}
+                        </div>
+
+                        <div className="space-y-6">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary"><BellRing size={16} /></div>
                             <h3 className="font-bold text-gray-800">In-App Alerts</h3>
                           </div>
-                          <div className="space-y-3">
-                            {Object.entries(notifyPrefs.inAppNotifications).map(([key, value]) => (
-                              <label key={key} className="flex items-start gap-3 cursor-pointer group p-3.5 bg-white border border-gray-100 hover:border-primary/30 hover:bg-blue-50/30 rounded-2xl transition-all shadow-sm">
-                                <div className="flex-1">
-                                  <p className="text-sm font-semibold text-gray-800 capitalize">
-                                    {key.replace(/([A-Z])/g, ' $1').trim()}
-                                  </p>
-                                  <p className="text-xs text-gray-500 mt-0.5">{notifDescriptions[key] || ''}</p>
-                                </div>
-                                <div className="relative flex-shrink-0 mt-0.5">
-                                  <input type="checkbox" checked={value} onChange={() => handleNotificationToggle('inAppNotifications', key)} className="sr-only peer" />
-                                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary cursor-pointer" />
-                                </div>
-                              </label>
-                            ))}
-                          </div>
+                          {Object.entries(notifyPrefs.inAppNotifications).map(([key, value]) => (
+                            <label key={key} className="flex items-center justify-between cursor-pointer group p-4 bg-white/60 border border-gray-100 hover:border-primary/30 hover:bg-primary/5/50 rounded-2xl transition-all shadow-sm mb-3">
+                              <span className="text-gray-700 font-medium group-hover:text-primary-dark capitalize text-[15px]">
+                                {key.replace(/([A-Z])/g, ' $1').trim()}
+                              </span>
+                              <div className="relative inline-flex items-center">
+                                <input type="checkbox" checked={value} onChange={() => handleNotificationToggle('inAppNotifications', key)} className="sr-only peer" />
+                                <div className="w-12 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                              </div>
+                            </label>
+                          ))}
 
-                          <div className="mt-6 pt-4 border-t border-gray-100">
-                            <label className="block text-xs font-bold text-gray-700 mb-2 uppercase tracking-wider">Daily Summary Time</label>
-                            <p className="text-xs text-gray-500 mb-3">We'll send your in-app digest at this time each day.</p>
+                          <div className="pt-6 mt-2 border-t border-gray-100">
+                            <label className="block text-sm font-bold text-gray-700 mb-3 uppercase tracking-wider text-xs">
+                              Daily Summary Time
+                            </label>
                             <input
                               type="time"
                               value={notifyPrefs.preferredNotificationTime}
                               onChange={(e) => setNotifyPrefs(prev => ({ ...prev, preferredNotificationTime: e.target.value }))}
-                              onBlur={handleNotifTimeBlur}
-                              className="px-5 py-3 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/50 transition-all font-semibold text-gray-800 shadow-sm"
+                              className="w-full max-w-[150px] px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
                             />
                           </div>
                         </div>
                       </div>
+
+                      <div className="pt-8 mt-4 border-t border-gray-100 flex justify-end">
+                        <button
+                          onClick={handleSaveNotificationPrefs}
+                          disabled={isSaving}
+                          className="px-8 py-3.5 bg-gradient-to-r from-primary to-primary-light text-white rounded-2xl shadow-lg shadow-primary/20 hover:shadow-primary/40 disabled:opacity-70 font-bold transition-all duration-300 flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
+                        >
+                          {isSaving ? (
+                            <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...</>
+                          ) : (
+                            <><Save size={18} /> Save Preferences</>
+                          )}
+                        </button>
+                      </div>
                     </div>
                   )}
 
-                  {/* ── PRIVACY TAB ── */}
+                  {/* Privacy Tab */}
                   {activeTab === 'privacy' && (
-                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="space-y-8 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
                       <div className="border-b border-gray-100 pb-5">
                         <h2 className="text-2xl font-bold text-gray-900">Privacy & Identity</h2>
-                        <p className="text-gray-500 text-sm mt-1">Click a choice to apply it instantly.</p>
+                        <p className="text-gray-500 text-sm mt-1">Configure how much of your identity is shared with administrators.</p>
                       </div>
 
-                      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-primary/20 rounded-2xl p-6 flex gap-4 shadow-sm">
+                      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-primary/20 rounded-2xl p-6 flex gap-4 shadow-sm relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/40 rounded-full blur-2xl -mr-10 -mt-10"></div>
                         <AlertCircle className="text-primary flex-shrink-0 mt-1" size={24} />
-                        <div className="text-primary-dark">
-                          <p className="font-bold text-lg mb-1">Platform Anonymity Guarantee</p>
-                          <p className="text-sm leading-relaxed font-medium opacity-90">
-                            By default, your name and contact details are completely hidden from administrators. They will only see an anonymous user ID until you choose to reveal your identity below.
+                        <div className="text-primary-dark relative z-10">
+                          <p className="font-bold text-lg mb-2">Platform Anonymity Guarantee</p>
+                          <p className="text-primary-dark leading-relaxed font-medium opacity-90">
+                            By default, everything you submit is cryptographically linked to an anonymous code. Admins cannot see your name or email unless you explicitly provide consent below.
+                            Revealing your identity can help expedite highly sensitive cases by preventing fake report flagging.
                           </p>
                         </div>
                       </div>
 
                       <div className="space-y-4 max-w-2xl">
-                        {[
-                          {
-                            value: false,
-                            icon: Shield,
-                            title: 'Stay Strictly Anonymous',
-                            desc: 'Your email, name, and phone are thoroughly hidden from all admins and reviewers. Reports are linked only to an anonymous code.',
-                          },
-                          {
-                            value: true,
-                            icon: User,
-                            title: 'Reveal My Identity',
-                            desc: 'Trust administrators with your real name and email to help verify and fast-track your reports. You can withdraw consent at any time.',
-                          }
-                        ].map(opt => {
-                          const Icon = opt.icon;
-                          const active = privacy.idRevealConsent === opt.value;
-                          return (
-                            <button
-                              key={String(opt.value)}
-                              onClick={() => handleIdConsentChange(opt.value)}
-                              className={`w-full text-left border-2 rounded-3xl p-6 transition-all duration-300 ${active
-                                ? 'border-primary bg-gradient-to-br from-white to-blue-50/50 shadow-xl shadow-primary/10 ring-2 ring-primary/20'
-                                : 'border-gray-200 bg-white hover:border-primary/30 shadow-sm hover:shadow-md'}`}
-                            >
-                              <div className="flex items-center gap-4">
-                                <div className={`p-3 rounded-xl ${active ? 'bg-primary/10 text-primary' : 'bg-gray-100 text-gray-400'}`}>
-                                  <Icon size={22} />
+                        <label className={`block border-2 rounded-3xl p-6 cursor-pointer transition-all duration-500 ${!privacy.idRevealConsent
+                          ? 'border-primary bg-gradient-to-br from-white to-blue-50/50 shadow-xl shadow-primary/10 scale-100 ring-2 ring-primary/20'
+                          : 'border-white bg-white/60 hover:bg-white hover:border-primary/30 shadow-sm hover:shadow-md scale-[0.98]'
+                          }`}>
+                          <div className="flex items-start gap-5">
+                            <div className="relative flex items-center justify-center mt-1">
+                              <input
+                                type="radio"
+                                name="idConsent"
+                                checked={!privacy.idRevealConsent}
+                                onChange={() => handleIdConsentChange(false)}
+                                className="w-6 h-6 text-primary bg-gray-100 border-gray-300 focus:ring-primary focus:ring-2"
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <p className="font-bold text-gray-900 text-xl flex items-center gap-3">
+                                <div className={`p-2 rounded-xl flex items-center justify-center ${!privacy.idRevealConsent ? 'bg-primary/10 text-primary' : 'bg-gray-100 text-gray-400'}`}>
+                                  <Shield size={20} strokeWidth={2.5} />
                                 </div>
-                                <div className="flex-1">
-                                  <p className="font-bold text-gray-900 text-lg">{opt.title}</p>
-                                  <p className="text-sm text-gray-600 mt-1">{opt.desc}</p>
+                                Stay Strictly Anonymous
+                              </p>
+                              <p className={`mt-2 text-[15px] leading-relaxed ${!privacy.idRevealConsent ? 'text-gray-700 font-medium' : 'text-gray-500'}`}>My email and name are thoroughly hidden from administrators and reviewers during investigations.</p>
+                            </div>
+                          </div>
+                        </label>
+
+                        <label className={`block border-2 rounded-3xl p-6 cursor-pointer transition-all duration-500 ${privacy.idRevealConsent
+                          ? 'border-primary bg-gradient-to-br from-white to-indigo-50/50 shadow-xl shadow-primary/10 scale-100 ring-2 ring-primary/20'
+                          : 'border-white bg-white/60 hover:bg-white hover:border-primary/30 shadow-sm hover:shadow-md scale-[0.98]'
+                          }`}>
+                          <div className="flex items-start gap-5">
+                            <div className="relative flex items-center justify-center mt-1">
+                              <input
+                                type="radio"
+                                name="idConsent"
+                                checked={privacy.idRevealConsent}
+                                onChange={() => handleIdConsentChange(true)}
+                                className="w-6 h-6 text-primary bg-gray-100 border-gray-300 focus:ring-primary focus:ring-2"
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <p className="font-bold text-gray-900 text-xl flex items-center gap-3">
+                                <div className={`p-2 rounded-xl flex items-center justify-center ${privacy.idRevealConsent ? 'bg-primary/10 text-primary' : 'bg-gray-100 text-gray-400'}`}>
+                                  <User size={20} strokeWidth={2.5} />
                                 </div>
-                                {active && <CheckCircle2 className="text-primary w-6 h-6 flex-shrink-0" />}
-                              </div>
-                            </button>
-                          );
-                        })}
+                                Reveal My Identity
+                              </p>
+                              <p className={`mt-2 text-[15px] leading-relaxed ${privacy.idRevealConsent ? 'text-gray-700 font-medium' : 'text-gray-500'}`}>Trust administrators with my real name and email address to help verify and fast-track my reports.</p>
+                            </div>
+                          </div>
+                        </label>
+                      </div>
+
+                      <div className="pt-8 mt-4 border-t border-gray-100 flex justify-end">
+                        <button
+                          onClick={handleSavePrivacy}
+                          disabled={isSaving}
+                          className="px-8 py-3.5 bg-gradient-to-r from-primary to-primary-light text-white rounded-2xl shadow-lg shadow-primary/20 hover:shadow-primary/40 disabled:opacity-70 font-bold transition-all duration-300 flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
+                        >
+                          {isSaving ? (
+                            <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...</>
+                          ) : (
+                            <><Shield size={18} /> Apply Privacy Setting</>
+                          )}
+                        </button>
                       </div>
                     </div>
                   )}
 
-                  {/* ── SECURITY TAB ── */}
+                  {/* Security Tab */}
                   {activeTab === 'security' && (
-                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="space-y-8 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
                       <div className="border-b border-gray-100 pb-5">
                         <h2 className="text-2xl font-bold text-gray-900">Account Security</h2>
-                        <p className="text-gray-500 text-sm mt-1">Change your password or delete your account.</p>
+                        <p className="text-gray-500 text-sm mt-1">Update your password and manage account deletion.</p>
                       </div>
 
                       <form onSubmit={handleChangePassword} className="space-y-6 max-w-xl">
-                        <div className="p-8 bg-white/60 border border-gray-100 rounded-3xl shadow-sm space-y-5">
-                          <h3 className="font-bold text-xl text-gray-900 flex items-center gap-3">
-                            <div className="p-2 bg-gray-100 rounded-xl"><Lock size={18} /></div>
+                        <div className="p-8 bg-white/60 border border-white rounded-3xl shadow-sm space-y-6">
+                          <h3 className="font-bold text-xl text-gray-900 flex items-center gap-3 mb-2">
+                            <div className="p-2 bg-gray-100 rounded-xl text-gray-600">
+                              <Lock size={20} strokeWidth={2.5} />
+                            </div>
                             Change Password
                           </h3>
 
-                          {[
-                            { label: 'Current Password', name: 'oldPassword', field: 'old', hint: 'Enter your current account password' },
-                            { label: 'New Password', name: 'newPassword', field: 'new', hint: 'Must be at least 6 characters' },
-                            { label: 'Confirm New Password', name: 'confirmPassword', field: 'confirm', hint: 'Re-enter your new password to confirm' },
-                          ].map(f => (
-                            <div key={f.name}>
-                              <label className="block text-xs font-bold text-gray-700 mb-1 uppercase tracking-wider">{f.label}</label>
-                              <p className="text-xs text-gray-400 mb-2">{f.hint}</p>
-                              <div className="relative">
-                                <input
-                                  type={showPass[f.field] ? 'text' : 'password'}
-                                  name={f.name}
-                                  required
-                                  value={securityData[f.name]}
-                                  onChange={handleSecurityChange}
-                                  placeholder="••••••••"
-                                  className="w-full px-5 py-3.5 pr-12 bg-white/70 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/50 transition-all font-semibold text-gray-800 shadow-sm"
-                                />
-                                <button
-                                  type="button"
-                                  onClick={() => setShowPass(p => ({ ...p, [f.field]: !p[f.field] }))}
-                                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                                >
-                                  {showPass[f.field] ? <EyeOff size={16} /> : <Eye size={16} />}
-                                </button>
-                              </div>
+                          <div className="space-y-4">
+                            <Input
+                              label="Current Password"
+                              type="password"
+                              name="oldPassword"
+                              required
+                              value={securityData.oldPassword}
+                              onChange={handleSecurityChange}
+                              placeholder="••••••••"
+                              className="bg-white/70"
+                            />
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                              <Input
+                                label="New Password"
+                                type="password"
+                                name="newPassword"
+                                required
+                                value={securityData.newPassword}
+                                onChange={handleSecurityChange}
+                                placeholder="••••••••"
+                                className="bg-white/70"
+                              />
+                              <Input
+                                label="Confirm Password"
+                                type="password"
+                                name="confirmPassword"
+                                required
+                                value={securityData.confirmPassword}
+                                onChange={handleSecurityChange}
+                                placeholder="••••••••"
+                                className="bg-white/70"
+                              />
                             </div>
-                          ))}
+                          </div>
                         </div>
 
-                        <div className="flex justify-end">
+                        <div className="flex justify-end pt-4">
                           <button
                             type="submit"
                             disabled={isSaving}
-                            className="px-8 py-3.5 bg-gray-900 text-white rounded-2xl disabled:opacity-70 font-bold transition-all flex items-center gap-2 hover:shadow-xl hover:shadow-gray-500/20"
+                            className="px-8 py-3.5 bg-gray-900 text-white rounded-2xl hover:shadow-xl hover:shadow-gray-500/30 disabled:opacity-70 font-bold transition-all duration-300 flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
                           >
-                            {isSaving ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Updating...</> : <><Lock size={16} /> Update Password</>}
+                            {isSaving ? (
+                              <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Updating...</>
+                            ) : (
+                              <><Lock size={18} /> Update Password</>
+                            )}
                           </button>
                         </div>
                       </form>
 
-                      {/* Sign Out */}
-                      <div className="mt-8 pt-8 border-t border-gray-200/50">
-                        <h3 className="font-bold text-gray-700 flex items-center gap-2 mb-4">
-                          <div className="p-1.5 bg-gray-100 rounded-lg"><LogOut size={16} /></div>
-                          Sign Out
-                        </h3>
-                        <div className="p-6 border border-gray-200 bg-gray-50 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-6">
-                          <div>
-                            <h4 className="font-bold text-gray-900">Sign out of SafeSpeak+</h4>
-                            <p className="text-gray-500 text-sm mt-1">You will be redirected to the login page. Your data will be preserved.</p>
-                          </div>
-                          <button
-                            onClick={() => setIsSignOutModalOpen(true)}
-                            className="flex-shrink-0 px-6 py-3 bg-white text-gray-700 border border-gray-200 rounded-2xl hover:bg-gray-100 hover:border-gray-300 font-bold transition flex items-center gap-2"
-                          >
-                            <LogOut size={18} /> Sign Out
-                          </button>
-                        </div>
-                      </div>
-
                       {/* Danger Zone */}
-                      <div className="mt-10 pt-8 border-t border-red-100/50">
+                      <div className="mt-14 pt-10 border-t border-red-100/50">
                         <h3 className="font-bold text-red-600 flex items-center gap-2 mb-5">
-                          <div className="p-1.5 bg-red-100 rounded-lg"><AlertCircle size={16} /></div>
+                          <div className="p-1.5 bg-red-100 rounded-lg"><AlertCircle size={18} strokeWidth={2.5} /></div>
                           Danger Zone
                         </h3>
                         <div className="p-8 border border-red-200 bg-gradient-to-r from-red-50 to-white rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-8 shadow-sm">
                           <div>
                             <h4 className="font-bold text-gray-900 text-xl">Delete Account</h4>
-                            <p className="text-gray-600 mt-2 max-w-md leading-relaxed font-medium text-sm">
-                              Permanently delete your account and all associated data including reports, stories, and activity history. This action <strong>cannot be undone</strong>.
-                            </p>
+                            <p className="text-gray-600 mt-2 max-w-md leading-relaxed font-medium">Permanently delete your account and all associated data. This action cannot be undone.</p>
                           </div>
                           <button
-                            onClick={() => setIsDeleteModalOpen(true)}
-                            className="flex-shrink-0 px-8 py-4 bg-white text-red-600 border border-red-200 rounded-2xl hover:bg-red-50 hover:border-red-300 font-bold transition-all flex items-center gap-2 shadow-sm"
+                            onClick={handleDeleteAccountClick}
+                            className="flex-shrink-0 px-8 py-4 bg-white text-red-600 border border-red-200 rounded-2xl hover:bg-red-50 hover:border-red-300 font-bold transition-all duration-300 flex items-center justify-center gap-2 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
                           >
                             <Trash2 size={20} /> Delete Account
                           </button>
@@ -610,17 +706,8 @@ export const UserSettingsPage = () => {
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={executeDeleteAccount}
         title="Delete Account"
-        message="Are you absolutely sure? This will permanently erase your account, all reports, stories, and activity history. This cannot be undone."
+        message="Are you absolutely sure you want to permanently delete your account? This action cannot be undone."
         confirmText="Delete Account"
-        variant="danger"
-      />
-      <ConfirmationModal
-        isOpen={isSignOutModalOpen}
-        onClose={() => setIsSignOutModalOpen(false)}
-        onConfirm={() => { logout(); navigate('/login'); }}
-        title="Sign Out"
-        message="Are you sure you want to sign out of SafeSpeak+?"
-        confirmText="Sign Out"
         variant="danger"
       />
     </div>

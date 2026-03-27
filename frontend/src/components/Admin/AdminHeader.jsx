@@ -1,9 +1,16 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Shield } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Shield, LogOut } from 'lucide-react';
+import { Button } from '../ui/Button';
 import { NotificationBell } from '../Notifications/NotificationBell';
 
 export function AdminHeader({ roleName = 'Case Reviewer' }) {
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        navigate('/login');
+    };
+
     return (
         <nav className="border-b border-primary-dark bg-primary sticky top-0 z-50 shadow-md">
             <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -14,6 +21,14 @@ export function AdminHeader({ roleName = 'Case Reviewer' }) {
                 <h1 className="text-lg font-semibold text-white/90 hidden md:block">{roleName} Dashboard</h1>
                 <div className="flex items-center space-x-4">
                     <NotificationBell />
+                    <Button
+                        variant="ghost"
+                        onClick={handleLogout}
+                        className="flex items-center space-x-1 text-white hover:bg-primary-dark hover:text-white"
+                    >
+                        <LogOut className="h-4 w-4" />
+                        <span>Logout</span>
+                    </Button>
                 </div>
             </div>
         </nav>
