@@ -134,122 +134,116 @@ export default function AdminSettings() {
     ];
 
     return (
-        <div className="flex h-screen overflow-hidden flex-col bg-gray-50/50 text-text-primary relative overflow-hidden">
-            <div className="relative z-10 flex flex-col flex-1 w-full">
-                <AdminHeader roleName="Settings" />
-                <div className="flex flex-1 overflow-hidden">
-                    <AdminSidebar role="admin" />
-                    <main className="flex-1 p-6 lg:p-8 xl:p-10 relative">
-
-                        <div className="max-w-6xl mx-auto min-h-[calc(100vh-160px)]">
-                            <div className="mb-10 flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-                                <div>
-                                    <h1 className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-indigo-800 mb-1">System Settings</h1>
-                                    <p className="text-gray-500 text-xs">Manage administrator profile and global platform preferences</p>
-                                </div>
+        <div className="flex h-screen overflow-hidden flex-col bg-gray-50 text-gray-900 text-sm">
+            <AdminHeader roleName="Settings" />
+            <div className="flex flex-1 overflow-hidden">
+                <AdminSidebar role="admin" />
+                <main className="flex-1 p-4 md:p-8 overflow-y-auto w-full relative">
+                    <div className="max-w-5xl mx-auto">
+                        {/* Header */}
+                        <div className="md:flex md:items-center md:justify-between mb-8 pb-5 border-b border-gray-200">
+                            <div className="min-w-0 flex-1">
+                                <h1 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">System Settings</h1>
+                                <p className="mt-1 text-sm text-gray-500">Manage administrator profile and global platform preferences.</p>
+                            </div>
+                            <div className="mt-4 flex md:ml-4 md:mt-0">
                                 <button
                                     onClick={() => setIsLogoutModalOpen(true)}
-                                    className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 transition-colors rounded-lg text-sm font-semibold border border-red-100 shadow-sm"
+                                    className="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors"
                                 >
-                                    <LogOut size={16} />
+                                    <LogOut className="-ml-0.5 mr-1.5 h-4 w-4" />
                                     Sign Out
                                 </button>
                             </div>
+                        </div>
 
-                            {isLoading ? (
-                                <div className="animate-pulse flex flex-col md:flex-row gap-8">
-                                    <div className="w-full md:w-72 h-96 bg-gray-200 rounded-2xl" />
-                                    <div className="flex-1 h-[600px] bg-gray-200 rounded-2xl" />
-                                </div>
-                            ) : (
-                                <div className="flex flex-col md:flex-row gap-8">
-                                    {/* Sidebar Tabs */}
-                                    <div className="w-full md:w-72 flex-shrink-0 space-y-2">
-                                        {tabs.map((tab) => {
-                                            const Icon = tab.icon;
-                                            const isActive = activeTab === tab.id;
-                                            return (
-                                                <button
-                                                    key={tab.id}
-                                                    onClick={() => setActiveTab(tab.id)}
-                                                    className={`w-full flex items-start text-left p-4 rounded-2xl transition-all duration-300 ${isActive
-                                                        ? 'bg-blue-700 text-white shadow-lg shadow-blue-600/30 scale-100'
-                                                        : 'bg-white text-gray-600 hover:bg-gray-50 hover:scale-[1.02] border border-gray-100 shadow-sm'
-                                                        }`}
-                                                >
-                                                    <div className={`p-2 rounded-xl mr-4 ${isActive ? 'bg-white/20' : 'bg-blue-50 text-blue-700'}`}>
-                                                        <Icon size={20} strokeWidth={2.5} />
-                                                    </div>
-                                                    <div>
-                                                        <h3 className={`font-bold ${isActive ? 'text-white' : 'text-gray-900'}`}>{tab.label}</h3>
-                                                        <p className={`text-xs mt-1 ${isActive ? 'text-blue-100' : 'text-gray-500'}`}>{tab.desc}</p>
-                                                    </div>
-                                                </button>
-                                            )
-                                        })}
-                                    </div>
+                        {isLoading ? (
+                            <div className="animate-pulse flex flex-col md:flex-row gap-8">
+                                <div className="w-full md:w-64 h-96 bg-gray-200 rounded-md" />
+                                <div className="flex-1 max-w-3xl h-[600px] bg-gray-200 rounded-md" />
+                            </div>
+                        ) : (
+                            <div className="flex flex-col md:flex-row gap-8">
+                                {/* Sidebar Tabs */}
+                                <nav className="w-full md:w-64 flex-shrink-0 space-y-1">
+                                    {tabs.map((tab) => {
+                                        const Icon = tab.icon;
+                                        const isActive = activeTab === tab.id;
+                                        return (
+                                            <button
+                                                key={tab.id}
+                                                onClick={() => setActiveTab(tab.id)}
+                                                className={`w-full group flex items-center text-left px-3 py-2 rounded-md transition-colors text-sm font-medium ${isActive
+                                                    ? 'bg-gray-100 text-gray-900'
+                                                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                                    }`}
+                                            >
+                                                <Icon className={`mr-3 flex-shrink-0 h-4 w-4 ${isActive ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-500'}`} />
+                                                <span className="truncate">{tab.label}</span>
+                                            </button>
+                                        )
+                                    })}
+                                </nav>
 
-                                    {/* Content Area */}
-                                    <div className="flex-1">
-                                        <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] h-full relative overflow-hidden">
-                                            {/* Decorative background blob */}
-                                            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-100 rounded-full mix-blend-multiply filter blur-3xl opacity-30 -mr-20 -mt-20 pointer-events-none"></div>
+                                {/* Content Area */}
+                                <div className="flex-1 max-w-3xl">
+                                    <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
 
                                             {/* Profile Tab */}
                                             {activeTab === 'profile' && (
-                                                <div className="space-y-8 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                                    <div className="border-b border-gray-100 pb-5">
-                                                        <h2 className="text-2xl font-bold text-gray-900">Administrator Profile</h2>
-                                                        <p className="text-gray-500 text-sm mt-1">Reviewers and staff details.</p>
+                                                <div className="animate-in fade-in duration-300">
+                                                    <div className="px-4 py-5 sm:p-6">
+                                                        <h3 className="text-lg font-medium leading-6 text-gray-900">Administrator Profile</h3>
+                                                        <div className="mt-2 max-w-xl text-sm text-gray-500">
+                                                            <p>Reviewers and staff details.</p>
+                                                        </div>
+                                                        <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6 max-w-xl">
+                                                            <div className="sm:col-span-6">
+                                                                <label className="block text-sm font-medium text-gray-700">Admin Full Name</label>
+                                                                <div className="mt-1">
+                                                                    <input
+                                                                        type="text"
+                                                                        name="fullName"
+                                                                        value={profile.fullName}
+                                                                        onChange={handleProfileChange}
+                                                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm px-3 py-2 border transition-colors"
+                                                                        placeholder="e.g. Chief Admin"
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                            <div className="sm:col-span-6">
+                                                                <label className="block text-sm font-medium text-gray-700">Emergency Phone</label>
+                                                                <div className="mt-1">
+                                                                    <input
+                                                                        type="tel"
+                                                                        name="phone"
+                                                                        value={profile.phone}
+                                                                        onChange={handleProfileChange}
+                                                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm px-3 py-2 border transition-colors"
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                            <div className="sm:col-span-6">
+                                                                <label className="block text-sm font-medium text-gray-700">Role / Department</label>
+                                                                <div className="mt-1">
+                                                                    <input
+                                                                        type="text"
+                                                                        name="department"
+                                                                        value={profile.department}
+                                                                        onChange={handleProfileChange}
+                                                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm px-3 py-2 border transition-colors"
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
-
-                                                    <div className="grid gap-6 max-w-xl">
-                                                        <div>
-                                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Admin Full Name</label>
-                                                            <input
-                                                                type="text"
-                                                                name="fullName"
-                                                                value={profile.fullName}
-                                                                onChange={handleProfileChange}
-                                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-medium text-gray-800"
-                                                                placeholder="e.g. Chief Admin"
-                                                            />
-                                                        </div>
-
-                                                        <div>
-                                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Emergency Phone</label>
-                                                            <input
-                                                                type="tel"
-                                                                name="phone"
-                                                                value={profile.phone}
-                                                                onChange={handleProfileChange}
-                                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-medium text-gray-800"
-                                                            />
-                                                        </div>
-
-                                                        <div>
-                                                            <label className="block text-sm font-semibold text-gray-700 mb-2">Role / Department</label>
-                                                            <input
-                                                                type="text"
-                                                                name="department"
-                                                                value={profile.department}
-                                                                onChange={handleProfileChange}
-                                                                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all font-medium text-gray-800"
-                                                            />
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="pt-6 border-t border-gray-100 flex justify-end">
+                                                    <div className="bg-gray-50 px-4 py-3 text-right sm:px-6 rounded-b-lg border-t border-gray-200">
                                                         <button
                                                             onClick={handleSaveProfile}
                                                             disabled={isSaving}
-                                                            className="px-8 py-3 bg-gradient-to-r from-blue-700 to-indigo-700 text-white rounded-xl hover:shadow-lg hover:shadow-blue-600/30 disabled:opacity-70 font-bold transition-all flex items-center gap-2 transform active:scale-95"
+                                                            className="inline-flex justify-center rounded-md border border-transparent bg-gray-900 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-800 disabled:opacity-70 transition-colors"
                                                         >
-                                                            {isSaving ? (
-                                                                <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...</>
-                                                            ) : (
-                                                                <><Save size={18} /> Save Admin Details</>
-                                                            )}
+                                                            {isSaving ? 'Saving...' : 'Save Admin Details'}
                                                         </button>
                                                     </div>
                                                 </div>
@@ -257,57 +251,61 @@ export default function AdminSettings() {
 
                                             {/* Platform Features Tab */}
                                             {activeTab === 'platform' && (
-                                                <div className="space-y-8 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                                    <div className="border-b border-gray-100 pb-5">
-                                                        <h2 className="text-2xl font-bold text-gray-900">Platform Features</h2>
-                                                        <p className="text-gray-500 text-sm mt-1">Configure global platform behavior and automation.</p>
-                                                    </div>
-
-                                                    <div className="bg-gradient-to-br from-indigo-50 to-purple-50 border border-indigo-100 rounded-2xl p-6 mb-6">
-                                                        <div className="flex items-center gap-3 text-indigo-800 font-bold text-lg mb-2">
-                                                            <Shield size={22} className="text-indigo-600" />
-                                                            Global System Rules
+                                                <div className="animate-in fade-in duration-300">
+                                                    <div className="px-4 py-5 sm:p-6">
+                                                        <h3 className="text-lg font-medium leading-6 text-gray-900">Platform Features</h3>
+                                                        <div className="mt-2 max-w-xl text-sm text-gray-500 mb-6">
+                                                            <p>Configure global platform behavior and automation.</p>
                                                         </div>
-                                                        <p className="text-indigo-800/80 text-sm font-medium">
-                                                            These settings alter the fundamental behavior of SafeSpeak+. Changes here apply universally to all users and reports immediately.
-                                                        </p>
-                                                    </div>
 
-                                                    <div className="space-y-4 max-w-2xl">
-                                                        {Object.entries(platformPrefs).map(([key, value]) => {
-                                                            const titles = {
-                                                                autoAssignHighRisk: { title: "Auto-escalate High Risk Cases", desc: "Automatically notify heads of department immediately when a High Risk report lands." },
-                                                                emailOnEscalation: { title: "Admin Email Digests", desc: "Send daily digests of system activity to the core admin email inbox." },
-                                                                weeklyReports: { title: "Automated Weekly Analytics", desc: "Generate and securely store weekly PDF analytic summaries natively." },
-                                                                maintenanceMode: { title: "System Maintenance Mode", desc: "Lock out new submissions. Users can still view existing statuses." }
-                                                            };
-                                                            return (
-                                                                <label key={key} className={`flex items-center justify-between p-5 border-2 rounded-2xl cursor-pointer transition-all duration-300 ${value ? 'border-indigo-500 bg-white shadow-md shadow-indigo-500/10' : 'border-gray-100 bg-gray-50 hover:bg-white'
-                                                                    }`}>
-                                                                    <div className="flex-1 pr-6">
-                                                                        <p className="font-bold text-gray-900">{titles[key].title}</p>
-                                                                        <p className="text-sm text-gray-500 mt-1 font-medium">{titles[key].desc}</p>
+                                                        <div className="rounded-md bg-blue-50 p-4 mb-6">
+                                                            <div className="flex">
+                                                                <div className="flex-shrink-0">
+                                                                    <Shield className="h-5 w-5 text-blue-400" aria-hidden="true" />
+                                                                </div>
+                                                                <div className="ml-3">
+                                                                    <h3 className="text-sm font-medium text-blue-800">Global System Rules</h3>
+                                                                    <div className="mt-2 text-sm text-blue-700">
+                                                                        <p>These settings alter the fundamental behavior of SafeSpeak+. Changes here apply universally to all users and reports immediately.</p>
                                                                     </div>
-                                                                    <div className="relative inline-flex items-center flex-shrink-0">
-                                                                        <input type="checkbox" checked={value} onChange={() => handlePlatformToggle(key)} className="sr-only peer" />
-                                                                        <div className={`w-14 h-7 peer-focus:outline-none rounded-full peer transition-all duration-300 ${value ? 'bg-indigo-600' : 'bg-gray-300'} peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all shadow-inner`}></div>
-                                                                    </div>
-                                                                </label>
-                                                            );
-                                                        })}
-                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
 
-                                                    <div className="pt-6 border-t border-gray-100 flex justify-end">
+                                                        <div className="space-y-4 max-w-2xl px-2">
+                                                            {Object.entries(platformPrefs).map(([key, value]) => {
+                                                                const titles = {
+                                                                    autoAssignHighRisk: { title: "Auto-escalate High Risk Cases", desc: "Automatically notify heads of department immediately when a High Risk report lands." },
+                                                                    emailOnEscalation: { title: "Admin Email Digests", desc: "Send daily digests of system activity to the core admin email inbox." },
+                                                                    weeklyReports: { title: "Automated Weekly Analytics", desc: "Generate and securely store weekly PDF analytic summaries natively." },
+                                                                    maintenanceMode: { title: "System Maintenance Mode", desc: "Lock out new submissions." }
+                                                                };
+                                                                return (
+                                                                    <label key={key} className={`relative block rounded-lg border px-6 py-4 cursor-pointer sm:flex sm:justify-between focus:outline-none ${value ? 'border-gray-900 ring-1 ring-gray-900 bg-gray-50' : 'border-gray-300 bg-white hover:bg-gray-50'}`}>
+                                                                        <div className="flex items-center">
+                                                                            <input
+                                                                                type="checkbox"
+                                                                                checked={value}
+                                                                                onChange={() => handlePlatformToggle(key)}
+                                                                                className="h-4 w-4 border-gray-300 text-gray-900 focus:ring-gray-900 rounded"
+                                                                            />
+                                                                            <div className="ml-3">
+                                                                                <span className="block text-sm font-medium text-gray-900">{titles[key].title}</span>
+                                                                                <span className="block text-sm text-gray-500 mt-1">{titles[key].desc}</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </label>
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    </div>
+                                                    <div className="bg-gray-50 px-4 py-3 text-right sm:px-6 rounded-b-lg border-t border-gray-200">
                                                         <button
                                                             onClick={handleSavePlatformPrefs}
                                                             disabled={isSaving}
-                                                            className="px-8 py-3 bg-gradient-to-r from-blue-700 to-indigo-700 text-white rounded-xl hover:shadow-lg hover:shadow-blue-600/30 disabled:opacity-70 font-bold transition-all flex items-center gap-2 transform active:scale-95"
+                                                            className="inline-flex justify-center rounded-md border border-transparent bg-gray-900 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-800 disabled:opacity-70 transition-colors"
                                                         >
-                                                            {isSaving ? (
-                                                                <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Applying...</>
-                                                            ) : (
-                                                                <><Server size={18} /> Apply Platform Settings</>
-                                                            )}
+                                                            {isSaving ? 'Applying...' : 'Apply Platform Settings'}
                                                         </button>
                                                     </div>
                                                 </div>
@@ -315,70 +313,65 @@ export default function AdminSettings() {
 
                                             {/* Security Tab */}
                                             {activeTab === 'security' && (
-                                                <div className="space-y-8 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                                    <div className="border-b border-gray-100 pb-5">
-                                                        <h2 className="text-2xl font-bold text-gray-900">Access Security</h2>
-                                                        <p className="text-gray-500 text-sm mt-1">Manage admin credentials safely.</p>
-                                                    </div>
-
-                                                    <form onSubmit={handleChangePassword} className="space-y-5 max-w-xl">
-                                                        <div className="p-6 bg-gray-50 border border-gray-100 rounded-2xl space-y-5">
-                                                            <h3 className="font-bold text-gray-800 flex items-center gap-2 mb-2">
-                                                                <Lock size={18} className="text-gray-500" />
-                                                                Rotate Password
-                                                            </h3>
-
-                                                            <div className="space-y-4">
-                                                                <Input
-                                                                    label="Current Admin Password"
-                                                                    type="password"
-                                                                    name="oldPassword"
-                                                                    required
-                                                                    value={securityData.oldPassword}
-                                                                    onChange={handleSecurityChange}
-                                                                    placeholder="••••••••"
-                                                                    className="bg-white"
-                                                                />
-
-                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                                    <Input
-                                                                        label="New Password"
-                                                                        type="password"
-                                                                        name="newPassword"
-                                                                        required
-                                                                        value={securityData.newPassword}
-                                                                        onChange={handleSecurityChange}
-                                                                        placeholder="••••••••"
-                                                                        className="bg-white"
-                                                                    />
-                                                                    <Input
-                                                                        label="Confirm Password"
-                                                                        type="password"
-                                                                        name="confirmPassword"
-                                                                        required
-                                                                        value={securityData.confirmPassword}
-                                                                        onChange={handleSecurityChange}
-                                                                        placeholder="••••••••"
-                                                                        className="bg-white"
-                                                                    />
+                                                <div className="animate-in fade-in duration-300">
+                                                    <div className="px-4 py-5 sm:p-6">
+                                                        <h3 className="text-lg font-medium leading-6 text-gray-900">Access Security</h3>
+                                                        <div className="mt-2 text-sm text-gray-500 mb-6">
+                                                            <p>Manage admin credentials safely.</p>
+                                                        </div>
+                                                        <form onSubmit={handleChangePassword} className="space-y-6 max-w-xl">
+                                                            <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                                                                <div className="sm:col-span-6">
+                                                                    <label className="block text-sm font-medium text-gray-700">Current Admin Password</label>
+                                                                    <div className="mt-1">
+                                                                        <input
+                                                                            type="password"
+                                                                            name="oldPassword"
+                                                                            required
+                                                                            value={securityData.oldPassword}
+                                                                            onChange={handleSecurityChange}
+                                                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm px-3 py-2 border transition-colors"
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                                <div className="sm:col-span-3">
+                                                                    <label className="block text-sm font-medium text-gray-700">New Password</label>
+                                                                    <div className="mt-1">
+                                                                        <input
+                                                                            type="password"
+                                                                            name="newPassword"
+                                                                            required
+                                                                            value={securityData.newPassword}
+                                                                            onChange={handleSecurityChange}
+                                                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm px-3 py-2 border transition-colors"
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                                <div className="sm:col-span-3">
+                                                                    <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
+                                                                    <div className="mt-1">
+                                                                        <input
+                                                                            type="password"
+                                                                            name="confirmPassword"
+                                                                            required
+                                                                            value={securityData.confirmPassword}
+                                                                            onChange={handleSecurityChange}
+                                                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm px-3 py-2 border transition-colors"
+                                                                        />
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-
-                                                        <div className="flex justify-end pt-2">
-                                                            <button
-                                                                type="submit"
-                                                                disabled={isSaving}
-                                                                className="px-8 py-3 bg-gray-900 text-white rounded-xl hover:shadow-lg hover:shadow-gray-500/30 disabled:opacity-70 font-bold transition-all flex items-center gap-2 transform active:scale-95"
-                                                            >
-                                                                {isSaving ? (
-                                                                    <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Updating...</>
-                                                                ) : (
-                                                                    <><Lock size={18} /> Update Password</>
-                                                                )}
-                                                            </button>
-                                                        </div>
-                                                    </form>
+                                                            <div>
+                                                                <button
+                                                                    type="submit"
+                                                                    disabled={isSaving}
+                                                                    className="inline-flex justify-center rounded-md border border-transparent bg-gray-900 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-800 disabled:opacity-70 transition-colors"
+                                                                >
+                                                                    {isSaving ? 'Updating...' : 'Update Password'}
+                                                                </button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
                                                 </div>
                                             )}
 
@@ -389,7 +382,7 @@ export default function AdminSettings() {
                         </div>
                     </main>
                 </div>
-        </div>
+            </div>
             
             <ConfirmationModal
                 isOpen={isLogoutModalOpen}

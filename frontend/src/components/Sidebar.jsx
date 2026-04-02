@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, FileText, MessageSquare, ArrowUpRight, BookOpen, Settings, LogOut } from 'lucide-react';
 import { useState } from 'react';
-import { Menu } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 
 export function Sidebar() {
     const location = useLocation();
@@ -22,13 +22,16 @@ export function Sidebar() {
 
     return (
         <>
-            <aside className={`hidden md:block glass-panel border-r border-white/40 h-screen sticky top-0 flex flex-col justify-between shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-40 transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'}`}>
-                <div className="p-4 flex justify-end">
-                    <button onClick={() => setIsCollapsed(!isCollapsed)} className="p-1 hover:bg-white/40 rounded transition-colors">
-                        <Menu className="w-5 h-5 text-gray-600" />
-                    </button>
-                </div>
-                <nav className="flex flex-col flex-grow p-4 space-y-2.5">
+            <aside className={`hidden md:block glass-panel border-r border-white/40 h-[calc(100vh-64px)] relative flex flex-col justify-between shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-40 transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'}`}>
+                {/* Floating edge toggle button */}
+                <button 
+                    onClick={() => setIsCollapsed(!isCollapsed)} 
+                    className="absolute -right-3 top-8 flex items-center justify-center w-6 h-6 bg-white border border-gray-200 rounded-full shadow-md z-50 hover:bg-gray-50 text-gray-500 focus:outline-none"
+                >
+                    <ChevronLeft className={`w-4 h-4 transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`} />
+                </button>
+
+                <nav className="flex flex-col flex-grow p-4 space-y-2.5 mt-4">
                     {navItems.map((item) => (
                         <Link
                             key={item.path}

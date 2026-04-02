@@ -273,33 +273,34 @@ export const UserSettingsPage = () => {
   ];
 
   return (
-    <div className="flex h-screen overflow-hidden flex-col bg-gray-50/50 text-text-primary text-sm">
+    <div className="flex h-screen overflow-hidden flex-col bg-gray-50 text-gray-900 text-sm">
       <Header />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
-        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto w-full relative">
-          <div className="max-w-4xl mx-auto relative z-10 w-full">
-            <div className="mb-6 flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-              <div>
-                <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-0.5">
-                  Account Settings
-                </h1>
-                <p className="text-gray-500 text-xs">
-                  Manage your personal profile, security, and preferences.
-                </p>
+        <main className="flex-1 p-4 md:p-8 overflow-y-auto w-full relative">
+          <div className="max-w-5xl mx-auto">
+            {/* Header */}
+            <div className="md:flex md:items-center md:justify-between mb-8 pb-5 border-b border-gray-200">
+              <div className="min-w-0 flex-1">
+                <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+                  Settings
+                </h2>
+                <p className="mt-1 text-sm text-gray-500">Manage your profile, security, and platform preferences.</p>
               </div>
-              <button
-                 onClick={() => setIsLogoutModalOpen(true)}
-                 className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 transition-colors rounded-lg text-sm font-semibold border border-red-100 shadow-sm"
-              >
-                  <LogOut size={16} />
+              <div className="mt-4 flex md:ml-4 md:mt-0">
+                <button
+                  onClick={() => setIsLogoutModalOpen(true)}
+                  className="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors"
+                >
+                  <LogOut className="-ml-0.5 mr-1.5 h-4 w-4" />
                   Sign Out
-              </button>
+                </button>
+              </div>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-6">
+            <div className="flex flex-col md:flex-row gap-8">
               {/* Sidebar Tabs */}
-              <div className="w-full md:w-64 flex-shrink-0 space-y-2">
+              <nav className="w-full md:w-64 flex-shrink-0 space-y-1">
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
                   const isActive = activeTab === tab.id;
@@ -307,83 +308,81 @@ export const UserSettingsPage = () => {
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
-                      className={`w-full group flex items-center text-left p-3 rounded-xl transition-all duration-200 ${isActive
-                        ? 'bg-primary text-white shadow-md shadow-primary/20'
-                        : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200 shadow-sm'
+                      className={`w-full group flex items-center text-left px-3 py-2 rounded-md transition-colors text-sm font-medium ${isActive
+                        ? 'bg-gray-100 text-gray-900'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                         }`}
                     >
-                      <div className={`p-2 rounded-lg mr-3 ${isActive ? 'bg-white/20 text-white' : 'bg-primary/5 text-primary'}`}>
-                        <Icon size={18} />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className={`font-semibold text-sm ${isActive ? 'text-white' : 'text-gray-900'}`}>{tab.label}</h3>
-                      </div>
+                      <Icon className={`mr-3 flex-shrink-0 h-4 w-4 ${isActive ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-500'}`} />
+                      <span className="truncate">{tab.label}</span>
                     </button>
                   )
                 })}
-              </div>
+              </nav>
 
               {/* Content Area */}
-              <div className="flex-1">
-                <div className="bg-white rounded-2xl p-6 md:p-8 border border-gray-200 shadow-sm h-full relative overflow-hidden">
+              <div className="flex-1 max-w-3xl">
+                <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
 
                   {/* Profile Tab */}
                   {activeTab === 'profile' && (
-                    <div className="space-y-8 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                      <div className="border-b border-gray-100 pb-5">
-                        <h2 className="text-2xl font-bold text-gray-900">Personal Profile</h2>
-                        <p className="text-gray-500 text-sm mt-1">These details are kept private unless explicitly shared.</p>
+                    <div className="animate-in fade-in duration-300">
+                      <div className="px-4 py-5 sm:p-6">
+                        <h3 className="text-lg font-medium leading-6 text-gray-900">Personal Profile</h3>
+                        <div className="mt-2 max-w-xl text-sm text-gray-500">
+                          <p>Update your personal details. These are kept private unless explicitly shared.</p>
+                        </div>
+                        <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6 max-w-xl">
+                          <div className="sm:col-span-6">
+                            <label className="block text-sm font-medium text-gray-700">Full Name</label>
+                            <div className="mt-1">
+                              <input
+                                type="text"
+                                name="fullName"
+                                value={profile.fullName}
+                                onChange={handleProfileChange}
+                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm px-3 py-2 border transition-colors"
+                                placeholder="Your full name"
+                              />
+                            </div>
+                          </div>
+                          
+                          <div className="sm:col-span-6">
+                            <label className="block text-sm font-medium text-gray-700">Phone Number</label>
+                            <div className="mt-1">
+                              <input
+                                type="tel"
+                                name="phone"
+                                value={profile.phone}
+                                onChange={handleProfileChange}
+                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm px-3 py-2 border transition-colors"
+                                placeholder="+1 (555) 000-0000"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="sm:col-span-6">
+                            <label className="block text-sm font-medium text-gray-700">Department / Course</label>
+                            <div className="mt-1">
+                              <input
+                                type="text"
+                                name="department"
+                                value={profile.department}
+                                onChange={handleProfileChange}
+                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm px-3 py-2 border transition-colors"
+                                placeholder="e.g. Computer Science"
+                              />
+                            </div>
+                          </div>
+                        </div>
                       </div>
-
-                      <div className="grid gap-6 max-w-xl">
-                        <div>
-                          <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider text-xs">Full Name</label>
-                          <input
-                            type="text"
-                            name="fullName"
-                            value={profile.fullName}
-                            onChange={handleProfileChange}
-                            className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
-                            placeholder="Your full name"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider text-xs">Phone Number</label>
-                          <input
-                            type="tel"
-                            name="phone"
-                            value={profile.phone}
-                            onChange={handleProfileChange}
-                            className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
-                            placeholder="+1 (555) 000-0000"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider text-xs">Department / Course</label>
-                          <input
-                            type="text"
-                            name="department"
-                            value={profile.department}
-                            onChange={handleProfileChange}
-                            className="w-full px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
-                            placeholder="e.g. Computer Science"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="pt-8 mt-4 border-t border-gray-100 flex justify-end">
+                      <div className="bg-gray-50 px-4 py-3 text-right sm:px-6 rounded-b-lg border-t border-gray-200">
                         <button
                           onClick={handleSaveProfile}
                           disabled={isSaving}
-                          className="px-8 py-3.5 bg-gradient-to-r from-primary to-primary-light text-white rounded-2xl shadow-lg shadow-primary/20 hover:shadow-primary/40 disabled:opacity-70 font-bold transition-all duration-300 flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
+                          className="inline-flex justify-center rounded-md border border-transparent bg-gray-900 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:opacity-70 transition-colors"
                         >
-                          {isSaving ? (
-                            <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...</>
-                          ) : (
-                            <><Save size={18} /> Save Changes</>
-                          )}
+                          {isSaving ? 'Saving...' : 'Save Changes'}
                         </button>
                       </div>
                     </div>
@@ -391,58 +390,45 @@ export const UserSettingsPage = () => {
 
                   {/* Appearance Tab */}
                   {activeTab === 'appearance' && (
-                    <div className="space-y-8 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                      <div className="border-b border-gray-100 pb-5">
-                        <h2 className="text-2xl font-bold text-gray-900">Appearance</h2>
-                        <p className="text-gray-500 text-sm mt-1">Customize your platform experience.</p>
-                      </div>
-
-                      <div className="space-y-8 max-w-2xl">
-                        {/* Theme Toggle */}
-                        <div>
-                          <h3 className="text-sm font-semibold text-gray-700 mb-4 block">System Theme</h3>
+                    <div className="animate-in fade-in duration-300">
+                      <div className="px-4 py-5 sm:p-6">
+                        <h3 className="text-lg font-medium leading-6 text-gray-900">Appearance</h3>
+                        <div className="mt-2 max-w-xl text-sm text-gray-500">
+                          <p>Customize your platform interface and experience.</p>
+                        </div>
+                        <div className="mt-6 max-w-xl">
+                          <label className="block text-sm font-medium text-gray-700 mb-3">System Theme</label>
                           <div className="grid grid-cols-2 gap-4">
                             <button
                               onClick={() => setAppearance(prev => ({ ...prev, theme: 'light' }))}
-                              className={`flex items-center justify-between p-4 border-2 rounded-2xl transition-all ${appearance.theme === 'light' ? 'border-primary bg-primary/5' : 'border-gray-200 bg-white hover:border-primary/50'}`}
+                              className={`flex items-center justify-between px-4 py-3 border rounded-md transition-colors ${appearance.theme === 'light' ? 'border-gray-900 bg-gray-50 ring-1 ring-gray-900' : 'border-gray-200 bg-white hover:border-gray-300'}`}
                             >
                               <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200">
-                                  <div className="w-5 h-5 rounded-full bg-white shadow-sm border border-gray-300"></div>
-                                </div>
-                                <span className="font-semibold text-gray-900">Light Mode</span>
+                                <div className="w-4 h-4 rounded-full bg-white border border-gray-300 shadow-sm" />
+                                <span className="font-medium text-gray-900 text-sm">Light Mode</span>
                               </div>
-                              {appearance.theme === 'light' && <CheckCircle2 className="text-primary w-5 h-5 mr-1" />}
+                              {appearance.theme === 'light' && <CheckCircle2 className="text-gray-900 w-4 h-4" />}
                             </button>
                             <button
                               onClick={() => setAppearance(prev => ({ ...prev, theme: 'dark' }))}
-                              className={`flex items-center justify-between p-4 border-2 rounded-2xl transition-all ${appearance.theme === 'dark' ? 'border-primary bg-primary/5' : 'border-gray-200 bg-white hover:border-primary/50'}`}
+                              className={`flex items-center justify-between px-4 py-3 border rounded-md transition-colors ${appearance.theme === 'dark' ? 'border-gray-900 bg-gray-50 ring-1 ring-gray-900' : 'border-gray-200 bg-white hover:border-gray-300'}`}
                             >
                               <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-full bg-gray-900 flex items-center justify-center border border-gray-700">
-                                  <div className="w-5 h-5 rounded-full bg-gray-800 shadow-sm border border-gray-600"></div>
-                                </div>
-                                <span className="font-semibold text-gray-900">Dark Mode</span>
+                                <div className="w-4 h-4 rounded-full bg-gray-800 border border-gray-600 shadow-sm" />
+                                <span className="font-medium text-gray-900 text-sm">Dark Mode</span>
                               </div>
-                              {appearance.theme === 'dark' && <CheckCircle2 className="text-primary w-5 h-5 mr-1" />}
+                              {appearance.theme === 'dark' && <CheckCircle2 className="text-gray-900 w-4 h-4" />}
                             </button>
                           </div>
                         </div>
-
-
                       </div>
-
-                      <div className="pt-8 mt-4 border-t border-gray-100 flex justify-end">
+                      <div className="bg-gray-50 px-4 py-3 text-right sm:px-6 rounded-b-lg border-t border-gray-200">
                         <button
                           onClick={handleSaveAppearance}
                           disabled={isSaving}
-                          className="px-8 py-3.5 bg-gradient-to-r from-primary to-primary-light text-white rounded-2xl shadow-lg shadow-primary/20 hover:shadow-primary/40 disabled:opacity-70 font-bold transition-all duration-300 flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
+                          className="inline-flex justify-center rounded-md border border-transparent bg-gray-900 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:opacity-70 transition-colors"
                         >
-                          {isSaving ? (
-                            <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...</>
-                          ) : (
-                            <><Palette size={18} /> Apply Appearance</>
-                          )}
+                          {isSaving ? 'Saving...' : 'Save Preferences'}
                         </button>
                       </div>
                     </div>
@@ -450,73 +436,85 @@ export const UserSettingsPage = () => {
 
                   {/* Notifications Tab */}
                   {activeTab === 'notifications' && (
-                    <div className="space-y-8 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                      <div className="border-b border-gray-100 pb-5">
-                        <h2 className="text-2xl font-bold text-gray-900">Notification Preferences</h2>
-                        <p className="text-gray-500 text-sm mt-1">Control how and when we alert you about activity.</p>
-                      </div>
-
-                      <div className="grid md:grid-cols-2 gap-10">
-                        <div className="space-y-6">
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">@</div>
-                            <h3 className="font-bold text-gray-800">Email Alerts</h3>
-                          </div>
-                          {Object.entries(notifyPrefs.emailNotifications).map(([key, value]) => (
-                            <label key={key} className="flex items-center justify-between cursor-pointer group p-4 bg-white/60 border border-gray-100 hover:border-primary/30 hover:bg-primary/5/50 rounded-2xl transition-all shadow-sm mb-3">
-                              <span className="text-gray-700 font-medium group-hover:text-primary-dark capitalize text-[15px]">
-                                {key.replace(/([A-Z])/g, ' $1').trim()}
-                              </span>
-                              <div className="relative inline-flex items-center">
-                                <input type="checkbox" checked={value} onChange={() => handleNotificationToggle('emailNotifications', key)} className="sr-only peer" />
-                                <div className="w-12 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                              </div>
-                            </label>
-                          ))}
+                    <div className="animate-in fade-in duration-300">
+                      <div className="px-4 py-5 sm:p-6">
+                        <h3 className="text-lg font-medium leading-6 text-gray-900">Notification Preferences</h3>
+                        <div className="mt-2 max-w-xl text-sm text-gray-500">
+                          <p>Control how and when we alert you about activity.</p>
                         </div>
-
-                        <div className="space-y-6">
-                          <div className="flex items-center gap-2 mb-2">
-                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary"><BellRing size={16} /></div>
-                            <h3 className="font-bold text-gray-800">In-App Alerts</h3>
+                        <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl">
+                          <div>
+                            <h4 className="text-sm font-semibold text-gray-900 flex items-center gap-2 mb-4">
+                              <span className="w-6 h-6 rounded-md bg-gray-100 flex justify-center items-center">@</span>
+                              Email Alerts
+                            </h4>
+                            <div className="space-y-4">
+                              {Object.entries(notifyPrefs.emailNotifications).map(([key, value]) => (
+                                <div key={key} className="flex items-start">
+                                  <div className="flex h-5 items-center">
+                                    <input
+                                      type="checkbox"
+                                      checked={value}
+                                      onChange={() => handleNotificationToggle('emailNotifications', key)}
+                                      className="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+                                    />
+                                  </div>
+                                  <div className="ml-3 text-sm">
+                                    <label className="font-medium text-gray-700 capitalize">
+                                      {key.replace(/([A-Z])/g, ' $1').trim()}
+                                    </label>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
                           </div>
-                          {Object.entries(notifyPrefs.inAppNotifications).map(([key, value]) => (
-                            <label key={key} className="flex items-center justify-between cursor-pointer group p-4 bg-white/60 border border-gray-100 hover:border-primary/30 hover:bg-primary/5/50 rounded-2xl transition-all shadow-sm mb-3">
-                              <span className="text-gray-700 font-medium group-hover:text-primary-dark capitalize text-[15px]">
-                                {key.replace(/([A-Z])/g, ' $1').trim()}
-                              </span>
-                              <div className="relative inline-flex items-center">
-                                <input type="checkbox" checked={value} onChange={() => handleNotificationToggle('inAppNotifications', key)} className="sr-only peer" />
-                                <div className="w-12 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                              </div>
-                            </label>
-                          ))}
 
-                          <div className="pt-6 mt-2 border-t border-gray-100">
-                            <label className="block text-sm font-bold text-gray-700 mb-3 uppercase tracking-wider text-xs">
-                              Daily Summary Time
-                            </label>
-                            <input
-                              type="time"
-                              value={notifyPrefs.preferredNotificationTime}
-                              onChange={(e) => setNotifyPrefs(prev => ({ ...prev, preferredNotificationTime: e.target.value }))}
-                              className="w-full max-w-[150px] px-5 py-3.5 bg-white/70 border border-gray-200/50 rounded-2xl focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/50 focus:bg-white transition-all font-semibold text-gray-800 shadow-sm hover:border-gray-300/80"
-                            />
+                          <div>
+                            <h4 className="text-sm font-semibold text-gray-900 flex items-center gap-2 mb-4">
+                              <span className="w-6 h-6 rounded-md bg-gray-100 flex justify-center items-center"><BellRing className="w-3.5 h-3.5" /></span>
+                              In-App Alerts
+                            </h4>
+                            <div className="space-y-4">
+                              {Object.entries(notifyPrefs.inAppNotifications).map(([key, value]) => (
+                                <div key={key} className="flex items-start">
+                                  <div className="flex h-5 items-center">
+                                    <input
+                                      type="checkbox"
+                                      checked={value}
+                                      onChange={() => handleNotificationToggle('inAppNotifications', key)}
+                                      className="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+                                    />
+                                  </div>
+                                  <div className="ml-3 text-sm">
+                                    <label className="font-medium text-gray-700 capitalize">
+                                      {key.replace(/([A-Z])/g, ' $1').trim()}
+                                    </label>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+
+                            <div className="mt-8 pt-6 border-t border-gray-200">
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Daily Summary Time
+                              </label>
+                              <input
+                                type="time"
+                                value={notifyPrefs.preferredNotificationTime}
+                                onChange={(e) => setNotifyPrefs(prev => ({ ...prev, preferredNotificationTime: e.target.value }))}
+                                className="block w-full max-w-[150px] rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm px-3 py-2 border transition-colors"
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>
-
-                      <div className="pt-8 mt-4 border-t border-gray-100 flex justify-end">
+                      <div className="bg-gray-50 px-4 py-3 text-right sm:px-6 rounded-b-lg border-t border-gray-200">
                         <button
                           onClick={handleSaveNotificationPrefs}
                           disabled={isSaving}
-                          className="px-8 py-3.5 bg-gradient-to-r from-primary to-primary-light text-white rounded-2xl shadow-lg shadow-primary/20 hover:shadow-primary/40 disabled:opacity-70 font-bold transition-all duration-300 flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
+                          className="inline-flex justify-center rounded-md border border-transparent bg-gray-900 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:opacity-70 transition-colors"
                         >
-                          {isSaving ? (
-                            <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...</>
-                          ) : (
-                            <><Save size={18} /> Save Preferences</>
-                          )}
+                          {isSaving ? 'Saving...' : 'Save Preferences'}
                         </button>
                       </div>
                     </div>
@@ -524,89 +522,74 @@ export const UserSettingsPage = () => {
 
                   {/* Privacy Tab */}
                   {activeTab === 'privacy' && (
-                    <div className="space-y-8 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                      <div className="border-b border-gray-100 pb-5">
-                        <h2 className="text-2xl font-bold text-gray-900">Privacy & Identity</h2>
-                        <p className="text-gray-500 text-sm mt-1">Configure how much of your identity is shared with administrators.</p>
-                      </div>
-
-                      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-primary/20 rounded-2xl p-6 flex gap-4 shadow-sm relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-white/40 rounded-full blur-2xl -mr-10 -mt-10"></div>
-                        <AlertCircle className="text-primary flex-shrink-0 mt-1" size={24} />
-                        <div className="text-primary-dark relative z-10">
-                          <p className="font-bold text-lg mb-2">Platform Anonymity Guarantee</p>
-                          <p className="text-primary-dark leading-relaxed font-medium opacity-90">
-                            By default, everything you submit is cryptographically linked to an anonymous code. Admins cannot see your name or email unless you explicitly provide consent below.
-                            Revealing your identity can help expedite highly sensitive cases by preventing fake report flagging.
-                          </p>
+                    <div className="animate-in fade-in duration-300">
+                      <div className="px-4 py-5 sm:p-6">
+                        <h3 className="text-lg font-medium leading-6 text-gray-900">Privacy & Identity</h3>
+                        <div className="mt-2 max-w-xl text-sm text-gray-500 mb-6">
+                          <p>Configure how much of your identity is shared with administrators.</p>
                         </div>
-                      </div>
+                        
+                        <div className="rounded-md bg-blue-50 p-4 mb-6">
+                          <div className="flex">
+                            <div className="flex-shrink-0">
+                              <AlertCircle className="h-5 w-5 text-blue-400" aria-hidden="true" />
+                            </div>
+                            <div className="ml-3">
+                              <h3 className="text-sm font-medium text-blue-800">Platform Anonymity Guarantee</h3>
+                              <div className="mt-2 text-sm text-blue-700">
+                                <p>By default, everything you submit is cryptographically linked to an anonymous code. Admins cannot see your name or email unless you explicitly provide consent below. Revealing your identity can help expedite highly sensitive cases.</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
 
-                      <div className="space-y-4 max-w-2xl">
-                        <label className={`block border-2 rounded-3xl p-6 cursor-pointer transition-all duration-500 ${!privacy.idRevealConsent
-                          ? 'border-primary bg-gradient-to-br from-white to-blue-50/50 shadow-xl shadow-primary/10 scale-100 ring-2 ring-primary/20'
-                          : 'border-white bg-white/60 hover:bg-white hover:border-primary/30 shadow-sm hover:shadow-md scale-[0.98]'
-                          }`}>
-                          <div className="flex items-start gap-5">
-                            <div className="relative flex items-center justify-center mt-1">
+                        <div className="space-y-4 max-w-2xl px-2">
+                          <label className={`relative block rounded-lg border px-6 py-4 cursor-pointer sm:flex sm:justify-between focus:outline-none ${!privacy.idRevealConsent ? 'border-gray-900 ring-1 ring-gray-900 bg-gray-50' : 'border-gray-300 bg-white hover:bg-gray-50'}`}>
+                            <div className="flex items-center">
                               <input
                                 type="radio"
                                 name="idConsent"
                                 checked={!privacy.idRevealConsent}
                                 onChange={() => handleIdConsentChange(false)}
-                                className="w-6 h-6 text-primary bg-gray-100 border-gray-300 focus:ring-primary focus:ring-2"
+                                className="h-4 w-4 border-gray-300 text-gray-900 focus:ring-gray-900"
                               />
+                              <div className="ml-3">
+                                <span className="block text-sm font-medium text-gray-900">Stay Strictly Anonymous</span>
+                                <span className="block text-sm text-gray-500 mt-1">My email and name are thoroughly hidden from administrators during investigations.</span>
+                              </div>
                             </div>
-                            <div className="flex-1">
-                              <p className="font-bold text-gray-900 text-xl flex items-center gap-3">
-                                <div className={`p-2 rounded-xl flex items-center justify-center ${!privacy.idRevealConsent ? 'bg-primary/10 text-primary' : 'bg-gray-100 text-gray-400'}`}>
-                                  <Shield size={20} strokeWidth={2.5} />
-                                </div>
-                                Stay Strictly Anonymous
-                              </p>
-                              <p className={`mt-2 text-[15px] leading-relaxed ${!privacy.idRevealConsent ? 'text-gray-700 font-medium' : 'text-gray-500'}`}>My email and name are thoroughly hidden from administrators and reviewers during investigations.</p>
+                            <div className="mt-2 sm:mt-0 sm:ml-4 sm:flex-shrink-0 sm:flex sm:items-center">
+                              <Shield className={`w-5 h-5 ${!privacy.idRevealConsent ? 'text-gray-900' : 'text-gray-400'}`} />
                             </div>
-                          </div>
-                        </label>
+                          </label>
 
-                        <label className={`block border-2 rounded-3xl p-6 cursor-pointer transition-all duration-500 ${privacy.idRevealConsent
-                          ? 'border-primary bg-gradient-to-br from-white to-indigo-50/50 shadow-xl shadow-primary/10 scale-100 ring-2 ring-primary/20'
-                          : 'border-white bg-white/60 hover:bg-white hover:border-primary/30 shadow-sm hover:shadow-md scale-[0.98]'
-                          }`}>
-                          <div className="flex items-start gap-5">
-                            <div className="relative flex items-center justify-center mt-1">
+                          <label className={`relative block rounded-lg border px-6 py-4 cursor-pointer sm:flex sm:justify-between focus:outline-none ${privacy.idRevealConsent ? 'border-gray-900 ring-1 ring-gray-900 bg-gray-50' : 'border-gray-300 bg-white hover:bg-gray-50'}`}>
+                            <div className="flex items-center">
                               <input
                                 type="radio"
                                 name="idConsent"
                                 checked={privacy.idRevealConsent}
                                 onChange={() => handleIdConsentChange(true)}
-                                className="w-6 h-6 text-primary bg-gray-100 border-gray-300 focus:ring-primary focus:ring-2"
+                                className="h-4 w-4 border-gray-300 text-gray-900 focus:ring-gray-900"
                               />
+                              <div className="ml-3">
+                                <span className="block text-sm font-medium text-gray-900">Reveal My Identity</span>
+                                <span className="block text-sm text-gray-500 mt-1">Trust administrators with my real name and email address to help verify my reports.</span>
+                              </div>
                             </div>
-                            <div className="flex-1">
-                              <p className="font-bold text-gray-900 text-xl flex items-center gap-3">
-                                <div className={`p-2 rounded-xl flex items-center justify-center ${privacy.idRevealConsent ? 'bg-primary/10 text-primary' : 'bg-gray-100 text-gray-400'}`}>
-                                  <User size={20} strokeWidth={2.5} />
-                                </div>
-                                Reveal My Identity
-                              </p>
-                              <p className={`mt-2 text-[15px] leading-relaxed ${privacy.idRevealConsent ? 'text-gray-700 font-medium' : 'text-gray-500'}`}>Trust administrators with my real name and email address to help verify and fast-track my reports.</p>
+                            <div className="mt-2 sm:mt-0 sm:ml-4 sm:flex-shrink-0 sm:flex sm:items-center">
+                              <User className={`w-5 h-5 ${privacy.idRevealConsent ? 'text-gray-900' : 'text-gray-400'}`} />
                             </div>
-                          </div>
-                        </label>
+                          </label>
+                        </div>
                       </div>
-
-                      <div className="pt-8 mt-4 border-t border-gray-100 flex justify-end">
+                      <div className="bg-gray-50 px-4 py-3 text-right sm:px-6 rounded-b-lg border-t border-gray-200">
                         <button
                           onClick={handleSavePrivacy}
                           disabled={isSaving}
-                          className="px-8 py-3.5 bg-gradient-to-r from-primary to-primary-light text-white rounded-2xl shadow-lg shadow-primary/20 hover:shadow-primary/40 disabled:opacity-70 font-bold transition-all duration-300 flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
+                          className="inline-flex justify-center rounded-md border border-transparent bg-gray-900 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:opacity-70 transition-colors"
                         >
-                          {isSaving ? (
-                            <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Saving...</>
-                          ) : (
-                            <><Shield size={18} /> Apply Privacy Setting</>
-                          )}
+                          {isSaving ? 'Saving...' : 'Apply Setting'}
                         </button>
                       </div>
                     </div>
@@ -614,90 +597,90 @@ export const UserSettingsPage = () => {
 
                   {/* Security Tab */}
                   {activeTab === 'security' && (
-                    <div className="space-y-8 relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                      <div className="border-b border-gray-100 pb-5">
-                        <h2 className="text-2xl font-bold text-gray-900">Account Security</h2>
-                        <p className="text-gray-500 text-sm mt-1">Update your password and manage account deletion.</p>
-                      </div>
-
-                      <form onSubmit={handleChangePassword} className="space-y-6 max-w-xl">
-                        <div className="p-8 bg-white/60 border border-white rounded-3xl shadow-sm space-y-6">
-                          <h3 className="font-bold text-xl text-gray-900 flex items-center gap-3 mb-2">
-                            <div className="p-2 bg-gray-100 rounded-xl text-gray-600">
-                              <Lock size={20} strokeWidth={2.5} />
+                    <div className="animate-in fade-in duration-300">
+                      <div className="px-4 py-5 sm:p-6">
+                        <h3 className="text-lg font-medium leading-6 text-gray-900">Account Security</h3>
+                        <div className="mt-2 text-sm text-gray-500 mb-6">
+                          <p>Manage your password and account deletion options.</p>
+                        </div>
+                        
+                        <form onSubmit={handleChangePassword} className="space-y-6 max-w-xl">
+                          <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                            <div className="sm:col-span-6">
+                              <label className="block text-sm font-medium text-gray-700">Current Password</label>
+                              <div className="mt-1">
+                                <input
+                                  type="password"
+                                  name="oldPassword"
+                                  required
+                                  value={securityData.oldPassword}
+                                  onChange={handleSecurityChange}
+                                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm px-3 py-2 border transition-colors"
+                                />
+                              </div>
                             </div>
-                            Change Password
-                          </h3>
-
-                          <div className="space-y-4">
-                            <Input
-                              label="Current Password"
-                              type="password"
-                              name="oldPassword"
-                              required
-                              value={securityData.oldPassword}
-                              onChange={handleSecurityChange}
-                              placeholder="••••••••"
-                              className="bg-white/70"
-                            />
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                              <Input
-                                label="New Password"
-                                type="password"
-                                name="newPassword"
-                                required
-                                value={securityData.newPassword}
-                                onChange={handleSecurityChange}
-                                placeholder="••••••••"
-                                className="bg-white/70"
-                              />
-                              <Input
-                                label="Confirm Password"
-                                type="password"
-                                name="confirmPassword"
-                                required
-                                value={securityData.confirmPassword}
-                                onChange={handleSecurityChange}
-                                placeholder="••••••••"
-                                className="bg-white/70"
-                              />
+                            <div className="sm:col-span-3">
+                              <label className="block text-sm font-medium text-gray-700">New Password</label>
+                              <div className="mt-1">
+                                <input
+                                  type="password"
+                                  name="newPassword"
+                                  required
+                                  value={securityData.newPassword}
+                                  onChange={handleSecurityChange}
+                                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm px-3 py-2 border transition-colors"
+                                />
+                              </div>
+                            </div>
+                            <div className="sm:col-span-3">
+                              <label className="block text-sm font-medium text-gray-700">Confirm Password</label>
+                              <div className="mt-1">
+                                <input
+                                  type="password"
+                                  name="confirmPassword"
+                                  required
+                                  value={securityData.confirmPassword}
+                                  onChange={handleSecurityChange}
+                                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm px-3 py-2 border transition-colors"
+                                />
+                              </div>
                             </div>
                           </div>
-                        </div>
-
-                        <div className="flex justify-end pt-4">
-                          <button
-                            type="submit"
-                            disabled={isSaving}
-                            className="px-8 py-3.5 bg-gray-900 text-white rounded-2xl hover:shadow-xl hover:shadow-gray-500/30 disabled:opacity-70 font-bold transition-all duration-300 flex items-center gap-2 transform hover:-translate-y-0.5 active:translate-y-0 active:scale-95"
-                          >
-                            {isSaving ? (
-                              <><div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Updating...</>
-                            ) : (
-                              <><Lock size={18} /> Update Password</>
-                            )}
-                          </button>
-                        </div>
-                      </form>
-
-                      {/* Danger Zone */}
-                      <div className="mt-14 pt-10 border-t border-red-100/50">
-                        <h3 className="font-bold text-red-600 flex items-center gap-2 mb-5">
-                          <div className="p-1.5 bg-red-100 rounded-lg"><AlertCircle size={18} strokeWidth={2.5} /></div>
-                          Danger Zone
-                        </h3>
-                        <div className="p-8 border border-red-200 bg-gradient-to-r from-red-50 to-white rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-8 shadow-sm">
                           <div>
-                            <h4 className="font-bold text-gray-900 text-xl">Delete Account</h4>
-                            <p className="text-gray-600 mt-2 max-w-md leading-relaxed font-medium">Permanently delete your account and all associated data. This action cannot be undone.</p>
+                            <button
+                              type="submit"
+                              disabled={isSaving}
+                              className="inline-flex justify-center rounded-md border border-transparent bg-gray-900 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-800 disabled:opacity-70 transition-colors"
+                            >
+                              {isSaving ? 'Updating...' : 'Update Password'}
+                            </button>
                           </div>
-                          <button
-                            onClick={handleDeleteAccountClick}
-                            className="flex-shrink-0 px-8 py-4 bg-white text-red-600 border border-red-200 rounded-2xl hover:bg-red-50 hover:border-red-300 font-bold transition-all duration-300 flex items-center justify-center gap-2 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
-                          >
-                            <Trash2 size={20} /> Delete Account
-                          </button>
+                        </form>
+
+                        <div className="mt-10 border-t border-gray-200 pt-6">
+                          <h4 className="text-base font-medium text-red-600">Danger Zone</h4>
+                          <div className="mt-4 flex rounded-md bg-red-50 p-4 border border-red-200">
+                            <div className="flex-shrink-0">
+                              <AlertCircle className="h-5 w-5 text-red-400" aria-hidden="true" />
+                            </div>
+                            <div className="ml-3 sm:flex sm:items-start sm:justify-between w-full gap-4">
+                              <div>
+                                <h3 className="text-sm font-medium text-red-800">Delete Account</h3>
+                                <div className="mt-1 text-sm text-red-700">
+                                  <p>Permanently remove your account and all associated data. This action cannot be undone.</p>
+                                </div>
+                              </div>
+                              <div className="mt-4 sm:ml-6 sm:mt-0 sm:flex-shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={handleDeleteAccountClick}
+                                  className="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-sm ring-1 ring-inset ring-red-300 hover:bg-red-50 transition-colors"
+                                >
+                                  Delete Account
+                                </button>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
