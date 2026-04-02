@@ -5,6 +5,7 @@ import { useToast } from '../../hooks/useToast';
 import { AdminHeader } from '../../components/Admin/AdminHeader';
 import { AdminSidebar } from '../../components/Admin/AdminSidebar';
 import { Input } from '../../components/ui/Input';
+import ConfirmationModal from '../../components/ui/ConfirmationModal';
 
 export default function AdminSettings() {
     const { addToast } = useToast();
@@ -134,9 +135,10 @@ export default function AdminSettings() {
     ];
 
     return (
-        <div className="flex h-screen overflow-hidden flex-col bg-gray-50 text-gray-900 text-sm">
-            <AdminHeader roleName="Settings" />
-            <div className="flex flex-1 overflow-hidden">
+        <>
+            <div className="flex h-screen overflow-hidden flex-col bg-gray-50 text-gray-900 text-sm">
+                <AdminHeader roleName="Settings" />
+                <div className="flex flex-1 overflow-hidden">
                 <AdminSidebar role="admin" />
                 <main className="flex-1 p-4 md:p-8 overflow-y-auto w-full relative">
                     <div className="max-w-5xl mx-auto">
@@ -397,6 +399,6 @@ export default function AdminSettings() {
                 confirmText="Sign Out"
                 variant="danger"
             />
-        </div>
+        </>
     );
 }
