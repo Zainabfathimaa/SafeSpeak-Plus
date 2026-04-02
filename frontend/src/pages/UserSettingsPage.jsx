@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, AlertCircle, Trash2, Shield, BellRing, User, Lock, Palette, CheckCircle2 } from 'lucide-react';
+import { Save, AlertCircle, Trash2, Shield, BellRing, User, Lock, Palette, CheckCircle2, LogOut } from 'lucide-react';
 import userService from '../services/userService';
 import { useToast } from '../hooks/useToast';
 import { ConfirmationModal } from '../components/ui/ConfirmationModal';
@@ -268,25 +268,33 @@ export const UserSettingsPage = () => {
   const tabs = [
     { id: 'profile', label: 'Personal Profile', icon: User, desc: 'Update your personal details' },
     { id: 'appearance', label: 'Appearance', icon: Palette, desc: 'Themes & styling' },
-    { id: 'notifications', label: 'Notifications', icon: BellRing, desc: 'Manage alerts & emails' },
     { id: 'privacy', label: 'Privacy & Identity', icon: Shield, desc: 'Control your anonymity' },
     { id: 'security', label: 'Account Security', icon: Lock, desc: 'Passwords & authentication' }
   ];
 
   return (
-    <div className="flex h-screen overflow-hidden flex-col bg-gray-50/50 text-text-primary">
+    <div className="flex h-screen overflow-hidden flex-col bg-gray-50/50 text-text-primary text-sm">
       <Header />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar />
         <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto w-full relative">
-          <div className="max-w-6xl mx-auto relative z-10 w-full">
-            <div className="mb-6">
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">
-                Account Settings
-              </h1>
-              <p className="text-gray-500 text-sm">
-                Manage your personal profile, security, and preferences.
-              </p>
+          <div className="max-w-4xl mx-auto relative z-10 w-full">
+            <div className="mb-6 flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+              <div>
+                <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-0.5">
+                  Account Settings
+                </h1>
+                <p className="text-gray-500 text-xs">
+                  Manage your personal profile, security, and preferences.
+                </p>
+              </div>
+              <button
+                 onClick={() => setIsLogoutModalOpen(true)}
+                 className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 transition-colors rounded-lg text-sm font-semibold border border-red-100 shadow-sm"
+              >
+                  <LogOut size={16} />
+                  Sign Out
+              </button>
             </div>
 
             <div className="flex flex-col md:flex-row gap-6">

@@ -7,6 +7,7 @@ export function StoryCard({ story }) {
     const { addToast } = useToast();
     const [likes, setLikes] = React.useState(story.likes?.length || 0);
     const [isLiked, setIsLiked] = React.useState(false);
+    const [isExpanded, setIsExpanded] = React.useState(false);
 
     const handleLike = async (e) => {
         e.preventDefault();
@@ -51,10 +52,20 @@ export function StoryCard({ story }) {
             </div>
 
             <h3 className="font-bold text-base text-gray-800 mb-1.5">{story.title}</h3>
-            <p className="text-gray-600 text-xs leading-relaxed mb-3 flex-grow line-clamp-2">
-                {story.snippet || story.content?.substring(0, 100) + '...'}
-                <span className="text-blue-600 hover:underline cursor-pointer ml-1 font-semibold">Read</span>
+            <p className={`text-gray-600 text-xs leading-relaxed mb-1 flex-grow ${isExpanded ? '' : 'line-clamp-2'}`}>
+                {isExpanded ? story.content : (story.snippet || story.content)}
             </p>
+            {story.content && story.content.length > 100 && (
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setIsExpanded(!isExpanded);
+                    }}
+                    className="text-blue-600 text-[10px] font-semibold hover:underline mb-3 mt-1 text-left"
+                >
+                    {isExpanded ? 'Show less' : 'Read more'}
+                </button>
+            )}
 
             <div className="flex flex-wrap gap-1 mb-3 mt-auto">
                 {(story.tags || []).slice(0, 2).map((tag, idx) => (

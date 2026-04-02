@@ -7,6 +7,7 @@ import { ConfirmationModal } from '../ui/ConfirmationModal';
 export const UserStoriesList = ({ stories, onDelete, onEdit, isLoading }) => {
   const { addToast } = useToast();
   const [likedStories, setLikedStories] = useState(new Set());
+  const [expandedStories, setExpandedStories] = useState(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [storyToDelete, setStoryToDelete] = useState(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -168,9 +169,24 @@ export const UserStoriesList = ({ stories, onDelete, onEdit, isLoading }) => {
               <div className="inline-block px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-[10px] font-bold uppercase tracking-wider mb-3">
                 {story.category}
               </div>
-              <p className="text-gray-600 text-sm leading-relaxed line-clamp-2 mb-4">
+              <p className={`text-gray-600 text-sm leading-relaxed mb-1 ${expandedStories.has(story._id) ? '' : 'line-clamp-2'}`}>
                 {story.content}
               </p>
+              {story.content && story.content.length > 100 && (
+                <button
+                    onClick={() => {
+                        setExpandedStories(prev => {
+                            const newSet = new Set(prev);
+                            if (newSet.has(story._id)) newSet.delete(story._id);
+                            else newSet.add(story._id);
+                            return newSet;
+                        });
+                    }}
+                    className="text-blue-600 text-xs font-semibold hover:underline mb-4 cursor-pointer focus:outline-none"
+                >
+                    {expandedStories.has(story._id) ? 'Show less' : 'Read more'}
+                </button>
+              )}
 
               {/* Engagement Stats & Bottom Actions */}
               {/* Engagement Stats Completely Removed for Personal View */}

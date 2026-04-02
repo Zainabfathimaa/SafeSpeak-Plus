@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Shield, BellRing, User, Lock, Server } from 'lucide-react';
+import { Save, Shield, BellRing, User, Lock, Server, LogOut } from 'lucide-react';
 import userService from '../../services/userService';
 import { useToast } from '../../hooks/useToast';
 import { AdminHeader } from '../../components/Admin/AdminHeader';
@@ -11,6 +11,7 @@ export default function AdminSettings() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [activeTab, setActiveTab] = useState('profile');
+    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
     // Security tab state
     const [securityData, setSecurityData] = useState({
@@ -141,9 +142,18 @@ export default function AdminSettings() {
                     <main className="flex-1 p-6 lg:p-8 xl:p-10 relative">
 
                         <div className="max-w-6xl mx-auto min-h-[calc(100vh-160px)]">
-                            <div className="mb-10">
-                                <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-indigo-800 mb-2">System Settings</h1>
-                                <p className="text-gray-500 text-lg">Manage administrator profile and global platform preferences</p>
+                            <div className="mb-10 flex justify-between items-center bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+                                <div>
+                                    <h1 className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-indigo-800 mb-1">System Settings</h1>
+                                    <p className="text-gray-500 text-xs">Manage administrator profile and global platform preferences</p>
+                                </div>
+                                <button
+                                    onClick={() => setIsLogoutModalOpen(true)}
+                                    className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 transition-colors rounded-lg text-sm font-semibold border border-red-100 shadow-sm"
+                                >
+                                    <LogOut size={16} />
+                                    Sign Out
+                                </button>
                             </div>
 
                             {isLoading ? (
@@ -379,7 +389,21 @@ export default function AdminSettings() {
                         </div>
                     </main>
                 </div>
-            </div>
+        </div>
+            
+            <ConfirmationModal
+                isOpen={isLogoutModalOpen}
+                onClose={() => setIsLogoutModalOpen(false)}
+                onConfirm={async () => {
+                    const { logout } = await import('../../services/authService');
+                    logout();
+                    window.location.href = '/login';
+                }}
+                title="Confirm Logout"
+                message="Are you sure you want to log out?"
+                confirmText="Sign Out"
+                variant="danger"
+            />
         </div>
     );
 }

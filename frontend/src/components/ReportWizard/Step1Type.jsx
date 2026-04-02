@@ -108,6 +108,21 @@ export function Step1Type({ formData, updateFormData }) {
                     </select>
                 </div>
 
+                {formData.incidentType === 'Other' && (
+                    <div className="col-span-1 md:col-span-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                        <label className="block text-sm font-medium text-text-secondary mb-2">
+                            Please specify the incident type <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            placeholder="Briefly describe the incident type"
+                            value={formData.otherIncidentType || ''}
+                            onChange={(e) => updateFormData({ otherIncidentType: e.target.value })}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                        />
+                    </div>
+                )}
+
                 <div className="col-span-1 md:col-span-2">
                     <label className="block text-sm font-medium text-text-secondary mb-2">
                         Department/School
