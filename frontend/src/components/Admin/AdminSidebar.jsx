@@ -2,8 +2,8 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, FileText, Users, TrendingUp, Lock, Settings, AlertCircle, LogOut, MessageSquare } from 'lucide-react';
 import { logout } from '../../services/authService';
-import { ConfirmationModal } from '../ui/ConfirmationModal';
 import { useState } from 'react';
+import { Menu } from 'lucide-react';
 
 export function AdminSidebar({ role = 'admin' }) {
     const location = useLocation();
@@ -43,21 +43,16 @@ export function AdminSidebar({ role = 'admin' }) {
 
 
 
-    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
-
-    const handleLogoutClick = () => {
-        setIsLogoutModalOpen(true);
-    };
-
-    const handleLogoutConfirm = () => {
-        logout();
-        setIsLogoutModalOpen(false);
-        navigate('/login');
-    };
+    const [isCollapsed, setIsCollapsed] = useState(false);
 
     return (
         <>
-            <aside className="hidden md:block w-64 bg-white border-r border-gray-200 h-screen sticky top-0 shadow-sm flex flex-col justify-between">
+            <aside className={`hidden md:block bg-white border-r border-gray-200 h-screen sticky top-0 shadow-sm flex flex-col justify-between transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'}`}>
+                <div className="p-4 border-b border-gray-200 flex justify-end">
+                    <button onClick={() => setIsCollapsed(!isCollapsed)} className="p-1 hover:bg-gray-100 rounded">
+                        <Menu className="w-5 h-5 text-gray-600" />
+                    </button>
+                </div>
                 <nav className="flex flex-col flex-grow p-4 space-y-2">
                     {menuItems.map((item) => (
                         <Link
@@ -68,8 +63,8 @@ export function AdminSidebar({ role = 'admin' }) {
                                     ? 'bg-primary/10 text-primary border-r-4 border-primary'
                                     : 'text-text-secondary hover:text-primary hover:bg-gray-50'}`}
                         >
-                            <item.icon className={`h-5 w-5 ${isActive(item.path) ? 'text-primary' : 'text-gray-400'}`} />
-                            <span>{item.label}</span>
+                            <item.icon className={`h-5 w-5 flex-shrink-0 ${isActive(item.path) ? 'text-primary' : 'text-gray-400'}`} />
+                            {!isCollapsed && <span className="whitespace-nowrap">{item.label}</span>}
                         </Link>
                     ))}
                 </nav>
@@ -82,29 +77,11 @@ export function AdminSidebar({ role = 'admin' }) {
                                 ? 'bg-primary/10 text-primary border-r-4 border-primary'
                                 : 'text-text-secondary hover:text-primary hover:bg-gray-50'}`}
                     >
-                        <Settings className={`h-5 w-5 ${isActive('/admin/settings') ? 'text-primary' : 'text-gray-400'}`} />
-                        <span>Settings</span>
+                        <Settings className={`h-5 w-5 flex-shrink-0 ${isActive('/admin/settings') ? 'text-primary' : 'text-gray-400'}`} />
+                        {!isCollapsed && <span className="whitespace-nowrap">Settings</span>}
                     </Link>
-
-                    <button
-                        onClick={handleLogoutClick}
-                        className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors font-medium text-red-600 hover:bg-red-50 hover:text-red-700"
-                    >
-                        <LogOut className="h-5 w-5" />
-                        <span>Sign Out</span>
-                    </button>
                 </div>
             </aside>
-
-            <ConfirmationModal
-                isOpen={isLogoutModalOpen}
-                onClose={() => setIsLogoutModalOpen(false)}
-                onConfirm={handleLogoutConfirm}
-                title="Confirm Logout"
-                message="Are you sure you want to log out?"
-                confirmText="Sign Out"
-                variant="danger"
-            />
         </>
     );
 }

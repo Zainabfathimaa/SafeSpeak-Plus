@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Paperclip, MoreVertical, ArrowLeft, RefreshCw } from 'lucide-react';
+import { Send, MoreVertical, ArrowLeft, RefreshCw, Check, CheckCheck } from 'lucide-react';
 
 export function ChatWindow({ conversation, onBack, onSend, currentUserRole = 'user' }) {
     const [newMessage, setNewMessage] = useState('');
@@ -130,9 +130,13 @@ export function ChatWindow({ conversation, onBack, onSend, currentUserRole = 'us
                                     `}>
                                         <span>{msg.time}</span>
                                         {isUser && (
-                                            <svg className="w-3.5 h-3.5 text-white/60" viewBox="0 0 16 15" fill="currentColor">
-                                                <path d="M15.01 3.316l-.478-.372a.365.365 0 00-.51.063L8.666 9.88 5.64 6.854a.365.365 0 00-.516.006l-.423.433a.364.364 0 00.006.514l3.645 3.558a.366.366 0 00.516-.006l6.07-7.53a.366.366 0 00-.063-.513zM4.708 8.887L2.182 6.361a.365.365 0 00-.516.006l-.423.433a.365.365 0 00.006.514l3.145 3.066a.366.366 0 00.516-.006l.386-.48-1.088-1.007z" />
-                                            </svg>
+                                            msg.status === 'read' ? (
+                                                <CheckCheck className="w-3.5 h-3.5 text-blue-300" />
+                                            ) : msg.status === 'delivered' ? (
+                                                <CheckCheck className="w-3.5 h-3.5 text-white/80" />
+                                            ) : (
+                                                <Check className="w-3.5 h-3.5 text-white/60" />
+                                            )
                                         )}
                                     </p>
                                 </div>
@@ -146,12 +150,6 @@ export function ChatWindow({ conversation, onBack, onSend, currentUserRole = 'us
             {/* Input Area — WhatsApp style */}
             <div className="px-4 py-3 bg-gray-100 border-t border-gray-200">
                 <form onSubmit={handleSend} className="flex items-end space-x-2">
-                    <button
-                        type="button"
-                        className="p-2.5 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-full transition-colors flex-shrink-0"
-                    >
-                        <Paperclip className="w-5 h-5" />
-                    </button>
                     <div className="flex-1 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                         <textarea
                             ref={inputRef}

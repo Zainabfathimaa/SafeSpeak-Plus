@@ -1,9 +1,8 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, FileText, MessageSquare, ArrowUpRight, BookOpen, Settings, LogOut } from 'lucide-react';
-import { logout } from '../services/authService';
-import { ConfirmationModal } from './ui/ConfirmationModal';
 import { useState } from 'react';
+import { Menu } from 'lucide-react';
 
 export function Sidebar() {
     const location = useLocation();
@@ -19,22 +18,17 @@ export function Sidebar() {
         { path: '/stories', label: 'Stories', icon: BookOpen },
     ];
 
-    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
-
-    const handleLogoutClick = () => {
-        setIsLogoutModalOpen(true);
-    };
-
-    const handleLogoutConfirm = () => {
-        logout();
-        setIsLogoutModalOpen(false);
-        navigate('/login');
-    };
+    const [isCollapsed, setIsCollapsed] = useState(false);
 
     return (
         <>
-            <aside className="hidden md:block w-64 glass-panel border-r border-white/40 h-screen sticky top-0 flex flex-col justify-between shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-40">
-                <nav className="flex flex-col flex-grow p-5 space-y-2.5">
+            <aside className={`hidden md:block glass-panel border-r border-white/40 h-screen sticky top-0 flex flex-col justify-between shadow-[4px_0_24px_rgba(0,0,0,0.02)] z-40 transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'}`}>
+                <div className="p-4 flex justify-end">
+                    <button onClick={() => setIsCollapsed(!isCollapsed)} className="p-1 hover:bg-white/40 rounded transition-colors">
+                        <Menu className="w-5 h-5 text-gray-600" />
+                    </button>
+                </div>
+                <nav className="flex flex-col flex-grow p-4 space-y-2.5">
                     {navItems.map((item) => (
                         <Link
                             key={item.path}
@@ -44,8 +38,8 @@ export function Sidebar() {
                                     ? 'bg-primary/15 text-primary shadow-[inset_0_1px_1px_rgba(255,255,255,1),_0_2px_10px_rgba(0,0,0,0.04)]'
                                     : 'text-slate-500 hover:text-primary hover:bg-white/60 hover:shadow-sm'}`}
                         >
-                            <item.icon className={`h-5 w-5 z-10 ${isActive(item.path) ? 'text-primary drop-shadow-sm' : 'text-slate-400 group-hover:text-primary transition-colors'}`} />
-                            <span className="z-10">{item.label}</span>
+                            <item.icon className={`h-5 w-5 flex-shrink-0 z-10 ${isActive(item.path) ? 'text-primary drop-shadow-sm' : 'text-slate-400 group-hover:text-primary transition-colors'}`} />
+                            {!isCollapsed && <span className="z-10 whitespace-nowrap">{item.label}</span>}
                         </Link>
                     ))}
                 </nav>
@@ -58,29 +52,11 @@ export function Sidebar() {
                                 ? 'bg-primary/15 text-primary shadow-[inset_0_1px_1px_rgba(255,255,255,1),_0_2px_10px_rgba(0,0,0,0.04)]'
                                 : 'text-slate-500 hover:text-primary hover:bg-white/60 hover:shadow-sm'}`}
                     >
-                        <Settings className={`h-5 w-5 ${isActive('/settings') ? 'text-primary drop-shadow-sm' : 'text-slate-400 group-hover:text-primary transition-colors'}`} />
-                        <span>Settings</span>
+                        <Settings className={`h-5 w-5 flex-shrink-0 ${isActive('/settings') ? 'text-primary drop-shadow-sm' : 'text-slate-400 group-hover:text-primary transition-colors'}`} />
+                        {!isCollapsed && <span className="whitespace-nowrap">Settings</span>}
                     </Link>
-
-                    <button
-                        onClick={handleLogoutClick}
-                        className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 font-semibold group text-red-600 hover:bg-red-50 hover:text-red-700"
-                    >
-                        <LogOut className="h-5 w-5 group-hover:-translate-x-1 transition-transform" />
-                        <span>Sign Out</span>
-                    </button>
                 </div>
             </aside>
-
-            <ConfirmationModal
-                isOpen={isLogoutModalOpen}
-                onClose={() => setIsLogoutModalOpen(false)}
-                onConfirm={handleLogoutConfirm}
-                title="Confirm Logout"
-                message="Are you sure you want to log out?"
-                confirmText="Sign Out"
-                variant="danger"
-            />
         </>
     );
 }
