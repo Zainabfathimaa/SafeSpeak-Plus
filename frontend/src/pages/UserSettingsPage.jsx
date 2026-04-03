@@ -309,11 +309,11 @@ export const UserSettingsPage = () => {
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
                       className={`w-full group flex items-center text-left px-3 py-2 rounded-md transition-colors text-sm font-medium ${isActive
-                        ? 'bg-gray-100 text-gray-900'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                        ? 'bg-primary/10 text-primary-dark'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-primary'
                         }`}
                     >
-                      <Icon className={`mr-3 flex-shrink-0 h-4 w-4 ${isActive ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-500'}`} />
+                      <Icon className={`mr-3 flex-shrink-0 h-4 w-4 ${isActive ? 'text-primary' : 'text-gray-400 group-hover:text-primary/70'}`} />
                       <span className="truncate">{tab.label}</span>
                     </button>
                   )
@@ -341,7 +341,7 @@ export const UserSettingsPage = () => {
                                 name="fullName"
                                 value={profile.fullName}
                                 onChange={handleProfileChange}
-                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm px-3 py-2 border transition-colors"
+                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-3 py-2 border transition-colors"
                                 placeholder="Your full name"
                               />
                             </div>
@@ -355,7 +355,7 @@ export const UserSettingsPage = () => {
                                 name="phone"
                                 value={profile.phone}
                                 onChange={handleProfileChange}
-                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm px-3 py-2 border transition-colors"
+                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-3 py-2 border transition-colors"
                                 placeholder="+1 (555) 000-0000"
                               />
                             </div>
@@ -369,7 +369,7 @@ export const UserSettingsPage = () => {
                                 name="department"
                                 value={profile.department}
                                 onChange={handleProfileChange}
-                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm px-3 py-2 border transition-colors"
+                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-3 py-2 border transition-colors"
                                 placeholder="e.g. Computer Science"
                               />
                             </div>
@@ -380,7 +380,7 @@ export const UserSettingsPage = () => {
                         <button
                           onClick={handleSaveProfile}
                           disabled={isSaving}
-                          className="inline-flex justify-center rounded-md border border-transparent bg-gray-900 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:opacity-70 transition-colors"
+                          className="inline-flex justify-center rounded-md border border-transparent bg-primary py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-70 transition-colors"
                         >
                           {isSaving ? 'Saving...' : 'Save Changes'}
                         </button>
@@ -401,23 +401,23 @@ export const UserSettingsPage = () => {
                           <div className="grid grid-cols-2 gap-4">
                             <button
                               onClick={() => setAppearance(prev => ({ ...prev, theme: 'light' }))}
-                              className={`flex items-center justify-between px-4 py-3 border rounded-md transition-colors ${appearance.theme === 'light' ? 'border-gray-900 bg-gray-50 ring-1 ring-gray-900' : 'border-gray-200 bg-white hover:border-gray-300'}`}
+                              className={`flex items-center justify-between px-4 py-3 border rounded-md transition-colors ${appearance.theme === 'light' ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-gray-200 bg-white hover:border-gray-300'}`}
                             >
                               <div className="flex items-center gap-3">
                                 <div className="w-4 h-4 rounded-full bg-white border border-gray-300 shadow-sm" />
                                 <span className="font-medium text-gray-900 text-sm">Light Mode</span>
                               </div>
-                              {appearance.theme === 'light' && <CheckCircle2 className="text-gray-900 w-4 h-4" />}
+                              {appearance.theme === 'light' && <CheckCircle2 className="text-primary w-4 h-4" />}
                             </button>
                             <button
                               onClick={() => setAppearance(prev => ({ ...prev, theme: 'dark' }))}
-                              className={`flex items-center justify-between px-4 py-3 border rounded-md transition-colors ${appearance.theme === 'dark' ? 'border-gray-900 bg-gray-50 ring-1 ring-gray-900' : 'border-gray-200 bg-white hover:border-gray-300'}`}
+                              className={`flex items-center justify-between px-4 py-3 border rounded-md transition-colors ${appearance.theme === 'dark' ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-gray-200 bg-white hover:border-gray-300'}`}
                             >
                               <div className="flex items-center gap-3">
                                 <div className="w-4 h-4 rounded-full bg-gray-800 border border-gray-600 shadow-sm" />
                                 <span className="font-medium text-gray-900 text-sm">Dark Mode</span>
                               </div>
-                              {appearance.theme === 'dark' && <CheckCircle2 className="text-gray-900 w-4 h-4" />}
+                              {appearance.theme === 'dark' && <CheckCircle2 className="text-primary w-4 h-4" />}
                             </button>
                           </div>
                         </div>
@@ -426,7 +426,7 @@ export const UserSettingsPage = () => {
                         <button
                           onClick={handleSaveAppearance}
                           disabled={isSaving}
-                          className="inline-flex justify-center rounded-md border border-transparent bg-gray-900 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:opacity-70 transition-colors"
+                          className="inline-flex justify-center rounded-md border border-transparent bg-primary py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-70 transition-colors"
                         >
                           {isSaving ? 'Saving...' : 'Save Preferences'}
                         </button>
@@ -456,7 +456,7 @@ export const UserSettingsPage = () => {
                                       type="checkbox"
                                       checked={value}
                                       onChange={() => handleNotificationToggle('emailNotifications', key)}
-                                      className="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+                                      className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                                     />
                                   </div>
                                   <div className="ml-3 text-sm">
@@ -482,7 +482,7 @@ export const UserSettingsPage = () => {
                                       type="checkbox"
                                       checked={value}
                                       onChange={() => handleNotificationToggle('inAppNotifications', key)}
-                                      className="h-4 w-4 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+                                      className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                                     />
                                   </div>
                                   <div className="ml-3 text-sm">
@@ -502,7 +502,7 @@ export const UserSettingsPage = () => {
                                 type="time"
                                 value={notifyPrefs.preferredNotificationTime}
                                 onChange={(e) => setNotifyPrefs(prev => ({ ...prev, preferredNotificationTime: e.target.value }))}
-                                className="block w-full max-w-[150px] rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm px-3 py-2 border transition-colors"
+                                className="block w-full max-w-[150px] rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-3 py-2 border transition-colors"
                               />
                             </div>
                           </div>
@@ -512,7 +512,7 @@ export const UserSettingsPage = () => {
                         <button
                           onClick={handleSaveNotificationPrefs}
                           disabled={isSaving}
-                          className="inline-flex justify-center rounded-md border border-transparent bg-gray-900 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:opacity-70 transition-colors"
+                          className="inline-flex justify-center rounded-md border border-transparent bg-primary py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-70 transition-colors"
                         >
                           {isSaving ? 'Saving...' : 'Save Preferences'}
                         </button>
@@ -529,14 +529,14 @@ export const UserSettingsPage = () => {
                           <p>Configure how much of your identity is shared with administrators.</p>
                         </div>
                         
-                        <div className="rounded-md bg-blue-50 p-4 mb-6">
+                        <div className="rounded-md bg-primary/10 p-4 mb-6">
                           <div className="flex">
                             <div className="flex-shrink-0">
-                              <AlertCircle className="h-5 w-5 text-blue-400" aria-hidden="true" />
+                              <AlertCircle className="h-5 w-5 text-primary" aria-hidden="true" />
                             </div>
                             <div className="ml-3">
-                              <h3 className="text-sm font-medium text-blue-800">Platform Anonymity Guarantee</h3>
-                              <div className="mt-2 text-sm text-blue-700">
+                              <h3 className="text-sm font-medium text-primary-dark">Platform Anonymity Guarantee</h3>
+                              <div className="mt-2 text-sm text-primary-dark">
                                 <p>By default, everything you submit is cryptographically linked to an anonymous code. Admins cannot see your name or email unless you explicitly provide consent below. Revealing your identity can help expedite highly sensitive cases.</p>
                               </div>
                             </div>
@@ -544,14 +544,14 @@ export const UserSettingsPage = () => {
                         </div>
 
                         <div className="space-y-4 max-w-2xl px-2">
-                          <label className={`relative block rounded-lg border px-6 py-4 cursor-pointer sm:flex sm:justify-between focus:outline-none ${!privacy.idRevealConsent ? 'border-gray-900 ring-1 ring-gray-900 bg-gray-50' : 'border-gray-300 bg-white hover:bg-gray-50'}`}>
+                          <label className={`relative block rounded-lg border px-6 py-4 cursor-pointer sm:flex sm:justify-between focus:outline-none ${!privacy.idRevealConsent ? 'border-primary ring-1 ring-primary bg-primary/5' : 'border-gray-300 bg-white hover:bg-gray-50'}`}>
                             <div className="flex items-center">
                               <input
                                 type="radio"
                                 name="idConsent"
                                 checked={!privacy.idRevealConsent}
                                 onChange={() => handleIdConsentChange(false)}
-                                className="h-4 w-4 border-gray-300 text-gray-900 focus:ring-gray-900"
+                                className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
                               />
                               <div className="ml-3">
                                 <span className="block text-sm font-medium text-gray-900">Stay Strictly Anonymous</span>
@@ -559,18 +559,18 @@ export const UserSettingsPage = () => {
                               </div>
                             </div>
                             <div className="mt-2 sm:mt-0 sm:ml-4 sm:flex-shrink-0 sm:flex sm:items-center">
-                              <Shield className={`w-5 h-5 ${!privacy.idRevealConsent ? 'text-gray-900' : 'text-gray-400'}`} />
+                              <Shield className={`w-5 h-5 ${!privacy.idRevealConsent ? 'text-primary' : 'text-gray-400'}`} />
                             </div>
                           </label>
 
-                          <label className={`relative block rounded-lg border px-6 py-4 cursor-pointer sm:flex sm:justify-between focus:outline-none ${privacy.idRevealConsent ? 'border-gray-900 ring-1 ring-gray-900 bg-gray-50' : 'border-gray-300 bg-white hover:bg-gray-50'}`}>
+                          <label className={`relative block rounded-lg border px-6 py-4 cursor-pointer sm:flex sm:justify-between focus:outline-none ${privacy.idRevealConsent ? 'border-primary ring-1 ring-primary bg-primary/5' : 'border-gray-300 bg-white hover:bg-gray-50'}`}>
                             <div className="flex items-center">
                               <input
                                 type="radio"
                                 name="idConsent"
                                 checked={privacy.idRevealConsent}
                                 onChange={() => handleIdConsentChange(true)}
-                                className="h-4 w-4 border-gray-300 text-gray-900 focus:ring-gray-900"
+                                className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
                               />
                               <div className="ml-3">
                                 <span className="block text-sm font-medium text-gray-900">Reveal My Identity</span>
@@ -578,7 +578,7 @@ export const UserSettingsPage = () => {
                               </div>
                             </div>
                             <div className="mt-2 sm:mt-0 sm:ml-4 sm:flex-shrink-0 sm:flex sm:items-center">
-                              <User className={`w-5 h-5 ${privacy.idRevealConsent ? 'text-gray-900' : 'text-gray-400'}`} />
+                              <User className={`w-5 h-5 ${privacy.idRevealConsent ? 'text-primary' : 'text-gray-400'}`} />
                             </div>
                           </label>
                         </div>
@@ -587,7 +587,7 @@ export const UserSettingsPage = () => {
                         <button
                           onClick={handleSavePrivacy}
                           disabled={isSaving}
-                          className="inline-flex justify-center rounded-md border border-transparent bg-gray-900 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2 disabled:opacity-70 transition-colors"
+                          className="inline-flex justify-center rounded-md border border-transparent bg-primary py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-70 transition-colors"
                         >
                           {isSaving ? 'Saving...' : 'Apply Setting'}
                         </button>
@@ -615,7 +615,7 @@ export const UserSettingsPage = () => {
                                   required
                                   value={securityData.oldPassword}
                                   onChange={handleSecurityChange}
-                                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm px-3 py-2 border transition-colors"
+                                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-3 py-2 border transition-colors"
                                 />
                               </div>
                             </div>
@@ -628,7 +628,7 @@ export const UserSettingsPage = () => {
                                   required
                                   value={securityData.newPassword}
                                   onChange={handleSecurityChange}
-                                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm px-3 py-2 border transition-colors"
+                                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-3 py-2 border transition-colors"
                                 />
                               </div>
                             </div>
@@ -641,7 +641,7 @@ export const UserSettingsPage = () => {
                                   required
                                   value={securityData.confirmPassword}
                                   onChange={handleSecurityChange}
-                                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm px-3 py-2 border transition-colors"
+                                  className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-3 py-2 border transition-colors"
                                 />
                               </div>
                             </div>
@@ -650,7 +650,7 @@ export const UserSettingsPage = () => {
                             <button
                               type="submit"
                               disabled={isSaving}
-                              className="inline-flex justify-center rounded-md border border-transparent bg-gray-900 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-800 disabled:opacity-70 transition-colors"
+                              className="inline-flex justify-center rounded-md border border-transparent bg-primary py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-dark disabled:opacity-70 transition-colors"
                             >
                               {isSaving ? 'Updating...' : 'Update Password'}
                             </button>

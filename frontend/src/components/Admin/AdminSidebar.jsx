@@ -51,9 +51,9 @@ export function AdminSidebar({ role = 'admin' }) {
                 {/* Floating edge toggle button */}
                 <button 
                     onClick={() => setIsCollapsed(!isCollapsed)} 
-                    className="absolute -right-3 top-8 flex items-center justify-center w-6 h-6 bg-white border border-gray-200 rounded-full shadow-md z-50 hover:bg-gray-50 text-gray-500 focus:outline-none"
+                    className="absolute -right-4 top-10 flex items-center justify-center w-8 h-8 bg-white border border-gray-200 rounded-full shadow-lg z-50 hover:bg-primary/5 hover:text-primary text-gray-500 focus:outline-none transition-all duration-300"
                 >
-                    <ChevronLeft className={`w-4 h-4 transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`} />
+                    <ChevronLeft className={`w-5 h-5 transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`} />
                 </button>
                 <nav className="flex flex-col flex-grow p-4 space-y-2 mt-4">
                     {menuItems.map((item) => (
@@ -66,7 +66,9 @@ export function AdminSidebar({ role = 'admin' }) {
                                     : 'text-text-secondary hover:text-primary hover:bg-gray-50'}`}
                         >
                             <item.icon className={`h-5 w-5 flex-shrink-0 ${isActive(item.path) ? 'text-primary' : 'text-gray-400'}`} />
-                            {!isCollapsed && <span className="whitespace-nowrap">{item.label}</span>}
+                            <span className={`whitespace-nowrap transition-all duration-300 overflow-hidden ${isCollapsed ? 'max-w-0 opacity-0' : 'max-w-[200px] opacity-100'}`}>
+                                {item.label}
+                            </span>
                         </Link>
                     ))}
                 </nav>
@@ -80,7 +82,9 @@ export function AdminSidebar({ role = 'admin' }) {
                                 : 'text-text-secondary hover:text-primary hover:bg-gray-50'}`}
                     >
                         <Settings className={`h-5 w-5 flex-shrink-0 ${isActive('/admin/settings') ? 'text-primary' : 'text-gray-400'}`} />
-                        {!isCollapsed && <span className="whitespace-nowrap">Settings</span>}
+                        <span className={`whitespace-nowrap transition-all duration-300 overflow-hidden ${isCollapsed ? 'max-w-0 opacity-0' : 'max-w-[200px] opacity-100'}`}>
+                            Settings
+                        </span>
                     </Link>
                 </div>
             </aside>

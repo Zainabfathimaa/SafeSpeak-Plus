@@ -151,7 +151,7 @@ export default function AdminSettings() {
                             <div className="mt-4 flex md:ml-4 md:mt-0">
                                 <button
                                     onClick={() => setIsLogoutModalOpen(true)}
-                                    className="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 transition-colors"
+                                    className="inline-flex items-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-red-600 shadow-sm ring-1 focus:ring-2 focus:ring-primary hover:bg-gray-50 transition-colors"
                                 >
                                     <LogOut className="-ml-0.5 mr-1.5 h-4 w-4" />
                                     Sign Out
@@ -176,11 +176,11 @@ export default function AdminSettings() {
                                                 key={tab.id}
                                                 onClick={() => setActiveTab(tab.id)}
                                                 className={`w-full group flex items-center text-left px-3 py-2 rounded-md transition-colors text-sm font-medium ${isActive
-                                                    ? 'bg-gray-100 text-gray-900'
-                                                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                                                    ? 'bg-primary/10 text-primary-dark'
+                                                    : 'text-gray-600 hover:bg-primary/5 hover:text-primary'
                                                     }`}
                                             >
-                                                <Icon className={`mr-3 flex-shrink-0 h-4 w-4 ${isActive ? 'text-gray-900' : 'text-gray-400 group-hover:text-gray-500'}`} />
+                                                <Icon className={`mr-3 flex-shrink-0 h-4 w-4 ${isActive ? 'text-primary' : 'text-gray-400 group-hover:text-primary'}`} />
                                                 <span className="truncate">{tab.label}</span>
                                             </button>
                                         )
@@ -208,7 +208,7 @@ export default function AdminSettings() {
                                                                         name="fullName"
                                                                         value={profile.fullName}
                                                                         onChange={handleProfileChange}
-                                                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm px-3 py-2 border transition-colors"
+                                                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-3 py-2 border transition-colors"
                                                                         placeholder="e.g. Chief Admin"
                                                                     />
                                                                 </div>
@@ -221,7 +221,7 @@ export default function AdminSettings() {
                                                                         name="phone"
                                                                         value={profile.phone}
                                                                         onChange={handleProfileChange}
-                                                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm px-3 py-2 border transition-colors"
+                                                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-3 py-2 border transition-colors"
                                                                     />
                                                                 </div>
                                                             </div>
@@ -233,7 +233,7 @@ export default function AdminSettings() {
                                                                         name="department"
                                                                         value={profile.department}
                                                                         onChange={handleProfileChange}
-                                                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm px-3 py-2 border transition-colors"
+                                                                        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-3 py-2 border transition-colors"
                                                                     />
                                                                 </div>
                                                             </div>
@@ -243,7 +243,7 @@ export default function AdminSettings() {
                                                         <button
                                                             onClick={handleSaveProfile}
                                                             disabled={isSaving}
-                                                            className="inline-flex justify-center rounded-md border border-transparent bg-gray-900 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-800 disabled:opacity-70 transition-colors"
+                                                            className="inline-flex justify-center rounded-md border border-transparent bg-primary py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-dark disabled:opacity-70 transition-colors"
                                                         >
                                                             {isSaving ? 'Saving...' : 'Save Admin Details'}
                                                         </button>
@@ -260,14 +260,14 @@ export default function AdminSettings() {
                                                             <p>Configure global platform behavior and automation.</p>
                                                         </div>
 
-                                                        <div className="rounded-md bg-blue-50 p-4 mb-6">
+                                                        <div className="rounded-md bg-primary/10 p-4 mb-6">
                                                             <div className="flex">
                                                                 <div className="flex-shrink-0">
-                                                                    <Shield className="h-5 w-5 text-blue-400" aria-hidden="true" />
+                                                                    <Shield className="h-5 w-5 text-primary" aria-hidden="true" />
                                                                 </div>
                                                                 <div className="ml-3">
-                                                                    <h3 className="text-sm font-medium text-blue-800">Global System Rules</h3>
-                                                                    <div className="mt-2 text-sm text-blue-700">
+                                                                    <h3 className="text-sm font-medium text-primary-dark">Global System Rules</h3>
+                                                                    <div className="mt-2 text-sm text-primary-dark">
                                                                         <p>These settings alter the fundamental behavior of SafeSpeak+. Changes here apply universally to all users and reports immediately.</p>
                                                                     </div>
                                                                 </div>
@@ -283,13 +283,13 @@ export default function AdminSettings() {
                                                                     maintenanceMode: { title: "System Maintenance Mode", desc: "Lock out new submissions." }
                                                                 };
                                                                 return (
-                                                                    <label key={key} className={`relative block rounded-lg border px-6 py-4 cursor-pointer sm:flex sm:justify-between focus:outline-none ${value ? 'border-gray-900 ring-1 ring-gray-900 bg-gray-50' : 'border-gray-300 bg-white hover:bg-gray-50'}`}>
+                                                                    <label key={key} className={`relative block rounded-lg border px-6 py-4 cursor-pointer sm:flex sm:justify-between focus:outline-none ${value ? 'border-primary ring-1 ring-primary bg-primary/5' : 'border-gray-300 bg-white hover:bg-gray-50'}`}>
                                                                         <div className="flex items-center">
                                                                             <input
                                                                                 type="checkbox"
                                                                                 checked={value}
                                                                                 onChange={() => handlePlatformToggle(key)}
-                                                                                className="h-4 w-4 border-gray-300 text-gray-900 focus:ring-gray-900 rounded"
+                                                                                className="h-4 w-4 border-gray-300 text-primary focus:ring-primary rounded"
                                                                             />
                                                                             <div className="ml-3">
                                                                                 <span className="block text-sm font-medium text-gray-900">{titles[key].title}</span>
@@ -305,7 +305,7 @@ export default function AdminSettings() {
                                                         <button
                                                             onClick={handleSavePlatformPrefs}
                                                             disabled={isSaving}
-                                                            className="inline-flex justify-center rounded-md border border-transparent bg-gray-900 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-800 disabled:opacity-70 transition-colors"
+                                                            className="inline-flex justify-center rounded-md border border-transparent bg-primary py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-dark disabled:opacity-70 transition-colors"
                                                         >
                                                             {isSaving ? 'Applying...' : 'Apply Platform Settings'}
                                                         </button>
@@ -332,7 +332,7 @@ export default function AdminSettings() {
                                                                             required
                                                                             value={securityData.oldPassword}
                                                                             onChange={handleSecurityChange}
-                                                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm px-3 py-2 border transition-colors"
+                                                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-3 py-2 border transition-colors"
                                                                         />
                                                                     </div>
                                                                 </div>
@@ -345,7 +345,7 @@ export default function AdminSettings() {
                                                                             required
                                                                             value={securityData.newPassword}
                                                                             onChange={handleSecurityChange}
-                                                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm px-3 py-2 border transition-colors"
+                                                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-3 py-2 border transition-colors"
                                                                         />
                                                                     </div>
                                                                 </div>
@@ -358,7 +358,7 @@ export default function AdminSettings() {
                                                                             required
                                                                             value={securityData.confirmPassword}
                                                                             onChange={handleSecurityChange}
-                                                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-gray-900 focus:ring-gray-900 sm:text-sm px-3 py-2 border transition-colors"
+                                                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-3 py-2 border transition-colors"
                                                                         />
                                                                     </div>
                                                                 </div>
@@ -367,7 +367,7 @@ export default function AdminSettings() {
                                                                 <button
                                                                     type="submit"
                                                                     disabled={isSaving}
-                                                                    className="inline-flex justify-center rounded-md border border-transparent bg-gray-900 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-gray-800 disabled:opacity-70 transition-colors"
+                                                                    className="inline-flex justify-center rounded-md border border-transparent bg-primary py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-dark disabled:opacity-70 transition-colors"
                                                                 >
                                                                     {isSaving ? 'Updating...' : 'Update Password'}
                                                                 </button>
