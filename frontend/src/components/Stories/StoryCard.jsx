@@ -55,7 +55,7 @@ export function StoryCard({ story }) {
             <p className={`text-gray-600 text-xs leading-relaxed mb-1 flex-grow whitespace-pre-wrap ${isExpanded ? '' : 'line-clamp-2 overflow-hidden'}`}>
                 {isExpanded ? story.content : (story.snippet || story.content)}
             </p>
-            {story.content && story.content.length > 80 && (
+            {story.content && (story.content.length > 60 || story.content.includes('\n')) && (
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
