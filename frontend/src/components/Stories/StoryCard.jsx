@@ -52,10 +52,10 @@ export function StoryCard({ story }) {
             </div>
 
             <h3 className="font-bold text-base text-gray-800 mb-1.5">{story.title}</h3>
-            <p className={`text-gray-600 text-xs leading-relaxed mb-1 flex-grow ${isExpanded ? '' : 'line-clamp-2'}`}>
+            <p className={`text-gray-600 text-xs leading-relaxed mb-1 flex-grow whitespace-pre-wrap ${isExpanded ? '' : 'line-clamp-2 overflow-hidden'}`}>
                 {isExpanded ? story.content : (story.snippet || story.content)}
             </p>
-            {story.content && story.content.length > 100 && (
+            {story.content && story.content.length > 80 && (
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
