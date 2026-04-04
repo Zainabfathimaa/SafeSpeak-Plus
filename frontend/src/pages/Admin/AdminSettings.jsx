@@ -137,7 +137,7 @@ export default function AdminSettings() {
     return (
         <>
             <div className="flex h-screen overflow-hidden flex-col bg-gray-50 text-gray-900 text-sm">
-                <AdminHeader roleName="Settings" />
+                <AdminHeader />
                 <div className="flex flex-1 overflow-hidden">
                 <AdminSidebar role="admin" />
                 <main className="flex-1 p-4 md:p-8 overflow-y-auto w-full relative">

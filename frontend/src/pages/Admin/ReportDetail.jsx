@@ -104,7 +104,7 @@ export default function ReportDetail() {
     return (
         <div className="flex h-screen overflow-hidden flex-col bg-gray-50/50 text-text-primary">
             {/* Header */}
-            <AdminHeader roleName="Case Reviewer" />
+            <AdminHeader />
             <div className="flex flex-1 overflow-hidden">
                 {/* Sidebar */}
                 <AdminSidebar role="admin" />
@@ -130,14 +130,14 @@ export default function ReportDetail() {
                                     className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 transition-colors cursor-pointer min-w-[160px]"
                                 >
                                     <option value="Pending Validation">Pending Validation</option>
-                                    <option value="Open">Open</option>
-                                    <option value="In Review">In Review</option>
-                                    <option value="Appealed">Appealed</option>
                                     <option value="Needs Info">Needs Info</option>
-                                    <option value="Requires Clarification">Requires Clarification</option>
-                                    <option value="Escalated">Escalated</option>
+                                    <option value="Open">Open</option>
+                                    <option value="In-Review">In-Review</option>
+                                    <option value="In-Progress">In-Progress</option>
                                     <option value="Resolved">Resolved</option>
+                                    <option value="Escalated">Escalated</option>
                                     <option value="Closed">Closed</option>
+                                    <option value="Appealed">Appealed</option>
                                     <option value="Archived/Spam">Archived/Spam</option>
                                 </select>
                                 {updating && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>}
@@ -219,13 +219,19 @@ export default function ReportDetail() {
                                     {report.evidenceFiles && report.evidenceFiles.length > 0 ? (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             {report.evidenceFiles.map((file, index) => (
-                                                <div key={index} className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                                                <a 
+                                                    href={file.fileUrl} 
+                                                    target="_blank" 
+                                                    rel="noopener noreferrer" 
+                                                    key={index} 
+                                                    className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+                                                >
                                                     <FileText className="h-8 w-8 text-gray-400 mr-3" />
                                                     <div className="flex-1 overflow-hidden">
                                                         <p className="text-sm font-medium text-gray-900 truncate">{file.fileName}</p>
                                                         <p className="text-xs text-gray-500">{file.fileType}</p>
                                                     </div>
-                                                </div>
+                                                </a>
                                             ))}
                                         </div>
                                     ) : (

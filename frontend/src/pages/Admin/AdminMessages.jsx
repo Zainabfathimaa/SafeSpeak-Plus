@@ -119,7 +119,7 @@ export default function AdminMessages() {
     if (loading) {
         return (
             <div className="flex h-screen flex-col bg-gray-50/50 text-text-primary overflow-hidden">
-                <AdminHeader roleName="Admin / Messages" />
+                <AdminHeader />
                 <div className="flex flex-1 overflow-hidden">
                     <AdminSidebar role="admin" />
                     <main className="flex-1 flex items-center justify-center">
@@ -135,7 +135,7 @@ export default function AdminMessages() {
 
     return (
         <div className="flex h-screen flex-col bg-gray-50/50 text-text-primary overflow-hidden">
-            <AdminHeader roleName="Admin / Messages" />
+            <AdminHeader />
             <div className="flex flex-1 overflow-hidden">
                 <AdminSidebar role="admin" />
 

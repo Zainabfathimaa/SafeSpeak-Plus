@@ -4,7 +4,7 @@ import { Shield, LogOut } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { NotificationBell } from '../Notifications/NotificationBell';
 
-export function AdminHeader({ roleName = 'Case Reviewer' }) {
+export function AdminHeader() {
     const navigate = useNavigate();
 
     const handleLogout = () => {
@@ -18,7 +18,7 @@ export function AdminHeader({ roleName = 'Case Reviewer' }) {
                     <Shield className="h-8 w-8 text-white" />
                     <span className="text-xl font-bold text-white">SafeSpeak+</span>
                 </Link>
-                <h1 className="text-lg font-semibold text-white/90 hidden md:block">{roleName} Dashboard</h1>
+                <h1 className="text-lg font-semibold text-white/90 hidden md:block">Case Reviewer Dashboard</h1>
                 <div className="flex items-center space-x-4">
                     <NotificationBell />
                     <Button
