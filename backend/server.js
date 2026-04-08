@@ -2,14 +2,14 @@
  * ===================================
  * MAIN SERVER FILE (server.js)
  * ===================================
- * 
+ *
  * PURPOSE:
  * This is the entry point of your backend
  * Starts the Express server
  * Connects to database
  * Sets up all middleware
  * Registers all routes
- * 
+ *
  * WHAT HAPPENS:
  * 1. Load environment variables (.env file)
  * 2. Import required packages
@@ -21,7 +21,7 @@
  * 8. Register API routes
  * 9. Start server on port 5000
  * 10. Listen for incoming requests
- * 
+ *
  * ANALOGY:
  * server.js = Main control center
  * It coordinates everything:
@@ -96,10 +96,10 @@ const app = express();
  * - Check authentication
  * - Log requests
  * - Handle errors
- * 
+ *
  * MIDDLEWARE CHAIN:
  * Request → Middleware 1 → Middleware 2 → Middleware 3 → Route Handler → Response
- * 
+ *
  * If middleware calls next(), continue
  * If middleware sends response, chain stops
  */
@@ -107,12 +107,12 @@ const app = express();
 // CORS Middleware
 // Allows frontend to access backend
 // Without this, browser blocks requests from frontend
-// 
+//
 // WHAT CORS DOES:
 // 1. Check if request comes from allowed origin
 // 2. If yes, add headers allowing request
 // 3. If no, browser blocks request
-// 
+//
 // CONFIGURATION:
 // origin: List of allowed domains
 // credentials: Allow sending cookies
@@ -176,10 +176,10 @@ app.use(cors({
 
 // JSON Parser Middleware
 // Converts incoming JSON strings to JavaScript objects
-// 
+//
 // WITHOUT THIS:
 // req.body = undefined (even if frontend sends JSON)
-// 
+//
 // WITH THIS:
 // Frontend sends: '{"email":"test@college.edu"}'
 // Express converts to: { email: 'test@college.edu' }
@@ -191,155 +191,172 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 // ===================================
-// STEP 5: Connect to Database
+// START SERVER
 // ===================================
 
-// Call connectDB function from config/db.js
-// This connects Node.js to MongoDB
-// If connection fails, process exits
-connectDB();
+async function startServer() {
+  try {
+    // Call connectDB function from config/db.js
+    // This connects Node.js to MongoDB
+    // If connection fails, process exits
+    await connectDB();
 
-// ===================================
-// STEP 6: Setup API Routes
-// ===================================
+    // ===================================
+    // STEP 6: Setup API Routes
+    // ===================================
 
-/**
- * ROUTE REGISTRATION
- * 
- * WHAT THIS DOES:
- * Tells Express where to find route handlers
- * 
- * SYNTAX: app.use(path, router)
- * - path: URL prefix (/api/auth)
- * - router: Import routes file
- * 
- * RESULT:
- * All routes in authRoutes will be prefixed with /api/auth
- * 
- * Example:
- * authRoutes has: router.post('/register', ...)
- * Final URL becomes: /api/auth/register
- */
+    /**
+     * ROUTE REGISTRATION
+     *
+     * WHAT THIS DOES:
+     * Tells Express where to find route handlers
+     */
 
-// Authentication routes
-app.use('/api/auth', authRoutes);
+    // Auth routes
+    app.use('/api/auth', authRoutes);
 
-// Report routes
-app.use('/api/reports', reportRoutes);
+    // User routes
+    app.use('/api/users', userRoutes);
 
-// Report authenticity routes
-app.use('/api/reports', reportAuthenticityRoutes);
+    // Message routes
+    app.use('/api/messages', messageRoutes);
 
-// Message routes
-app.use('/api/messages', messageRoutes);
+    // Notification routes
+    app.use('/api/notifications', notificationRoutes);
 
-// User routes
-app.use('/api/user', userRoutes);
+    // Report routes
+    app.use('/api/reports', reportRoutes);
 
-// Story routes
-app.use('/api/stories', storyRoutes);
+    // Report Authenticity routes
+    app.use('/api/report-authenticity', reportAuthenticityRoutes);
 
-// Notification routes
-app.use('/api/notifications', notificationRoutes);
+    // Story routes
+    app.use('/api/stories', storyRoutes);
 
-// Analytics routes
-app.use('/api/analytics', analyticsRoutes);
+    // Analytics routes
+    app.use('/api/analytics', analyticsRoutes);
 
-// ===================================
-// STEP 7: Health Check Route
-// ===================================
+    // ===================================
+    // STEP 7: Health Check Route
+    // ===================================
 
-/**
- * Simple route to verify server is running
- * 
- * USAGE:
- * Frontend can call GET /api/health
- * If server responds, server is up
- */
+    /**
+     * HEALTH CHECK ENDPOINT
+     *
+     * Simple endpoint to check if server is running
+     * Useful for:
+     * - Load balancers
+     * - Monitoring tools
+     * - Deployment checks
+     */
+    app.get('/api/health', (req, res) => {
+      res.status(200).json({
+        success: true,
+        message: 'SafeSpeak-Plus Backend is Running!',
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development'
+      });
+    });
 
-app.get('/api/health', (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: 'SafeSpeak-Plus Backend is Running!',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV
-  });
-});
+    // ===================================
+    // STEP 8: 404 Handler (Not Found)
+    // ===================================
 
-// ===================================
-// STEP 8: 404 - Route Not Found
-// ===================================
+    /**
+     * 404 HANDLER
+     *
+     * If no route matches the request, this runs
+     * Returns JSON error instead of HTML page
+     */
+    app.use('*', (req, res) => {
+      res.status(404).json({
+        success: false,
+        message: `Route ${req.originalUrl} not found`,
+        method: req.method,
+        availableRoutes: [
+          'POST /api/auth/register',
+          'POST /api/auth/register-admin',
+          'POST /api/auth/login',
+          'POST /api/auth/anonymous-login',
+          'GET /api/auth/me',
+          'GET /api/health'
+        ]
+      });
+    });
 
-/**
- * This runs if no route matches
- * Should be last route
- */
+    // ===================================
+    // STEP 9: Global Error Handler
+    // ===================================
 
-app.use('*', (req, res) => {
-  res.status(404).json({
-    success: false,
-    message: `Route ${req.path} not found`,
-    method: req.method,
-    availableRoutes: [
-      'POST /api/auth/register',
-      'POST /api/auth/login',
-      'POST /api/auth/anonymous-login',
-      'GET /api/auth/me',
-      'GET /api/health'
-    ]
-  });
-});
+    /**
+     * GLOBAL ERROR HANDLER
+     *
+     * Catches any errors that occur in routes
+     * Prevents server from crashing
+     * Returns consistent error format
+     */
+    app.use((error, req, res, next) => {
+      console.error('Global Error Handler:', error);
 
-// ===================================
-// STEP 9: Error Handling Middleware
-// ===================================
+      // Mongoose validation error
+      if (error.name === 'ValidationError') {
+        const messages = Object.values(error.errors).map(val => val.message);
+        return res.status(400).json({
+          success: false,
+          message: 'Validation Error',
+          errors: messages
+        });
+      }
 
-/**
- * ERROR HANDLING MIDDLEWARE
- * 
- * Catches errors from any route handler
- * Prevents server from crashing
- * Sends user-friendly error messages
- * 
- * HOW TO TRIGGER:
- * throw new Error('Something went wrong');
- * OR
- * next(error);
- * 
- * MIDDLEWARE SIGNATURE:
- * (err, req, res, next) - 4 parameters means error handler
- */
+      // Mongoose duplicate key error
+      if (error.code === 11000) {
+        const field = Object.keys(error.keyValue)[0];
+        return res.status(400).json({
+          success: false,
+          message: `Duplicate ${field} error`,
+          field: field
+        });
+      }
 
-app.use((err, req, res, next) => {
-  console.error('Error:', err);
+      // JWT errors
+      if (error.name === 'JsonWebTokenError') {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid token'
+        });
+      }
 
-  // Extract error details
-  const status = err.status || 500;
-  const message = err.message || 'Internal Server Error';
+      if (error.name === 'TokenExpiredError') {
+        return res.status(401).json({
+          success: false,
+          message: 'Token expired'
+        });
+      }
 
-  res.status(status).json({
-    success: false,
-    message: message,
-    error: process.env.NODE_ENV === 'development' ? err : {}
-  });
-});
+      // Default error
+      res.status(error.status || 500).json({
+        success: false,
+        message: error.message || 'Internal Server Error',
+        ...(process.env.NODE_ENV === 'development' && { stack: error.stack })
+      });
+    });
 
-// ===================================
-// STEP 10: Start Server
-// ===================================
+    // ===================================
+    // STEP 10: Start Server
+    // ===================================
 
-/**
- * WHAT DOES THIS DO?
- * 1. Gets port from .env or uses default 5000
- * 2. app.listen() starts server
- * 3. Server listens for incoming HTTP requests
- * 4. Callback runs when server starts
- */
+    /**
+     * WHAT DOES THIS DO?
+     * 1. Gets port from .env or uses default 5000
+     * 2. app.listen() starts server
+     * 3. Server listens for incoming HTTP requests
+     * 4. Callback runs when server starts
+     */
 
-const PORT = process.env.PORT || 5000;
+    const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`
+    app.listen(PORT, () => {
+      console.log(`
 ╔═══════════════════════════════════════════════════════════╗
 ║          SafeSpeak-Plus Backend Server Started           ║
 ╠═══════════════════════════════════════════════════════════╣
@@ -355,7 +372,7 @@ app.listen(PORT, () => {
 ║     - GET    /api/health (health check)                 ║
 ║                                                           ║
 ║  📊 Database:                                           ║
-║     - Connection: ${process.env.MONGODB_URI?.substring(0, 40)}...
+║     - Connection: mongodb+srv://zainab-fathima:%40Zainabf0...
 ║                                                           ║
 ║  ✅ Frontend URL: ${process.env.FRONTEND_URL}
 ║                                                           ║
@@ -366,7 +383,16 @@ app.listen(PORT, () => {
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
   `);
-});
+    });
+
+  } catch (error) {
+    console.error('❌ Failed to start server:', error.message);
+    process.exit(1);
+  }
+}
+
+// Start the server
+startServer();
 
 // ===================================
 // STEP 11: Handle Unhandled Errors
@@ -374,7 +400,7 @@ app.listen(PORT, () => {
 
 /**
  * GRACEFUL ERROR HANDLING
- * 
+ *
  * If any error not caught, server crashes
  * These handlers prevent that
  */
@@ -389,102 +415,5 @@ process.on('uncaughtException', (error) => {
   console.error('Uncaught Exception:', error);
   process.exit(1);
 });
-
-// ===================================
-// COMPLETE REQUEST-RESPONSE FLOW
-// ===================================
-
-/**
- * EXAMPLE: User Registration
- * 
- * 1. FRONTEND (Browser)
- *    User fills form: email, password
- *    Clicks "Register" button
- *    JavaScript sends: fetch('http://localhost:5000/api/auth/register', {
- *      method: 'POST',
- *      headers: { 'Content-Type': 'application/json' },
- *      body: JSON.stringify({ email, password })
- *    })
- * 
- * 2. NETWORK
- *    HTTP Request travels from browser to backend
- * 
- * 3. SERVER (This file)
- *    Request arrives at Express
- *    CORS middleware: Checks if origin allowed ✓
- *    JSON middleware: Parses JSON body ✓
- *    Route matching: /api/auth matches ✓
- * 
- * 4. ROUTES (authRoutes.js)
- *    /api/auth/register matches ✓
- *    Calls authController.register()
- * 
- * 5. CONTROLLER (authController.js)
- *    Validates email, password
- *    Checks if email already exists
- *    Encrypts password with bcrypt
- *    Generates anonymous code
- *    Saves user to database
- * 
- * 6. DATABASE (MongoDB)
- *    User document saved
- * 
- * 7. RESPONSE
- *    Controller sends JSON response
- *    { success: true, user: { ... } }
- * 
- * 8. FRONTEND
- *    Receives response
- *    Displays success message
- *    Redirects to login page
- * 
- * COMPLETE ROUND TRIP:
- * Browser → Network → Server → Routes → Controller → Database
- * ↑                                                        ↓
- * ←←←←←←←←←←←←←←←←←←← Response ←←←←←←←←←←←←←←←←←←←
- */
-
-/**
- * ===================================
- * QUICK REFERENCE
- * ===================================
- * 
- * Middleware Order (Important!):
- * 1. CORS - Allow frontend requests
- * 2. JSON Parser - Parse request body
- * 3. Routes - Handle requests
- * 4. 404 Handler - Not found
- * 5. Error Handler - Catch errors
- * 
- * Express Methods:
- * app.use() - Add middleware or mount router
- * app.get(path, handler) - GET requests
- * app.post(path, handler) - POST requests
- * app.listen(port, callback) - Start server
- * 
- * HTTP Status Codes:
- * 200 - Success (OK)
- * 201 - Success (Created)
- * 400 - Client error (Bad Request)
- * 401 - Unauthorized (wrong credentials)
- * 404 - Not Found
- * 500 - Server Error
- * 
- * Environment Variables:
- * process.env.PORT - Server port
- * process.env.NODE_ENV - development/production
- * process.env.MONGODB_URI - Database connection
- * process.env.JWT_SECRET - Token signing key
- * process.env.FRONTEND_URL - Frontend domain
- * 
- * Starting Server:
- * npm run dev    - Development (with auto-restart)
- * npm start      - Production
- * 
- * Testing:
- * curl -X POST http://localhost:5000/api/auth/register \
- *   -H "Content-Type: application/json" \
- *   -d '{"email":"test@college.edu","password":"Test123"}'
- */
 
 export default app;
