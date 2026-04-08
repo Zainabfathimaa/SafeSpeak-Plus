@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Save, AlertCircle, Trash2, Shield, BellRing, User, Lock, Palette, CheckCircle2, LogOut } from 'lucide-react';
 import userService from '../services/userService';
+import { logout } from '../services/authService';
 import { useToast } from '../hooks/useToast';
 import { ConfirmationModal } from '../components/ui/ConfirmationModal';
 import { Header } from '../components/Header';
@@ -216,11 +217,10 @@ export const UserSettingsPage = () => {
     }
   };
 
-  const executeLogout = async () => {
+  const executeLogout = () => {
     setIsLogoutModalOpen(false);
-    const { logout } = await import('../services/authService');
     logout();
-    window.location.href = '/login';
+    navigate('/login');
   };
 
 

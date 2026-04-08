@@ -220,8 +220,23 @@ export const getReportById = async (req, res) => {
 
         // Check permission (Admin can see all, User can only see their own)
         const reportUserId = report.submittedBy?.userId?._id?.toString() || report.submittedBy?.userId?.toString();
-        if (req.user.role === 'user' && reportUserId !== req.user.userId?.toString()) {
-            return res.status(403).json({ success: false, message: 'Not authorized to view this report' });
+        
+        // If it's a user, they must be the owner
+        if (req.user.role === 'user') {
+            const currentUserId = req.user.userId?.toString();
+            // If the report belongs to someone else, block it
+            if (reportUserId && reportUserId !== currentUserId) {
+                return res.status(403).json({ success: false, message: 'Not authorized to view this report' });
+            }
+            // If the report has no userId but matches the user's anonymousCode (fallback)
+            if (!reportUserId && report.submittedBy?.anonymousCode !== req.user.anonymousCode) {
+                 // But wait, the authenticate middleware should have linked the user. 
+                 // If not, we check the anonymousCode if it exists on the user.
+                 // For now, let's keep it simple: if there's no owner ID, we check if it matches their code
+                 if (report.submittedBy?.anonymousCode !== req.user.anonymousCode) {
+                    return res.status(403).json({ success: false, message: 'Not authorized to view this report' });
+                 }
+            }
         }
 
         // Hide user identity if not consented
@@ -348,10 +363,18 @@ export const appealReport = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Report not found' });
         }
 
-        // Check if user owns report
+        // Check permission (Admin can see all, User can only see their own)
         const reportUserId = report.submittedBy?.userId?._id?.toString() || report.submittedBy?.userId?.toString();
-        if (reportUserId !== req.user.userId?.toString()) {
-            return res.status(403).json({ success: false, message: 'Not authorized to appeal this report' });
+        
+        // If it's a user, they must be the owner
+        if (req.user.role === 'user') {
+            const currentUserId = req.user.userId?.toString();
+            // If the report belongs to someone else and doesn't match anonymousCode, block it
+            const isOwner = reportUserId === currentUserId || ( !reportUserId && report.submittedBy?.anonymousCode === req.user.anonymousCode);
+            
+            if (!isOwner) {
+                return res.status(403).json({ success: false, message: 'Not authorized to appeal this report' });
+            }
         }
 
         // Prevent spam appeals
@@ -375,7 +398,7 @@ export const appealReport = async (req, res) => {
         for (const admin of admins) {
             await Notification.create({
                 recipientId: admin._id,
-                type: 'report_appealed',
+                type: 'system_alert',
                 title: 'Report Appealed',
                 message: `A user has appealed report ${report.reportId}. Secondary review required.`,
                 relatedId: report._id,
@@ -422,10 +445,18 @@ export const escalateReport = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Report not found' });
         }
 
-        // Check if user owns report or is admin
+        // Check permission (Admin can see all, User can only see their own)
         const reportUserId = report.submittedBy?.userId?._id?.toString() || report.submittedBy?.userId?.toString();
-        if (req.user.role !== 'admin' && reportUserId !== req.user.userId?.toString()) {
-            return res.status(403).json({ success: false, message: 'Not authorized to escalate this report' });
+        
+        // If it's a user, they must be the owner
+        if (req.user.role === 'user') {
+            const currentUserId = req.user.userId?.toString();
+            // If the report belongs to someone else and doesn't match anonymousCode, block it
+            const isOwner = reportUserId === currentUserId || ( !reportUserId && report.submittedBy?.anonymousCode === req.user.anonymousCode);
+            
+            if (!isOwner) {
+                return res.status(403).json({ success: false, message: 'Not authorized to escalate this report' });
+            }
         }
 
         if (report.escalationDetails?.isEscalated) {
@@ -441,67 +472,119 @@ export const escalateReport = async (req, res) => {
             return res.status(500).json({ success: false, message: 'PDF generation library missing.' });
         }
 
-        const doc = new PDFDocument();
-        const pdfChunks = [];
+        // Create PDF Promise to prevent unhandled promise rejections hanging the server
+        const generatePdfBuffer = () => new Promise((resolve, reject) => {
+            const doc = new PDFDocument();
+            const pdfChunks = [];
 
-        doc.on('data', chunk => pdfChunks.push(chunk));
-        doc.on('end', async () => {
-            const pdfBuffer = Buffer.concat(pdfChunks);
+            doc.on('data', chunk => pdfChunks.push(chunk));
+            doc.on('end', () => resolve(Buffer.concat(pdfChunks)));
+            doc.on('error', err => reject(err));
 
-            // Mark report as escalated
-            report.status = 'Escalated';
-            report.escalationDetails = {
-                isEscalated: true,
-                escalatedTo: contactValue,
-                contactMethod: contactMethod,
-                message: message,
-                identityDisclosed: true,
-                escalatedAt: new Date(),
-                pdfContent: pdfBuffer // Storing buffer in mongo for easy retrieval later! Wait, let's just save to disk instead.
-            };
+            // Build the PDF Content
+            doc.fontSize(20).text('SafeSpeak+ Official Escalation File', { align: 'center' });
+            doc.moveDown(2);
 
-            // To make the WhatsApp link work, let's write to disk
-            const fs = await import('fs');
-            const path = await import('path');
-            const dir = path.join(process.cwd(), 'uploads', 'escalations');
-            if (!fs.existsSync(dir)) {
-                fs.mkdirSync(dir, { recursive: true });
-            }
-            const pdfFilePath = path.join(dir, `escalation_${report.reportId}.pdf`);
-            fs.writeFileSync(pdfFilePath, pdfBuffer);
+            // PART 1: COMPLAINT AGAINST ADMIN
+            doc.fontSize(16).fillColor('red').text('PART 1: COMPLAINT AGAINST ADMINISTRATION', { underline: true });
+            doc.moveDown();
+            doc.fontSize(12).fillColor('black').text(`Escalated by User ID: ${req.user.userId}`);
+            doc.moveDown();
+            doc.fontSize(12).text('Grievance / Reason for Escalation:');
+            doc.text(message || 'No additional message provided by user.', { italic: true });
+            doc.moveDown(2);
 
-            report.escalationDetails.pdfPath = pdfFilePath;
-            await report.save();
+            // PART 2: ORIGINAL MAIN ISSUE
+            doc.fontSize(16).fillColor('blue').text('PART 2: ORIGINAL INCIDENT DETAILS (THE MAIN ISSUE)', { underline: true });
+            doc.moveDown();
+            doc.fontSize(12).fillColor('black').text(`Report ID: ${report.reportId}`);
+            doc.text(`Incident Type: ${report.incidentType}`);
+            doc.text(`Severity Level: ${report.riskLevel}`);
+            doc.text(`Location: ${report.location} (${report.department})`);
+            doc.text(`Date & Time: ${report.date} ${report.time || ''}`);
+            doc.moveDown();
 
-            // Activity Log
-            try {
-                await ActivityLog.create({
-                    userId: req.user.userId,
-                    action: 'report_escalated',
-                    targetType: 'Report',
-                    targetId: report._id,
-                    details: { reportId: report.reportId, contactMethod, contactValue }
-                });
-            } catch (logErr) {
-                console.error('Activity Log Error:', logErr);
+            doc.fontSize(14).text('Original Description Submitted:', { underline: true });
+            doc.fontSize(12).text(report.description);
+            doc.moveDown();
+
+            if (report.involvedParties) {
+                doc.fontSize(14).text('Involved Parties:', { underline: true });
+                doc.fontSize(12).text(report.involvedParties);
+                doc.moveDown();
             }
 
-            // Notify user of status change and ID disclosure
-            await Notification.create({
-                recipientId: req.user.userId,
-                type: 'system_alert',
-                title: 'Case Escalated',
-                message: `Your report (${report.reportId}) was escalated to ${contactValue}. Note: Anonymity has been lifted for this higher-level review.`,
-                relatedId: report._id,
-                relatedType: 'Report',
-                priority: 'high',
-                shouldSendEmail: true
+            if (proofImageBase64) {
+                try {
+                    doc.addPage();
+                    doc.fontSize(14).text('Escalation Proof / Supporting Screenshot:', { underline: true });
+                    doc.moveDown();
+                    
+                    // Convert base64 to buffer
+                    const base64Data = proofImageBase64.replace(/^data:image\/\w+;base64,/, "");
+                    const imageBuffer = Buffer.from(base64Data, 'base64');
+                    
+                    doc.image(imageBuffer, {
+                        fit: [500, 600],
+                        align: 'center',
+                        valign: 'center'
+                    });
+                } catch (imgErr) {
+                    console.error('Failed to embed proof image:', imgErr);
+                    doc.text('\n[Error: Failed to embed the proof image attachment due to format incompatibility.]', { color: 'red' });
+                }
+                doc.moveDown();
+            }
+
+            doc.fillColor('grey').text('This document was automatically generated by the SafeSpeak+ platform upon user escalation.', { align: 'center' });
+            doc.end();
+        });
+
+        const pdfBuffer = await generatePdfBuffer();
+
+        // Mark report as escalated
+        report.status = 'Escalated';
+        report.escalationDetails = {
+            isEscalated: true,
+            escalatedTo: contactValue,
+            contactMethod: contactMethod,
+            message: message,
+            identityDisclosed: true,
+            escalatedAt: new Date(),
+            pdfContent: pdfBuffer // Storing buffer in mongo for easy retrieval later! Serverless-safe!
+        };
+
+        await report.save();
+
+        // Activity Log
+        try {
+            await ActivityLog.create({
+                userId: req.user.userId,
+                action: 'report_escalated',
+                targetType: 'Report',
+                targetId: report._id,
+                details: { reportId: report.reportId, contactMethod, contactValue }
             });
+        } catch (logErr) {
+            console.error('Activity Log Error:', logErr);
+        }
 
-            if (contactMethod === 'email') {
-                // Dispatch Email to Admin
-                const subject = `URGENT: Escalated Incident Report - ${report.reportId}`;
-                const emailMessage = `
+        // Notify user of status change and ID disclosure
+        await Notification.create({
+            recipientId: req.user.userId,
+            type: 'system_alert',
+            title: 'Case Escalated',
+            message: `Your report (${report.reportId}) was escalated to ${contactValue}. Note: Anonymity has been lifted for this higher-level review.`,
+            relatedId: report._id,
+            relatedType: 'Report',
+            priority: 'high',
+            shouldSendEmail: true
+        });
+
+        if (contactMethod === 'email') {
+            // Dispatch Email to Admin
+            const subject = `URGENT: Escalated Incident Report - ${report.reportId}`;
+            const emailMessage = `
 Hello,
 
 An incident report has been escalated to you by a user on the SafeSpeak+ platform. 
@@ -516,113 +599,55 @@ Please find the full case details attached as a PDF. Note: The user's identity h
 
 Best Regards,
 SafeSpeak+ System Security
-                `;
+            `;
 
-                const attachments = [
-                    {
-                        filename: `SafeSpeak_Escalation_${report.reportId}.pdf`,
-                        content: pdfBuffer,
-                        contentType: 'application/pdf'
-                    }
-                ];
-
-                try {
-                    const emailService = (await import('../utils/emailService.js')).default;
-                    const transporter = emailService.getTransporter();
-                    await transporter.sendMail({
-                        from: `"Safe Speak Platform" <${process.env.SMTP_EMAIL}>`,
-                        to: contactValue,
-                        subject,
-                        text: emailMessage,
-                        attachments
-                    });
-                } catch (err) {
-                    console.error('Failed to send escalated email with PDF:', err);
+            const attachments = [
+                {
+                    filename: `SafeSpeak_Escalation_${report.reportId}.pdf`,
+                    content: pdfBuffer,
+                    contentType: 'application/pdf'
                 }
+            ];
 
-                res.status(200).json({
-                    success: true,
-                    message: `Report successfully escalated. A PDF has been dispatched via email to ${contactValue}.`,
-                    report
-                });
-
-            } else if (contactMethod === 'whatsapp') {
-                // Generate WhatsApp Link
-                const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
-                const pdfDownloadUrl = `${backendUrl}/api/reports/${report._id}/escalation-pdf`;
-                
-                const waMessage = `*URGENT ESCALATION: SafeSpeak+ Incident*\n\nReport ID: ${report.reportId}\nUser Message: ${message || 'N/A'}\n\nPlease review the attached secure PDF report here: ${pdfDownloadUrl}`;
-                
-                // Clean phone number (remove +, spaces, dashes)
-                const cleanPhone = contactValue.replace(/[^0-9]/g, '');
-                const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(waMessage)}`;
-
-                res.status(200).json({
-                    success: true,
-                    message: 'Report successfully escalated. WhatsApp link generated.',
-                    whatsappUrl,
-                    report
-                });
-            }
-        });
-
-        // Build the PDF Content
-        doc.fontSize(20).text('SafeSpeak+ Official Escalation File', { align: 'center' });
-        doc.moveDown(2);
-
-        // PART 1: COMPLAINT AGAINST ADMIN
-        doc.fontSize(16).fillColor('red').text('PART 1: COMPLAINT AGAINST ADMINISTRATION', { underline: true });
-        doc.moveDown();
-        doc.fontSize(12).fillColor('black').text(`Escalated by User ID: ${req.user.userId}`);
-        doc.moveDown();
-        doc.fontSize(12).text('Grievance / Reason for Escalation:');
-        doc.text(message || 'No additional message provided by user.', { italic: true });
-        doc.moveDown(2);
-
-        // PART 2: ORIGINAL MAIN ISSUE
-        doc.fontSize(16).fillColor('blue').text('PART 2: ORIGINAL INCIDENT DETAILS (THE MAIN ISSUE)', { underline: true });
-        doc.moveDown();
-        doc.fontSize(12).fillColor('black').text(`Report ID: ${report.reportId}`);
-        doc.text(`Incident Type: ${report.incidentType}`);
-        doc.text(`Severity Level: ${report.riskLevel}`);
-        doc.text(`Location: ${report.location} (${report.department})`);
-        doc.text(`Date & Time: ${report.date} ${report.time || ''}`);
-        doc.moveDown();
-
-        doc.fontSize(14).text('Original Description Submitted:', { underline: true });
-        doc.fontSize(12).text(report.description);
-        doc.moveDown();
-
-        if (report.involvedParties) {
-            doc.fontSize(14).text('Involved Parties:', { underline: true });
-            doc.fontSize(12).text(report.involvedParties);
-            doc.moveDown();
-        }
-
-        if (proofImageBase64) {
             try {
-                doc.addPage();
-                doc.fontSize(14).text('Escalation Proof / Supporting Screenshot:', { underline: true });
-                doc.moveDown();
-                
-                // Convert base64 to buffer
-                const base64Data = proofImageBase64.replace(/^data:image\/\w+;base64,/, "");
-                const imageBuffer = Buffer.from(base64Data, 'base64');
-                
-                doc.image(imageBuffer, {
-                    fit: [500, 600],
-                    align: 'center',
-                    valign: 'center'
+                const emailService = (await import('../utils/emailService.js')).default;
+                const transporter = emailService.getTransporter();
+                await transporter.sendMail({
+                    from: `"Safe Speak Platform" <${process.env.SMTP_EMAIL}>`,
+                    to: contactValue,
+                    subject,
+                    text: emailMessage,
+                    attachments
                 });
-            } catch (imgErr) {
-                console.error('Failed to embed proof image:', imgErr);
-                doc.text('\n[Error: Failed to embed the proof image attachment due to format incompatibility.]', { color: 'red' });
+            } catch (err) {
+                console.error('Failed to send escalated email with PDF:', err);
+                return res.status(500).json({ success: false, message: 'Escalation recorded, but failed to send the email. Please check your SMTP configuration.' });
             }
-            doc.moveDown();
-        }
 
-        doc.fillColor('grey').text('This document was automatically generated by the SafeSpeak+ platform upon user escalation.', { align: 'center' });
-        doc.end();
+            return res.status(200).json({
+                success: true,
+                message: `Report successfully escalated. A PDF has been dispatched via email to ${contactValue}.`,
+                report
+            });
+
+        } else if (contactMethod === 'whatsapp') {
+            // Generate WhatsApp Link
+            const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+            const pdfDownloadUrl = `${backendUrl}/api/reports/${report._id}/escalation-pdf`;
+            
+            const waMessage = `*URGENT ESCALATION: SafeSpeak+ Incident*\n\nReport ID: ${report.reportId}\nUser Message: ${message || 'N/A'}\n\nPlease review the attached secure PDF report here: ${pdfDownloadUrl}`;
+            
+            // Clean phone number (remove +, spaces, dashes)
+            const cleanPhone = contactValue.replace(/[^0-9]/g, '');
+            const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(waMessage)}`;
+
+            return res.status(200).json({
+                success: true,
+                message: 'Report successfully escalated. WhatsApp link generated.',
+                whatsappUrl,
+                report
+            });
+        }
 
     } catch (error) {
         console.error('Error escalating report:', error);
@@ -648,19 +673,15 @@ export const getEscalationPdf = async (req, res) => {
             query = { reportId: id };
         }
         const report = await Report.findOne(query);
-        if (!report || !report.escalationDetails || !report.escalationDetails.pdfPath) {
-            return res.status(404).send('Escalation PDF not found.');
-        }
-
-        const fs = await import('fs');
-        if (!fs.existsSync(report.escalationDetails.pdfPath)) {
-            return res.status(404).send('PDF file no longer exists on server.');
+        if (!report || !report.escalationDetails || !report.escalationDetails.pdfContent) {
+            return res.status(404).send('Escalation PDF not found in database.');
         }
 
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `inline; filename="SafeSpeak_Escalation_${report.reportId}.pdf"`);
-        const stream = fs.createReadStream(report.escalationDetails.pdfPath);
-        stream.pipe(res);
+        
+        // Serve buffer directly
+        res.send(report.escalationDetails.pdfContent);
     } catch (error) {
         res.status(500).send('Error retrieving PDF');
     }

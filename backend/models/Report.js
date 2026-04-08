@@ -176,6 +176,10 @@ const reportSchema = new mongoose.Schema({
         escalatedAt: {
             type: Date,
             default: null
+        },
+        pdfContent: {
+            type: Buffer,
+            required: false
         }
     }
 
