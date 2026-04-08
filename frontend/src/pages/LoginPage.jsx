@@ -86,8 +86,15 @@ export default function LoginPage() {
             <div className="max-w-md w-full glass-card overflow-hidden">
 
 
-
-                {/* Toggle */}
+                {/* Logo and Name */}
+                <div className="text-center pt-8 pb-4">
+                    <div className="flex justify-center mb-3">
+                        <div className="p-3 bg-white rounded-full shadow-sm">
+                            <Shield className="h-8 w-8 text-primary" />
+                        </div>
+                    </div>
+                    <h1 className="text-2xl font-bold text-text-primary">SafeSpeak+ Portal</h1>
+                </div>
                 <div className="px-8 mb-6">
                     <div className="flex p-1 bg-gray-100 rounded-lg">
                         <button

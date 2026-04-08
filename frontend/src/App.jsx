@@ -37,7 +37,8 @@ function Layout() {
     '/messages',
     '/stories',
     '/settings',
-    '/admin'
+    '/admin',
+    '/login'
   ];
 
   const shouldHideGlobalLayout = hideGlobalLayoutPrefixes.some(prefix => location.pathname.startsWith(prefix));
