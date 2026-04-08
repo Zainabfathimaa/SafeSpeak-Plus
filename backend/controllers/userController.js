@@ -26,6 +26,7 @@ export const getAllUsers = async (req, res) => {
                 userObj.fullName = 'Anonymous User';
                 userObj.phone = 'Hidden';
                 userObj.department = 'Hidden';
+                userObj.course = 'Hidden';
             }
             return userObj;
         });
@@ -119,7 +120,7 @@ export const getCurrentUser = async (req, res) => {
 // ===================================
 export const updateUserProfile = async (req, res) => {
     try {
-        const { fullName, phone, department } = req.body;
+        const { fullName, phone, department, course } = req.body;
 
         const user = await User.findById(req.user.id);
         if (!user) {
@@ -133,6 +134,7 @@ export const updateUserProfile = async (req, res) => {
         if (fullName) user.fullName = fullName;
         if (phone) user.phone = phone;
         if (department) user.department = department;
+        if (course) user.course = course;
 
         await user.save();
 

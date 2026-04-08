@@ -8,6 +8,83 @@ import { Header } from '../components/Header';
 import { Sidebar } from '../components/Sidebar';
 import { Input } from '../components/ui/Input';
 
+const departmentData = {
+    "School of Architecture": [
+        "B. Architecture"
+    ],
+    "School of Allied & Healthcare Sciences": [
+        "Bachelor of Optometry",
+        "Bachelor of Science (Hons.) (Medical Laboratory Technology) (MLT)",
+        "Bachelor of Science (Hons.) (Hospital Administration) (HA)",
+        "Bachelor in Anaesthesia and Operation Theatre Technology (AOTT)",
+        "Bachelor in Medical Radiology and Imaging Technology (MRIT)"
+    ],
+    "School of Design": [
+        "B.Des. Bachelor of Communication Design",
+        "B.Des. Bachelor of Product Design",
+        "Bachelor of Design | Fashion Design",
+        "Bachelor of Design | Interior Design",
+        "Bachelor of Science | Sound Engineering",
+        "Bachelor of Science | Visual Effects and Animation B.Sc. | VFX"
+    ],
+    "School of Economics and Commerce": [
+        "Bachelor of Commerce | B.Com",
+        "B.Com. | Professional CA-Integrated",
+        "B.Com. | International Accounting & Finance (ACCA, UK)",
+        "Bachelor of Commerce | Data Science",
+        "Bachelor of Commerce | Certified Management Accountant (US CMA)"
+    ],
+    "School of Engineering and Technology (SOET)": [
+        "Bachelor of Technology | B.Tech.| CSE",
+        "Bachelor of Technology | B.Tech.| AI & ML",
+        "Bachelor of Technology | B.Tech. CSE | DS",
+        "Bachelor of Technology | B.Tech. IT",
+        "B.Tech.| CST* (with Specialisation in AI & ML/ Internet Of Things) IT. ECE",
+        "Bachelor of Technology | B.Tech. ECE",
+        "B.Tech. Computer Engg (Specialisation in AIML & IoT)",
+        "M.Tech.| Computer Science & Engineering (CSE)",
+        "M.Tech. Artificial Intelligence (AI)"
+    ],
+    "School of Legal Studies": [
+        "B.A., LL.B. (Hons.)",
+        "B.B.A., LL.B. (Hons)",
+        "LL.B.",
+        "LL.M. | Constitutional Law",
+        "LL.M. | Commercial Law",
+        "LL.M. | Criminal Law"
+    ],
+    "School of Liberal Studies": [
+        "B.A. (Major + Minor) Psychology | English | Journalism | Economics | Political Science | History | Sociology | Media Studies | Travel & Tourism",
+        "B.Sc. | Psychology",
+        "M.Sc. Psychology | Clinical",
+        "M.Sc. Psychology | Counselling",
+        "M.Sc. Psychology | HRDM"
+    ],
+    "School of Management": [
+        "BBA",
+        "BBA | Digital Marketing (DM)",
+        "BBA | BA (business analytics)",
+        "BBA | Fintech",
+        "BBA | Date Science",
+        "BBA | Logistics & SCM",
+        "BBA | Tourism & Hospitality Management",
+        "MBA | with Dual Specialisation",
+        "MBA | Technology Management",
+        "MBA | Business Analytics & Business Intelligence| BA & BI",
+        "E-MBA | Product Leadership"
+    ],
+    "School of Science & Computer Studies": [
+        "BCA (Bachelor of Computer Applications)",
+        "BCA | Data Science",
+        "BCA | Cloud Computing",
+        "BCA | Game development",
+        "BCA (AI & ML)",
+        "B.Sc. Information Technology",
+        "MCA",
+        "M.Sc. Information Technology in Data Science"
+    ]
+};
+
 export const UserSettingsPage = () => {
   const { addToast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
@@ -29,7 +106,8 @@ export const UserSettingsPage = () => {
   const [profile, setProfile] = useState({
     fullName: '',
     phone: '',
-    department: ''
+    department: '',
+    course: ''
   });
 
   // Notification preferences state
@@ -70,7 +148,8 @@ export const UserSettingsPage = () => {
         setProfile({
           fullName: userResponse.user.fullName || '',
           phone: userResponse.user.phone || '',
-          department: userResponse.user.department || ''
+          department: userResponse.user.department || '',
+          course: userResponse.user.course || ''
         });
       }
 
@@ -339,18 +418,41 @@ export const UserSettingsPage = () => {
                             </div>
                           </div>
 
-                          <div className="sm:col-span-6">
-                            <label className="block text-sm font-medium text-gray-700">Department / Course</label>
-                            <div className="mt-1">
-                              <input
-                                type="text"
-                                name="department"
-                                value={profile.department}
-                                onChange={handleProfileChange}
-                                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-3 py-2 border transition-colors"
-                                placeholder="e.g. Computer Science"
-                              />
-                            </div>
+                          <div className="sm:col-span-3">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              School / Department
+                            </label>
+                            <select
+                              name="department"
+                              value={profile.department}
+                              onChange={(e) => {
+                                setProfile(prev => ({ ...prev, department: e.target.value, course: '' }));
+                              }}
+                              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-3 py-2 border transition-colors bg-white"
+                            >
+                              <option value="">Select School</option>
+                              {Object.keys(departmentData).map((dept) => (
+                                <option key={dept} value={dept}>{dept}</option>
+                              ))}
+                            </select>
+                          </div>
+
+                          <div className="sm:col-span-3">
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Course / Program
+                            </label>
+                            <select
+                              name="course"
+                              value={profile.course}
+                              onChange={(e) => setProfile(prev => ({ ...prev, course: e.target.value }))}
+                              disabled={!profile.department}
+                              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-3 py-2 border transition-colors bg-white disabled:bg-gray-50 disabled:text-gray-500"
+                            >
+                              <option value="">Select Course</option>
+                              {profile.department && departmentData[profile.department]?.map((course) => (
+                                <option key={course} value={course}>{course}</option>
+                              ))}
+                            </select>
                           </div>
                         </div>
                       </div>

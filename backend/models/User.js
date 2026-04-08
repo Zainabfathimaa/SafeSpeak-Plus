@@ -90,6 +90,13 @@ const userSchema = new mongoose.Schema({
     default: null
   },
 
+  // COURSE/PROGRAM FIELD (Optional)
+  course: {
+    type: String,
+    trim: true,
+    default: null
+  },
+
   // PHONE NUMBER FIELD (Optional)
   phone: {
     type: String,
