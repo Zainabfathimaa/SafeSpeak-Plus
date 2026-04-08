@@ -20,6 +20,7 @@ export default function ReportDetail() {
     const { addToast } = useToast();
     const [selectedStatus, setSelectedStatus] = useState('');
     const [selectedRiskLevel, setSelectedRiskLevel] = useState('');
+    const [selectedEvidence, setSelectedEvidence] = useState(null);
     
     // Admin Escalation State
     const [isEscalating, setIsEscalating] = useState(false);
