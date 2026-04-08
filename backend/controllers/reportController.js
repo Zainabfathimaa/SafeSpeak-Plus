@@ -89,11 +89,47 @@ export const createReport = async (req, res) => {
             evidenceFiles: files || [],
             submittedBy,
             status: 'Open',
-            riskLevel: 'Medium', // Default risk level, can be updated by AI or Admin later
+            riskLevel: 'Pending', // User requested 'Pending' as default until manually reviewed
             flags: initialFlags,
             authenticityScore: Math.max(0, initialAuthScore),
             verificationStatus
         });
+
+        // NOTIFICATION: Notify the user that their report was submitted
+        if (req.user.userId) {
+            try {
+                await Notification.create({
+                    recipientId: req.user.userId,
+                    type: 'system_alert',
+                    title: 'Incident Reported Successfully ✅',
+                    message: `Your report (${reportId}) has been securely submitted. You can track its progress in your dashboard.`,
+                    relatedId: report._id,
+                    relatedType: 'Report',
+                    priority: 'medium',
+                    shouldSendEmail: true
+                });
+            } catch (err) {
+                console.error('Failed to notify user of new report:', err);
+            }
+        }
+
+        // NOTIFICATION: Notify all admins about the new report
+        try {
+            const admins = await User.find({ role: 'admin' });
+            for (const admin of admins) {
+                await Notification.create({
+                    recipientId: admin._id,
+                    type: 'system_alert',
+                    title: 'New Incident Reported 🔴',
+                    message: `A new ${incidentType} case (${reportId}) has been submitted and is awaiting initial review.`,
+                    relatedId: report._id,
+                    relatedType: 'Report',
+                    priority: 'medium'
+                });
+            }
+        } catch (notifErr) {
+            console.error('Failed to notify admins of new report:', notifErr);
+        }
 
         // Flag the old report as well if it isn't already flagged
         if (recentDuplicate && !recentDuplicate.flags.some(f => f.reason === 'Duplicate Report')) {
@@ -393,6 +429,25 @@ export const appealReport = async (req, res) => {
 
         await report.save();
 
+        // Create notification for the user who submitted (if not completely anonymous or if userId provided)
+        const userId = report.submittedBy?.userId;
+        if (userId) {
+            try {
+                await Notification.create({
+                    recipientId: userId,
+                    type: 'system_alert',
+                    title: 'Report Appealed Successfully ✅',
+                    message: `Your appeal for report (Ref: ${report.reportId}) has been submitted and is under review.`,
+                    relatedId: report._id,
+                    relatedType: 'Report',
+                    priority: 'medium',
+                    shouldSendEmail: true
+                });
+            } catch (notifErr) {
+                console.error('Failed to create user notification for report appeal:', notifErr);
+            }
+        }
+
         // Notify admins
         const admins = await User.find({ role: 'admin' });
         for (const admin of admins) {
@@ -640,10 +695,10 @@ SafeSpeak+ System Security
 
         } else if (contactMethod === 'whatsapp') {
             // Generate WhatsApp Link
-            const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+            const backendUrl = process.env.BACKEND_URL || 'https://safespeakplus.onrender.com'; // Use actual live URL fallback
             const pdfDownloadUrl = `${backendUrl}/api/reports/${report._id}/escalation-pdf`;
             
-            const waMessage = `*URGENT ESCALATION: SafeSpeak+ Incident*\n\nReport ID: ${report.reportId}\nUser Message: ${message || 'N/A'}\n\nPlease review the attached secure PDF report here: ${pdfDownloadUrl}`;
+            const waMessage = `🚨 *URGENT ESCALATION: SafeSpeak+ Incident*\n\n*Report ID:* ${report.reportId}\n*User Message:* ${message || 'N/A'}\n\n🔓 *Action Required:* Please review the secure PDF report details here:\n${pdfDownloadUrl}\n\n_Note: This link leads to a professionally generated incident report summary._`;
             
             // Clean phone number (remove +, spaces, dashes)
             const cleanPhone = contactValue.replace(/[^0-9]/g, '');
