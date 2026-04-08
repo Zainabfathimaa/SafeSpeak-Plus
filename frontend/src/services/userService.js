@@ -103,6 +103,16 @@ const userService = {
     } catch (error) {
       throw error.response?.data || error;
     }
+  },
+
+  // Complete Onboarding
+  completeOnboarding: async () => {
+    try {
+      const response = await axios.put(`${API_BASE_URL}/user/onboarding/complete`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
   }
 };
 

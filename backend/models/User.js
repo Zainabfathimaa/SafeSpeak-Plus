@@ -241,6 +241,12 @@ const userSchema = new mongoose.Schema({
   unreadNotificationCount: {
     type: Number,
     default: 0
+  },
+
+  // ONBOARDING STATUS
+  hasCompletedOnboarding: {
+    type: Boolean,
+    default: false
   }
 
 }, {

@@ -190,9 +190,17 @@ export const getAllReports = async (req, res) => {
         // Hide user identity if not consented
         const processedReports = reports.map(report => {
             const reportObj = report.toObject();
-            if (reportObj.submittedBy?.userId && !reportObj.submittedBy.userId.idRevealConsent) {
+            
+            // Check if identity should be revealed
+            // It should be revealed ONLY if the user has consented for THIS report
+            const isRevealed = reportObj.userConsentedIdReveal === true;
+            reportObj.isIdentityRevealed = isRevealed;
+
+            if (reportObj.submittedBy?.userId && !isRevealed) {
                 reportObj.submittedBy.userId.email = `Hidden (${reportObj.submittedBy.anonymousCode || 'Anonymous'})`;
                 reportObj.submittedBy.userId.fullName = 'Anonymous User';
+                // Also remove sensitive phone if exists
+                if (reportObj.submittedBy.userId.phone) reportObj.submittedBy.userId.phone = 'Hidden';
             }
             return reportObj;
         });
@@ -275,15 +283,24 @@ export const getReportById = async (req, res) => {
             }
         }
 
+        const reportObj = report.toObject();
+
+        // Check if identity should be revealed
+        // A report's identity is revealed if the user specifically consented for this report 
+        // OR if the user has a global consent (though we should prioritize the report setting for safety)
+        const isRevealed = reportObj.userConsentedIdReveal === true;
+        reportObj.isIdentityRevealed = isRevealed;
+
         // Hide user identity if not consented
-        if (report.submittedBy?.userId && !report.submittedBy.userId.idRevealConsent) {
-            report.submittedBy.userId.email = `Hidden (${report.submittedBy.anonymousCode || 'Anonymous'})`;
-            report.submittedBy.userId.fullName = 'Anonymous User';
+        if (reportObj.submittedBy?.userId && !isRevealed) {
+            reportObj.submittedBy.userId.email = `Hidden (${reportObj.submittedBy.anonymousCode || 'Anonymous'})`;
+            reportObj.submittedBy.userId.fullName = 'Anonymous User';
+            if (reportObj.submittedBy.userId.phone) reportObj.submittedBy.userId.phone = 'Hidden';
         }
 
         res.status(200).json({
             success: true,
-            report
+            report: reportObj
         });
 
     } catch (error) {
