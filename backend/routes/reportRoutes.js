@@ -35,12 +35,14 @@ router.post('/', authenticate, reportLimiter, createReport);
 // Get User's Own Reports
 router.get('/my-reports', authenticate, getUserReports);
 
+// Get Escalation PDF (Accessible via ID for supervisors)
+// Moved higher up to avoid shadowing issues with generic /:id
+router.get('/:id/escalation-pdf', getEscalationPdf);
+
 // Get All Reports (Admin only)
-// Explicitly list allowed roles for accessing all reports
 router.get('/', authenticate, authorize('admin'), getAllReports);
 
 // Get Single Report (User sees own, Staff sees all)
-// Logic for permission check is inside the controller
 router.get('/:id', authenticate, getReportById);
 
 // Update Report Status (Admin only)
@@ -51,8 +53,5 @@ router.post('/:id/appeal', authenticate, appealReport);
 
 // Escalate a report to super admin (User only)
 router.post('/:id/escalate', authenticate, escalateReport);
-
-// Get Escalation PDF (Accessible via ID for supervisors)
-router.get('/:id/escalation-pdf', getEscalationPdf);
 
 export default router;
