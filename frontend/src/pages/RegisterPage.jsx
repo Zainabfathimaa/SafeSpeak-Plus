@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Shield, AlertCircle, CheckCircle, Mail } from 'lucide-react';
+import { Shield, AlertCircle, CheckCircle, Mail, User, Key } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { registerUser, anonymousLogin, saveToken } from '../services/authService';
+import { cn } from '../lib/utils';
+import { registerUser, registerAdmin, anonymousLogin, saveToken } from '../services/authService';
 import toastService from '../services/toastService';
 
 export default function RegisterPage() {
     const navigate = useNavigate();
+    const [registrationType, setRegistrationType] = useState('user'); // 'user' or 'admin'
     const [formData, setFormData] = useState({
         email: '',
-        password: ''
+        password: '',
+        fullName: '',
+        role: 'admin'
     });
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -35,24 +39,49 @@ export default function RegisterPage() {
             return;
         }
 
+        // Additional validation for admin registration
+        if (registrationType === 'admin') {
+            if (!formData.fullName.trim()) {
+                toastService.error('Full name is required for admin registration');
+                return;
+            }
+        }
 
         // Start loading
         setLoading(true);
 
         try {
-            // Call backend API to register user
-            const response = await registerUser(
-                sanitizedEmail,
-                formData.password
-            );
+            let response;
+
+            if (registrationType === 'user') {
+                // User registration - current flow
+                response = await registerUser(
+                    sanitizedEmail,
+                    formData.password
+                );
+            } else {
+                // Admin registration - new flow
+                response = await registerAdmin({
+                    email: sanitizedEmail,
+                    password: formData.password,
+                    fullName: formData.fullName,
+                    role: formData.role
+                });
+            }
 
             if (response.success) {
-                toastService.success('Registration successful! Check your email for your Anonymous Code.');
-                setSuccess(true);
-
-                setTimeout(() => {
-                    navigate('/login');
-                }, 3000);
+                if (registrationType === 'user') {
+                    toastService.success('Registration successful! Check your email for your Anonymous Code.');
+                    setSuccess(true);
+                    setTimeout(() => {
+                        navigate('/login');
+                    }, 3000);
+                } else {
+                    toastService.success('Admin registration successful! You can now login with your credentials.');
+                    setTimeout(() => {
+                        navigate('/login');
+                    }, 2000);
+                }
             } else {
                 // Registration failed, show error message
                 toastService.error(response.message || 'Registration failed. Please try again.');
@@ -76,33 +105,59 @@ export default function RegisterPage() {
                             <Mail className="h-12 w-12 text-blue-600" />
                         </div>
                     </div>
-                    <h2 className="text-2xl font-bold text-text-primary mb-2">Registration Successful! 📧</h2>
-                    <p className="text-text-secondary mb-6">
-                        We've securely generated your Anonymous Access Code and sent it to <span className="font-semibold">{formData.email}</span>
-                    </p>
+                    {registrationType === 'user' ? (
+                        <>
+                            <h2 className="text-2xl font-bold text-text-primary mb-2">Registration Successful! 📧</h2>
+                            <p className="text-text-secondary mb-6">
+                                We've securely generated your Anonymous Access Code and sent it to <span className="font-semibold">{formData.email}</span>
+                            </p>
 
-                    {/* Instructions Box */}
-                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-6 text-left">
-                        <p className="text-sm font-semibold text-gray-800 mb-3">📧 What to do next:</p>
-                        <ol className="text-sm text-gray-700 space-y-2 list-decimal list-inside">
-                            <li>Check your college email inbox</li>
-                            <li>Find the email titled "Registration Successful"</li>
-                            <li>Locate your unique Anonymous Access Code</li>
-                            <li>Go to the Login page and use it to securely access the platform.</li>
-                        </ol>
-                    </div>
+                            {/* Instructions Box */}
+                            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-6 text-left">
+                                <p className="text-sm font-semibold text-gray-800 mb-3">📧 What to do next:</p>
+                                <ol className="text-sm text-gray-700 space-y-2 list-decimal list-inside">
+                                    <li>Check your college email inbox</li>
+                                    <li>Find the email titled "Registration Successful"</li>
+                                    <li>Locate your unique Anonymous Access Code</li>
+                                    <li>Go to the Login page and use it to securely access the platform.</li>
+                                </ol>
+                            </div>
 
-                    {/* Info Box */}
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
-                        <p className="text-sm text-amber-800">
-                            <strong>💡 Note:</strong> Your email address is strictly used for code retrieval and is completely decoupled from your reports to ensure guaranteed anonymity.
-                        </p>
-                    </div>
+                            {/* Info Box */}
+                            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+                                <p className="text-sm text-amber-800">
+                                    <strong>💡 Note:</strong> Your email address is strictly used for code retrieval and is completely decoupled from your reports to ensure guaranteed anonymity.
+                                </p>
+                            </div>
 
-                    {/* Countdown Message */}
-                    <p className="text-xs text-text-secondary mb-6">
-                        Redirecting to login page in 3 seconds...
-                    </p>
+                            {/* Countdown Message */}
+                            <p className="text-xs text-text-secondary mb-6">
+                                Redirecting to login page in 3 seconds...
+                            </p>
+                        </>
+                    ) : (
+                        <>
+                            <h2 className="text-2xl font-bold text-text-primary mb-2">Admin Registration Successful! ✅</h2>
+                            <p className="text-text-secondary mb-6">
+                                Welcome <span className="font-semibold">{formData.fullName}</span>! Your admin account has been created.
+                            </p>
+
+                            {/* Instructions Box */}
+                            <div className="bg-green-50 p-4 rounded-lg border border-green-200 mb-6 text-left">
+                                <p className="text-sm font-semibold text-gray-800 mb-3">🔐 What to do next:</p>
+                                <ol className="text-sm text-gray-700 space-y-2 list-decimal list-inside">
+                                    <li>Use your email and password to login</li>
+                                    <li>Select "Admin Login" on the login page</li>
+                                    <li>Access your admin dashboard</li>
+                                </ol>
+                            </div>
+
+                            {/* Countdown Message */}
+                            <p className="text-xs text-text-secondary mb-6">
+                                Redirecting to login page in 2 seconds...
+                            </p>
+                        </>
+                    )}
 
                     {/* Manual Navigation Button */}
                     <Button
@@ -135,33 +190,119 @@ export default function RegisterPage() {
                             <Shield className="h-8 w-8 text-primary" />
                         </div>
                     </div>
-                    <h1 className="text-2xl font-bold text-text-primary">Create Anonymous Account</h1>
-                    <p className="text-text-secondary mt-2">Register once to receive your anonymous access code</p>
+                    <h1 className="text-2xl font-bold text-text-primary">Create Account</h1>
+                    <p className="text-text-secondary mt-2">Choose your registration type</p>
+                </div>
+
+                {/* Registration Type Toggle */}
+                <div className="mb-6">
+                    <div className="flex p-1 bg-gray-100 rounded-lg">
+                        <button
+                            onClick={() => setRegistrationType('user')}
+                            className={cn(
+                                "flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-md transition-all duration-200",
+                                registrationType === 'user'
+                                    ? "bg-white text-primary shadow-sm"
+                                    : "text-text-secondary hover:text-text-primary"
+                            )}
+                        >
+                            <Key className="h-4 w-4" />
+                            User Registration
+                        </button>
+                        <button
+                            onClick={() => setRegistrationType('admin')}
+                            className={cn(
+                                "flex-1 flex items-center justify-center gap-2 py-2 text-sm font-medium rounded-md transition-all duration-200",
+                                registrationType === 'admin'
+                                    ? "bg-white text-primary shadow-sm"
+                                    : "text-text-secondary hover:text-text-primary"
+                            )}
+                        >
+                            <Shield className="h-4 w-4" />
+                            Admin Registration
+                        </button>
+                    </div>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    <Input
-                        label="College Email (@cmr.edu.in)"
-                        type="email"
-                        name="email"
-                        placeholder="yourname@cmr.edu.in"
-                        required
-                        value={formData.email}
-                        onChange={handleChange}
-                        disabled={loading}
-                    />
+                    {registrationType === 'user' ? (
+                        <>
+                            {/* User Registration Info */}
+                            <div className="bg-blue-50 p-4 rounded-lg border border-blue-100 flex gap-3 items-start">
+                                <Key className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                                <div className="text-sm text-blue-800">
+                                    <p className="font-semibold mb-1">Anonymous Reporting Account</p>
+                                    Register once to receive your anonymous access code for secure report tracking.
+                                </div>
+                            </div>
 
-                    <Input
-                        label="Password"
-                        type="password"
-                        name="password"
-                        placeholder="••••••••"
-                        required
-                        value={formData.password}
-                        onChange={handleChange}
-                        disabled={loading}
-                    />
+                            <Input
+                                label="College Email (@cmr.edu.in)"
+                                type="email"
+                                name="email"
+                                placeholder="yourname@cmr.edu.in"
+                                required
+                                value={formData.email}
+                                onChange={handleChange}
+                                disabled={loading}
+                            />
 
+                            <Input
+                                label="Password"
+                                type="password"
+                                name="password"
+                                placeholder="••••••••"
+                                required
+                                value={formData.password}
+                                onChange={handleChange}
+                                disabled={loading}
+                            />
+                        </>
+                    ) : (
+                        <>
+                            {/* Admin Registration Info */}
+                            <div className="bg-purple-50 p-4 rounded-lg border border-purple-100 flex gap-3 items-start">
+                                <Shield className="h-5 w-5 text-purple-600 flex-shrink-0 mt-0.5" />
+                                <div className="text-sm text-purple-800">
+                                    <p className="font-semibold mb-1">Administrative Account</p>
+                                    For platform administrators, counsellors, and staff members.
+                                </div>
+                            </div>
+
+                            <Input
+                                label="Full Name"
+                                type="text"
+                                name="fullName"
+                                placeholder="John Doe"
+                                required
+                                value={formData.fullName}
+                                onChange={handleChange}
+                                disabled={loading}
+                            />
+
+                            <Input
+                                label="College Email (@cmr.edu.in)"
+                                type="email"
+                                name="email"
+                                placeholder="admin@cmr.edu.in"
+                                required
+                                value={formData.email}
+                                onChange={handleChange}
+                                disabled={loading}
+                            />
+
+                            <Input
+                                label="Password"
+                                type="password"
+                                name="password"
+                                placeholder="••••••••"
+                                required
+                                value={formData.password}
+                                onChange={handleChange}
+                                disabled={loading}
+                            />
+                        </>
+                    )}
 
                     <Button
                         type="submit"
@@ -169,7 +310,7 @@ export default function RegisterPage() {
                         size="lg"
                         disabled={loading}
                     >
-                        {loading ? 'Registering...' : 'Register Securely'}
+                        {loading ? 'Registering...' : (registrationType === 'user' ? 'Register for Anonymous Code' : 'Register Admin Account')}
                     </Button>
                 </form>
 

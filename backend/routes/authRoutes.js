@@ -1,6 +1,7 @@
 import express from 'express';
 import {
   register,
+  registerAdmin,
   login,
   anonymousLogin,
   getCurrentUser,
@@ -12,6 +13,7 @@ import { authenticate } from '../middleware/auth.js';
 const router = express.Router();
 
 router.post('/register', register);
+router.post('/register-admin', registerAdmin);
 router.post('/login', login);
 router.post('/anonymous-login', anonymousLogin);
 router.post('/forgot-code', forgotCode);

@@ -348,6 +348,7 @@ app.listen(PORT, () => {
 ║  📝 Environment: ${process.env.NODE_ENV || 'development'}
 ║  🔐 API Endpoints:                                      ║
 ║     - POST   /api/auth/register                         ║
+║     - POST   /api/auth/register-admin                   ║
 ║     - POST   /api/auth/login                            ║
 ║     - POST   /api/auth/anonymous-login                  ║
 ║     - GET    /api/auth/me (protected)                   ║

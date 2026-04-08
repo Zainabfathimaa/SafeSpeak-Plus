@@ -30,11 +30,24 @@ export default function LoginPage() {
             let response;
 
             if (loginMethod === 'code') {
-                // Anonymous code login
-                response = await anonymousLogin(formData.accessCode);
+                const accessCode = formData.accessCode.trim().toUpperCase();
+                if (!accessCode) {
+                    toastService.error('Please enter your anonymous access code.');
+                    setLoading(false);
+                    return;
+                }
+                response = await anonymousLogin(accessCode);
             } else {
-                // Email & password login
-                response = await loginUser(formData.email, formData.password);
+                const email = formData.email.trim().toLowerCase();
+                const password = formData.password;
+
+                if (!email || !password) {
+                    toastService.error('Please enter both your email and password.');
+                    setLoading(false);
+                    return;
+                }
+
+                response = await loginUser(email, password);
             }
 
             // Check if login was successful

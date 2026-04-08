@@ -69,10 +69,50 @@ export const register = async (req, res) => {
   }
 };
 
+/* Register Admin */
+export const registerAdmin = async (req, res) => {
+  try {
+    const { email, password, fullName, role } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: 'Email already registered' });
+    }
+
+    const newAdmin = new User({
+      email: email.toLowerCase(),
+      password,
+      fullName: fullName || null,
+      role: role || 'admin', // Default to admin if not specified
+      isEmailVerified: true // Admins are automatically verified
+    });
+
+    // Admins don't get anonymous codes
+    await newAdmin.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Admin registration successful'
+    });
+
+  } catch (error) {
+    console.error('Admin registration error:', error);
+    res.status(500).json({ success: false, message: 'Admin registration failed' });
+  }
+};
+
 /* Login */
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: 'Email and password are required' });
+    }
 
     const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
 

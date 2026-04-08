@@ -168,6 +168,45 @@ export const registerUser = async (email, password) => {
 };
 
 /**
+ * FUNCTION 1.5: Register Admin
+ * 
+ * Registers an admin user with full details
+ * Creates admin account directly (no anonymous code)
+ * 
+ * FLOW:
+ * 1. Frontend has: email, password, fullName, role
+ * 2. Call registerAdmin({email, password, fullName, role})
+ * 3. Function sends POST to /api/auth/register-admin
+ * 4. Backend creates admin user directly
+ * 5. Function returns success response
+ * 
+ * @param {Object} adminData - Admin registration data
+ * @param {string} adminData.email - Admin's email
+ * @param {string} adminData.password - Admin's password
+ * @param {string} adminData.fullName - Admin's full name
+ * @param {string} adminData.role - Admin role (admin, counsellor, etc.)
+ * @returns {Promise<Object>} - Response with success status
+ * 
+ * EXAMPLE RESPONSE:
+ * {
+ *   "success": true,
+ *   "message": "Admin registration successful",
+ *   "user": {
+ *     "id": "507f...",
+ *     "email": "admin@cmr.edu.in",
+ *     "fullName": "John Doe",
+ *     "role": "admin"
+ *   }
+ * }
+ */
+export const registerAdmin = async (adminData) => {
+  return makeRequest('/auth/register-admin', {
+    method: 'POST',
+    body: JSON.stringify(adminData)
+  });
+};
+
+/**
  * FUNCTION 2: Login User (Email & Password)
  * 
  * Authenticates user with email and password
@@ -201,7 +240,7 @@ export const loginUser = async (email, password) => {
   return makeRequest('/auth/login', {
     method: 'POST',
     body: JSON.stringify({
-      email,
+      email: email?.trim().toLowerCase(),
       password
     })
   });
@@ -535,5 +574,6 @@ export default {
   getRole,
   clearSession,
   makeRequest,
-  changePassword
+  changePassword,
+  registerAdmin
 };
