@@ -82,10 +82,19 @@ export const getMessagesByReport = async (req, res) => {
         }
 
         const messages = await Message.find({ reportId: req.params.reportId })
-            .populate('sender', 'fullName email role')
+            .populate('sender', 'fullName email role idRevealConsent anonymousCode')
             .sort({ createdAt: 1 });
 
-        res.status(200).json({ success: true, messages });
+        const processedMessages = messages.map(msg => {
+            const msgObj = msg.toObject();
+            if (msgObj.sender && msgObj.sender.role === 'user' && !msgObj.sender.idRevealConsent) {
+                msgObj.sender.email = `Hidden (${msgObj.sender.anonymousCode || 'Anonymous'})`;
+                msgObj.sender.fullName = 'Anonymous User';
+            }
+            return msgObj;
+        });
+
+        res.status(200).json({ success: true, messages: processedMessages });
     } catch (error) {
         console.error('Get messages error:', error);
         res.status(500).json({ success: false, message: 'Failed to fetch messages', error: error.message });
@@ -123,9 +132,15 @@ export const sendMessage = async (req, res) => {
         });
 
         // Populate sender info before returning
-        await message.populate('sender', 'fullName email role');
+        await message.populate('sender', 'fullName email role idRevealConsent anonymousCode');
 
-        res.status(201).json({ success: true, message });
+        const msgObj = message.toObject();
+        if (msgObj.sender && msgObj.sender.role === 'user' && !msgObj.sender.idRevealConsent) {
+            msgObj.sender.email = `Hidden (${msgObj.sender.anonymousCode || 'Anonymous'})`;
+            msgObj.sender.fullName = 'Anonymous User';
+        }
+
+        res.status(201).json({ success: true, message: msgObj });
     } catch (error) {
         console.error('Send message error:', error);
         res.status(500).json({ success: false, message: 'Failed to send message', error: error.message });

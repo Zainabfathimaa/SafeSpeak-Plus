@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { AdminHeader } from '../../components/Admin/AdminHeader';
 import { AdminSidebar } from '../../components/Admin/AdminSidebar';
 import { getReportById, updateReportStatus } from '../../services/reportService';
-import { ArrowLeft, Calendar, MapPin, Clock, AlertTriangle, FileText, User, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Clock, AlertTriangle, FileText, User, CheckCircle, XCircle, X } from 'lucide-react';
 import { RiskBadge } from '../../components/Admin/RiskBadge';
 import { StatusBadge } from '../../components/Admin/StatusBadge';
 import { Button } from '../../components/ui/Button';
@@ -20,6 +20,7 @@ export default function ReportDetail() {
     const { addToast } = useToast();
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [actionType, setActionType] = useState(null);
+    const [selectedEvidence, setSelectedEvidence] = useState(null);
 
     useEffect(() => {
         const fetchReport = async () => {
@@ -219,10 +220,8 @@ export default function ReportDetail() {
                                     {report.evidenceFiles && report.evidenceFiles.length > 0 ? (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             {report.evidenceFiles.map((file, index) => (
-                                                <a 
-                                                    href={file.fileUrl} 
-                                                    target="_blank" 
-                                                    rel="noopener noreferrer" 
+                                                <div 
+                                                    onClick={() => setSelectedEvidence(file)}
                                                     key={index} 
                                                     className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
                                                 >
@@ -231,7 +230,7 @@ export default function ReportDetail() {
                                                         <p className="text-sm font-medium text-gray-900 truncate">{file.fileName}</p>
                                                         <p className="text-xs text-gray-500">{file.fileType}</p>
                                                     </div>
-                                                </a>
+                                                </div>
                                             ))}
                                         </div>
                                     ) : (
@@ -306,6 +305,35 @@ export default function ReportDetail() {
                 confirmText={actionType === 'escalate' ? "Escalate" : "Flag as Spam"}
                 variant={actionType === 'escalate' ? "warning" : "danger"}
             />
+
+            {/* Evidence Modal */}
+            {selectedEvidence && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedEvidence(null)}>
+                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50/50">
+                            <h3 className="font-semibold text-gray-900 truncate pr-4">{selectedEvidence.fileName}</h3>
+                            <button onClick={() => setSelectedEvidence(null)} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <div className="p-6 flex-1 overflow-auto flex items-center justify-center bg-gray-100/50">
+                            {selectedEvidence.fileType.startsWith('image/') ? (
+                                <img src={selectedEvidence.fileUrl} alt={selectedEvidence.fileName} className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-sm" />
+                            ) : selectedEvidence.fileType === 'application/pdf' ? (
+                                <iframe src={selectedEvidence.fileUrl} className="w-full h-[70vh] border-0 rounded-lg shadow-sm" title={selectedEvidence.fileName} />
+                            ) : (
+                                <div className="text-center p-8">
+                                    <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                                    <p className="text-gray-900 font-medium mb-4">Preview not available for this file type.</p>
+                                    <a href={selectedEvidence.fileUrl} download={selectedEvidence.fileName} className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                                        Download File
+                                    </a>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

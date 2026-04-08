@@ -19,10 +19,21 @@ export const getAllUsers = async (req, res) => {
             .select('-password -verificationToken -verificationTokenExpiry')
             .sort({ createdAt: -1 });
 
+        const processedUsers = users.map(user => {
+            const userObj = user.toObject();
+            if (userObj.role === 'user' && !userObj.idRevealConsent) {
+                userObj.email = `Hidden (${userObj.anonymousCode || 'Anonymous'})`;
+                userObj.fullName = 'Anonymous User';
+                userObj.phone = 'Hidden';
+                userObj.department = 'Hidden';
+            }
+            return userObj;
+        });
+
         res.status(200).json({
             success: true,
-            count: users.length,
-            users
+            count: processedUsers.length,
+            users: processedUsers
         });
 
     } catch (error) {
