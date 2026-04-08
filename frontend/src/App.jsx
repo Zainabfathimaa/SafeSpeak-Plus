@@ -20,6 +20,7 @@ import AdminUsers from './pages/Admin/AdminUsers';
 import AdminAnalytics from './pages/Admin/AdminAnalytics';
 import AdminSettings from './pages/Admin/AdminSettings';
 import AdminMessages from './pages/Admin/AdminMessages';
+import AdminUserHistory from './pages/Admin/AdminUserHistory';
 import NotFoundPage from './pages/NotFoundPage';
 import UserReportDetail from './pages/UserReportDetail';
 import ReportDetail from './pages/Admin/ReportDetail';
@@ -55,6 +56,7 @@ function Layout() {
           <Route path="/dashboard" element={<ProtectedRoute element={<UserDashboard />} />} />
           <Route path="/admin-dashboard" element={<ProtectedRoute element={<AdminDashboard />} requiredRole="admin" />} />
           <Route path="/admin/users" element={<ProtectedRoute element={<AdminUsers />} requiredRole="admin" />} />
+          <Route path="/admin/users/:userId/history" element={<ProtectedRoute element={<AdminUserHistory />} requiredRole="admin" />} />
           <Route path="/admin/analytics" element={<ProtectedRoute element={<AdminAnalytics />} requiredRole="admin" />} />
           <Route path="/admin/settings" element={<ProtectedRoute element={<AdminSettings />} requiredRole="admin" />} />
           <Route path="/admin/messages" element={<ProtectedRoute element={<AdminMessages />} requiredRole="admin" />} />

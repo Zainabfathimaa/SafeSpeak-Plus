@@ -147,12 +147,24 @@ export const getAllReports = async (req, res) => {
         if (riskLevel && riskLevel !== 'all') filter.riskLevel = riskLevel;
         if (department && department !== 'all') filter.department = department;
 
-        const reports = await Report.find(filter).sort({ createdAt: -1 });
+        const reports = await Report.find(filter)
+            .populate('submittedBy.userId', 'fullName email idRevealConsent anonymousCode')
+            .sort({ createdAt: -1 });
+
+        // Hide user identity if not consented
+        const processedReports = reports.map(report => {
+            const reportObj = report.toObject();
+            if (reportObj.submittedBy?.userId && !reportObj.submittedBy.userId.idRevealConsent) {
+                reportObj.submittedBy.userId.email = `Hidden (${reportObj.submittedBy.anonymousCode || 'Anonymous'})`;
+                reportObj.submittedBy.userId.fullName = 'Anonymous User';
+            }
+            return reportObj;
+        });
 
         res.status(200).json({
             success: true,
-            count: reports.length,
-            reports
+            count: processedReports.length,
+            reports: processedReports
         });
 
     } catch (error) {
@@ -192,7 +204,7 @@ export const getUserReports = async (req, res) => {
 // @access  Private
 export const getReportById = async (req, res) => {
     try {
-        const report = await Report.findById(req.params.id);
+        const report = await Report.findById(req.params.id).populate('submittedBy.userId', 'fullName email idRevealConsent anonymousCode');
 
         if (!report) {
             return res.status(404).json({ success: false, message: 'Report not found' });
@@ -201,6 +213,12 @@ export const getReportById = async (req, res) => {
         // Check permission (Admin can see all, User can only see their own)
         if (req.user.role === 'user' && report.submittedBy?.userId?.toString() !== req.user.userId?.toString()) {
             return res.status(403).json({ success: false, message: 'Not authorized to view this report' });
+        }
+
+        // Hide user identity if not consented
+        if (report.submittedBy?.userId && !report.submittedBy.userId.idRevealConsent) {
+            report.submittedBy.userId.email = `Hidden (${report.submittedBy.anonymousCode || 'Anonymous'})`;
+            report.submittedBy.userId.fullName = 'Anonymous User';
         }
 
         res.status(200).json({

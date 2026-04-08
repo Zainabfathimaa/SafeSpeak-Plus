@@ -1,6 +1,7 @@
 import express from 'express';
 import {
   getAllUsers,
+  getUserById,
   getCurrentUser,
   updateUserProfile,
   getUserPreferences,
@@ -66,4 +67,7 @@ router.put('/consent/id-reveal', authenticate, updateIdRevealConsent);
 
 // Get all users (Admin only) (GET /api/user/all)
 router.get('/all', authenticate, getAllUsers);
+
+// Get user by ID (Admin only) (GET /api/user/:id)
+router.get('/:id', authenticate, getUserById);
 export default router;

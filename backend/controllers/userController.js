@@ -47,6 +47,44 @@ export const getAllUsers = async (req, res) => {
 };
 
 // ===================================
+// GET USER BY ID (Admin only)
+// ===================================
+export const getUserById = async (req, res) => {
+    try {
+        // Check admin role
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({
+                success: false,
+                message: 'Only admins can view user details'
+            });
+        }
+
+        const user = await User.findById(req.params.id)
+            .select('-password -verificationToken -verificationTokenExpiry');
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            user
+        });
+
+    } catch (error) {
+        console.error('Failed to get user by ID:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch user details',
+            error: error.message
+        });
+    }
+};
+
+// ===================================
 // GET CURRENT USER PROFILE
 // ===================================
 export const getCurrentUser = async (req, res) => {
@@ -409,8 +447,7 @@ export const getUserActivity = async (req, res) => {
 };
 
 export default {
-    getAllUsers,
-    getCurrentUser,
+    getAllUsers,    getUserById,    getCurrentUser,
     updateUserProfile,
     getUserPreferences,
     updateNotificationPreferences,

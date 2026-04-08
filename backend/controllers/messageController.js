@@ -85,6 +85,28 @@ export const getMessagesByReport = async (req, res) => {
             .populate('sender', 'fullName email role idRevealConsent anonymousCode')
             .sort({ createdAt: 1 });
 
+        // Mark messages as delivered and read for the current user
+        const messageIdsToUpdate = [];
+        messages.forEach(msg => {
+            if (msg.sender._id.toString() !== userId) {
+                if (!msg.deliveredTo.some(id => id.toString() === userId)) {
+                    msg.deliveredTo.push(userId);
+                    messageIdsToUpdate.push(msg._id);
+                }
+                if (!msg.readBy.some(id => id.toString() === userId)) {
+                    msg.readBy.push(userId);
+                    messageIdsToUpdate.push(msg._id);
+                }
+            }
+        });
+
+        if (messageIdsToUpdate.length > 0) {
+            await Message.updateMany(
+                { _id: { $in: messageIdsToUpdate } },
+                { $addToSet: { deliveredTo: userId, readBy: userId } }
+            );
+        }
+
         const processedMessages = messages.map(msg => {
             const msgObj = msg.toObject();
             if (msgObj.sender && msgObj.sender.role === 'user' && !msgObj.sender.idRevealConsent) {
@@ -128,7 +150,8 @@ export const sendMessage = async (req, res) => {
             sender: userId,
             senderRole: role,
             text: text.trim(),
-            readBy: [userId] // sender has read it
+            readBy: [userId], // sender has read it
+            deliveredTo: [userId] // sender has it delivered
         });
 
         // Populate sender info before returning
