@@ -13,6 +13,7 @@ export const UserSettingsPage = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
 
 
@@ -215,6 +216,12 @@ export const UserSettingsPage = () => {
     }
   };
 
+  const executeLogout = async () => {
+    setIsLogoutModalOpen(false);
+    const { logout } = await import('../services/authService');
+    logout();
+    window.location.href = '/login';
+  };
 
 
   if (isLoading) {
@@ -627,6 +634,16 @@ export const UserSettingsPage = () => {
         message="Are you absolutely sure you want to permanently delete your account? This action cannot be undone."
         confirmText="Delete Account"
         variant="danger"
+      />
+
+      <ConfirmationModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={executeLogout}
+        title="Sign Out"
+        message="Are you sure you want to sign out of your account?"
+        confirmText="Sign Out"
+        variant="primary"
       />
     </div>
   );

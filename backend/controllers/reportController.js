@@ -204,14 +204,23 @@ export const getUserReports = async (req, res) => {
 // @access  Private
 export const getReportById = async (req, res) => {
     try {
-        const report = await Report.findById(req.params.id).populate('submittedBy.userId', 'fullName email idRevealConsent anonymousCode');
+        const mongoose = (await import('mongoose')).default;
+        const id = req.params.id;
+        let query;
+        if (mongoose.Types.ObjectId.isValid(id)) {
+            query = { _id: id };
+        } else {
+            query = { reportId: id };
+        }
+        const report = await Report.findOne(query).populate('submittedBy.userId', 'fullName email idRevealConsent anonymousCode');
 
         if (!report) {
             return res.status(404).json({ success: false, message: 'Report not found' });
         }
 
         // Check permission (Admin can see all, User can only see their own)
-        if (req.user.role === 'user' && report.submittedBy?.userId?.toString() !== req.user.userId?.toString()) {
+        const reportUserId = report.submittedBy?.userId?._id?.toString() || report.submittedBy?.userId?.toString();
+        if (req.user.role === 'user' && reportUserId !== req.user.userId?.toString()) {
             return res.status(403).json({ success: false, message: 'Not authorized to view this report' });
         }
 
@@ -241,8 +250,16 @@ export const getReportById = async (req, res) => {
 export const updateReportStatus = async (req, res) => {
     try {
         const { status, riskLevel, assignedTo } = req.body;
+        const mongoose = (await import('mongoose')).default;
+        const id = req.params.id;
+        let query;
+        if (mongoose.Types.ObjectId.isValid(id)) {
+            query = { _id: id };
+        } else {
+            query = { reportId: id };
+        }
 
-        const report = await Report.findById(req.params.id);
+        const report = await Report.findOne(query);
 
         if (!report) {
             return res.status(404).json({ success: false, message: 'Report not found' });
@@ -317,14 +334,23 @@ SafeSpeak Admin Team
 export const appealReport = async (req, res) => {
     try {
         const { evidence, reason } = req.body;
-        const report = await Report.findById(req.params.id);
+        const mongoose = (await import('mongoose')).default;
+        const id = req.params.id;
+        let query;
+        if (mongoose.Types.ObjectId.isValid(id)) {
+            query = { _id: id };
+        } else {
+            query = { reportId: id };
+        }
+        const report = await Report.findOne(query);
 
         if (!report) {
             return res.status(404).json({ success: false, message: 'Report not found' });
         }
 
         // Check if user owns report
-        if (report.submittedBy?.userId?.toString() !== req.user.userId?.toString()) {
+        const reportUserId = report.submittedBy?.userId?._id?.toString() || report.submittedBy?.userId?.toString();
+        if (reportUserId !== req.user.userId?.toString()) {
             return res.status(403).json({ success: false, message: 'Not authorized to appeal this report' });
         }
 
@@ -381,17 +407,24 @@ export const appealReport = async (req, res) => {
 export const escalateReport = async (req, res) => {
     try {
         const { message, contactMethod, contactValue, proofImageBase64 } = req.body;
-        // contactMethod: 'email' or 'whatsapp'
-        // contactValue: admin's email or phone number
         
-        const report = await Report.findById(req.params.id);
+        const mongoose = (await import('mongoose')).default;
+        const id = req.params.id;
+        let query;
+        if (mongoose.Types.ObjectId.isValid(id)) {
+            query = { _id: id };
+        } else {
+            query = { reportId: id };
+        }
+        const report = await Report.findOne(query);
 
         if (!report) {
             return res.status(404).json({ success: false, message: 'Report not found' });
         }
 
-        // Check if user owns report
-        if (report.submittedBy?.userId?.toString() !== req.user.userId?.toString()) {
+        // Check if user owns report or is admin
+        const reportUserId = report.submittedBy?.userId?._id?.toString() || report.submittedBy?.userId?.toString();
+        if (req.user.role !== 'admin' && reportUserId !== req.user.userId?.toString()) {
             return res.status(403).json({ success: false, message: 'Not authorized to escalate this report' });
         }
 
@@ -494,7 +527,8 @@ SafeSpeak+ System Security
                 ];
 
                 try {
-                    const { transporter } = await import('../utils/emailService.js');
+                    const emailService = (await import('../utils/emailService.js')).default;
+                    const transporter = emailService.getTransporter();
                     await transporter.sendMail({
                         from: `"Safe Speak Platform" <${process.env.SMTP_EMAIL}>`,
                         to: contactValue,
@@ -605,7 +639,15 @@ SafeSpeak+ System Security
 // @access  Public (or protected if token provided, but WA links need it public theoretically. For security, we can make it public if ID is known)
 export const getEscalationPdf = async (req, res) => {
     try {
-        const report = await Report.findById(req.params.id);
+        const mongoose = (await import('mongoose')).default;
+        const id = req.params.id;
+        let query;
+        if (mongoose.Types.ObjectId.isValid(id)) {
+            query = { _id: id };
+        } else {
+            query = { reportId: id };
+        }
+        const report = await Report.findOne(query);
         if (!report || !report.escalationDetails || !report.escalationDetails.pdfPath) {
             return res.status(404).send('Escalation PDF not found.');
         }
