@@ -123,11 +123,7 @@ export default function AdminDashboard() {
                 {/* Main Content */}
                 <main className="flex-1 p-6 lg:p-8 overflow-y-auto">
                     <div className="max-w-7xl mx-auto space-y-8">
-                        {/* Page Title */}
-                        <div>
-                            <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-                            <p className="text-text-secondary mt-2">Manage and review all incident reports</p>
-                        </div>
+
 
                         {/* Tab Navigation */}
                         <div className="flex border-b border-gray-200 gap-8">
