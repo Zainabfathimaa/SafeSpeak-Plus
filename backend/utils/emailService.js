@@ -281,19 +281,58 @@ export const sendAnonymousCodeEmailWithTimeout = async (toEmail, anonymousCode, 
 };
 
 // generic email helper for other notifications
-export const sendEmail = async (to, subject, text) => {
+export const sendEmail = async (to, subject, text, html = null, attachments = null) => {
   try {
+    const fromEmail = process.env.SMTP_EMAIL;
+    const sendgridApiKey = process.env.SENDGRID_API_KEY;
+
+    // 1. Try SendGrid first if API Key is present
+    if (sendgridApiKey) {
+      console.log('📡 Sending email via SendGrid API ✨');
+      sgMail.setApiKey(sendgridApiKey);
+      
+      const msg = {
+        to,
+        from: {
+          email: fromEmail,
+          name: 'SafeSpeak+ System'
+        },
+        subject,
+        text,
+        html: html || text,
+        ...(attachments && {
+          attachments: attachments.map(att => ({
+            content: att.content.toString('base64'),
+            filename: att.filename,
+            type: att.contentType || 'application/octet-stream',
+            disposition: 'attachment'
+          }))
+        })
+      };
+      
+      const [response] = await sgMail.send(msg);
+      console.log('✅ SendGrid Success:', response.statusCode);
+      return { success: true, messageId: response.headers['x-message-id'] };
+    }
+
+    // 2. Fallback to Nodemailer/SMTP
+    console.log('📧 Sending email via Nodemailer/SMTP fallback');
     const transporter = getTransporter();
     const info = await transporter.sendMail({
-      from: process.env.SMTP_EMAIL,
+      from: `"SafeSpeak+ System" <${fromEmail}>`,
       to,
       subject,
-      text
+      text,
+      html: html || text,
+      attachments
     });
-    console.log('✓ Generic email sent:', info.messageId);
+    console.log('✓ Email sent via SMTP:', info.messageId);
     return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error('✗ Generic email failed:', error.message);
+    console.error('✗ Email failed:', error.message);
+    if (error.response && error.response.body) {
+      console.error('   SendGrid Error Details:', JSON.stringify(error.response.body, null, 2));
+    }
     return { success: false, message: error.message };
   }
 };
@@ -462,6 +501,7 @@ export const sendPasswordResetEmail = async (email, resetToken, baseUrl) => {
  */
 export default {
   sendRegistrationEmail,
+  sendEmail,
   sendPasswordResetEmail,
   testEmailConnection,
   getTransporter

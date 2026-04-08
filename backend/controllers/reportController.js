@@ -611,17 +611,20 @@ SafeSpeak+ System Security
 
             try {
                 const emailService = (await import('../utils/emailService.js')).default;
-                const transporter = emailService.getTransporter();
-                await transporter.sendMail({
-                    from: `"Safe Speak Platform" <${process.env.SMTP_EMAIL}>`,
-                    to: contactValue,
+                const result = await emailService.sendEmail(
+                    contactValue,
                     subject,
-                    text: emailMessage,
+                    emailMessage,
+                    null, // html (will default to text)
                     attachments
-                });
+                );
+                
+                if (!result.success) {
+                    throw new Error(result.message);
+                }
             } catch (err) {
                 console.error('Failed to send escalated email with PDF:', err);
-                return res.status(500).json({ success: false, message: 'Escalation recorded, but failed to send the email. Please check your SMTP configuration.' });
+                return res.status(500).json({ success: false, message: 'Escalation recorded, but failed to send the email. ' + err.message });
             }
 
             return res.status(200).json({
