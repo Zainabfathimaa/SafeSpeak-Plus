@@ -140,27 +140,6 @@ export default function ReportDetail() {
                                 <ArrowLeft className="h-5 w-5 mr-2" />
                                 Back to Dashboard
                             </button>
-                            <div className="flex items-center space-x-3">
-                                <label className="text-sm font-medium text-gray-700">Update Status:</label>
-                                <select
-                                    value={report.status}
-                                    onChange={(e) => handleStatusChange(e.target.value)}
-                                    disabled={updating}
-                                    className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2 transition-colors cursor-pointer min-w-[160px]"
-                                >
-                                    <option value="Pending Validation">Pending Validation</option>
-                                    <option value="Needs Info">Needs Info</option>
-                                    <option value="Open">Open</option>
-                                    <option value="In-Review">In-Review</option>
-                                    <option value="In-Progress">In-Progress</option>
-                                    <option value="Resolved">Resolved</option>
-                                    <option value="Escalated">Escalated</option>
-                                    <option value="Closed">Closed</option>
-                                    <option value="Appealed">Appealed</option>
-                                    <option value="Archived/Spam">Archived/Spam</option>
-                                </select>
-                                {updating && <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>}
-                            </div>
                         </div>
 
                         {report.status?.toLowerCase() === 'needs info' && (
@@ -274,15 +253,15 @@ export default function ReportDetail() {
                                         <div className="flex items-center p-3 bg-blue-50 rounded-lg border border-blue-100 mb-4">
                                             <AlertTriangle className="h-5 w-5 text-blue-600 mr-3" />
                                             <div>
-                                                <p className="text-sm font-bold text-blue-900">Anonymous Reporter</p>
-                                                <p className="text-xs text-blue-700">Identity protected by system</p>
+                                                <p className="text-sm font-bold text-blue-900">Reporter chose to remain anonymous</p>
+                                                <p className="text-xs text-blue-700">No reporter identity details are available.</p>
                                             </div>
                                         </div>
                                     )}
                                     <p className="text-xs text-gray-500">
                                         {report.submittedBy?.userId 
-                                            ? "The reporter has chosen to reveal their identity to administrators."
-                                            : "The reporter has chosen to remain anonymous. You cannot see their personal details unless they explicitly revealed them in the description."
+                                            ? "Reporter identity is visible because they chose to reveal it."
+                                            : "Reporter identity remains hidden unless they explicitly choose to share it."
                                         }
                                     </p>
                                 </div>
