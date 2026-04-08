@@ -9,7 +9,7 @@ export default function LandingPage() {
         <div className="flex flex-col min-h-screen bg-white">
 
             {/* Hero Section */}
-            <section className="relative pt-20 pb-32 overflow-hidden">
+            <section className="relative pt-16 pb-32 overflow-hidden">
                 <div className="container mx-auto px-4">
                     <div className="flex flex-col lg:flex-row items-center gap-8">
                         <div className="w-full lg:w-1/2 text-left z-10">
