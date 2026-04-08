@@ -143,7 +143,8 @@ export default function UserReportDetail() {
                 addToast('success', res.message || 'Report escalated successfully.', 8000);
                 
                 if (res.whatsappUrl) {
-                    window.open(res.whatsappUrl, '_blank');
+                    // Using location.href is more reliable as window.open is often blocked after async calls
+                    window.location.href = res.whatsappUrl;
                 }
             } else {
                 addToast('error', res.message || 'Failed to escalate report');
