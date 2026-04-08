@@ -186,7 +186,9 @@ export default function UserReportDetail() {
     }
 
     const currentStep = getStatusStep(report.status);
-    const canAppeal = report.status?.toLowerCase() === 'closed' || report.status?.toLowerCase() === 'archived/spam';
+    const canAppeal = 
+        (report.status?.toLowerCase() === 'closed' || report.status?.toLowerCase() === 'archived/spam') ||
+        (report.flags && report.flags.length > 0);
 
     // Escalate Logic: Can escalate if untouched > 48h, or flagged as Critical, or closed/archived. Not allowed if already escalated or resolved.
     const isTerminalStatus = ['resolved', 'closed', 'archived/spam', 'escalated'].includes(report.status?.toLowerCase());
@@ -409,7 +411,7 @@ export default function UserReportDetail() {
                                     <div className="bg-white rounded-xl shadow-sm border border-primary p-6 form-animate">
                                         <h3 className="text-lg font-bold text-gray-900 mb-2">Appeal Decision</h3>
                                         <p className="text-sm text-text-secondary mb-4">
-                                            If you believe this report was closed or archived in error, you can submit additional context to request a secondary review from a senior administrator.
+                                            Your report has been flagged or closed. You can submit additional context or evidence to request a secondary review from a senior administrator.
                                         </p>
                                         <div className="space-y-4">
                                             <div>

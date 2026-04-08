@@ -311,8 +311,11 @@ export default function AdminSettings() {
                 isOpen={isLogoutModalOpen}
                 onClose={() => setIsLogoutModalOpen(false)}
                 onConfirm={async () => {
-                    const { logout } = await import('../../services/authService');
-                    logout();
+                    // Import and call clearSession from authService
+                    const { clearSession } = await import('../../services/authService');
+                    // Clear all authentication tokens and user data from all storages
+                    clearSession();
+                    // Redirect to login page
                     window.location.href = '/login';
                 }}
                 title="Confirm Logout"

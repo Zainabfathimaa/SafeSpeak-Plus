@@ -123,6 +123,13 @@ export default function RegisterPage() {
                                 </ol>
                             </div>
 
+                            {/* Spam Folder Warning */}
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                                <p className="text-sm text-red-800">
+                                    <strong>⚠️ Important:</strong> Your anonymous code has been sent to your email. If you don't find it in your inbox, please check your <strong>Spam</strong> or <strong>Junk</strong> folder. Sometimes our emails get marked as spam by email providers.
+                                </p>
+                            </div>
+
                             {/* Info Box */}
                             <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
                                 <p className="text-sm text-amber-800">

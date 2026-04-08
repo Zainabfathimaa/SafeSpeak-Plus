@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, MoreVertical, ArrowLeft, RefreshCw, Check, CheckCheck } from 'lucide-react';
+import { Send, MoreVertical, ArrowLeft, RefreshCw } from 'lucide-react';
 
 export function ChatWindow({ conversation, onBack, onSend, currentUserRole = 'user' }) {
     const [newMessage, setNewMessage] = useState('');
@@ -124,20 +124,11 @@ export function ChatWindow({ conversation, onBack, onSend, currentUserRole = 'us
                                     {/* Message text */}
                                     <p className="whitespace-pre-wrap break-words">{msg.text}</p>
 
-                                    {/* Time stamp */}
-                                    <p className={`text-[10px] mt-1 text-right flex items-center justify-end space-x-1
+                                    {/* Time stamp only - no status indicators */}
+                                    <p className={`text-[10px] mt-1 text-right
                                         ${isUser ? 'text-white/70' : 'text-gray-400'}
                                     `}>
                                         <span>{msg.time}</span>
-                                        {isUser && (
-                                            msg.status === 'read' ? (
-                                                <CheckCheck className="w-3.5 h-3.5 text-blue-300" />
-                                            ) : msg.status === 'delivered' ? (
-                                                <CheckCheck className="w-3.5 h-3.5 text-white/80" />
-                                            ) : (
-                                                <Check className="w-3.5 h-3.5 text-white/60" />
-                                            )
-                                        )}
                                     </p>
                                 </div>
                             </div>

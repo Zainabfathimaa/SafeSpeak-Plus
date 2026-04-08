@@ -13,6 +13,7 @@ export const UserSettingsPage = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
 
 
@@ -200,8 +201,8 @@ export const UserSettingsPage = () => {
       const response = await userService.deleteAccount();
       if (response.success) {
         addToast('success', 'Your account has been deleted.');
-        const { logout } = await import('../services/authService');
-        logout();
+        const { clearSession } = await import('../services/authService');
+        clearSession();
         setTimeout(() => {
           window.location.href = '/login';
         }, 1500);
@@ -212,6 +213,20 @@ export const UserSettingsPage = () => {
       addToast('error', error.message || 'Failed to delete account');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    setIsLogoutModalOpen(false);
+    try {
+      // Import and call clearSession from authService
+      const { clearSession } = await import('../services/authService');
+      // Clear all authentication tokens and user data from all storages
+      clearSession();
+      // Redirect to login page
+      window.location.href = '/login';
+    } catch (error) {
+      addToast('error', 'Failed to logout. Please try again.');
     }
   };
 
@@ -626,6 +641,16 @@ export const UserSettingsPage = () => {
         title="Delete Account"
         message="Are you absolutely sure you want to permanently delete your account? This action cannot be undone."
         confirmText="Delete Account"
+        variant="danger"
+      />
+
+      <ConfirmationModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+        onConfirm={handleLogout}
+        title="Confirm Logout"
+        message="Are you sure you want to sign out?"
+        confirmText="Sign Out"
         variant="danger"
       />
     </div>

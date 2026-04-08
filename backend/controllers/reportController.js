@@ -328,6 +328,18 @@ export const appealReport = async (req, res) => {
             return res.status(403).json({ success: false, message: 'Not authorized to appeal this report' });
         }
 
+        // Check if report can be appealed (flagged, closed, or archived)
+        const isFlagged = report.flags && report.flags.length > 0;
+        const isClosedOrArchived = report.status === 'Closed' || report.status === 'Archived/Spam';
+        const canAppealReport = isFlagged || isClosedOrArchived;
+
+        if (!canAppealReport) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'This report cannot be appealed. Only flagged, closed, or archived reports can be appealed.' 
+            });
+        }
+
         // Prevent spam appeals
         if (report.status === 'Appealed') {
             return res.status(400).json({ success: false, message: 'This report is already under appeal review' });
