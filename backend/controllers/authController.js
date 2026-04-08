@@ -69,6 +69,42 @@ export const register = async (req, res) => {
   }
 };
 
+/* Register Admin */
+export const registerAdmin = async (req, res) => {
+  try {
+    const { email, password, fullName } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: 'Missing fields' });
+    }
+
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: 'Email already registered' });
+    }
+
+    const newUser = new User({
+      email: email.toLowerCase(),
+      password,
+      fullName: fullName || null,
+      role: 'admin',
+      isEmailVerified: true // Automatically verified
+    });
+
+    // Note: Admins do NOT generate an anonymous code.
+    await newUser.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Admin registration successful. You can now login.'
+    });
+
+  } catch (error) {
+    console.error('Admin Registration Error:', error);
+    res.status(500).json({ success: false, message: 'Admin registration failed' });
+  }
+};
+
 /* Login */
 export const login = async (req, res) => {
   try {

@@ -167,6 +167,17 @@ export const registerUser = async (email, password) => {
   });
 };
 
+export const registerAdmin = async (email, password, fullName) => {
+  return makeRequest('/auth/admin-register', {
+    method: 'POST',
+    body: JSON.stringify({
+      email,
+      password,
+      fullName
+    })
+  });
+};
+
 /**
  * FUNCTION 2: Login User (Email & Password)
  * 
@@ -522,6 +533,7 @@ export const verifyToken = async () => {
 
 export default {
   registerUser,
+  registerAdmin,
   loginUser,
   anonymousLogin,
   getCurrentUser,

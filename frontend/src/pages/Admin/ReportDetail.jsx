@@ -18,8 +18,19 @@ export default function ReportDetail() {
     const [updating, setUpdating] = useState(false);
     const [error, setError] = useState('');
     const { addToast } = useToast();
-    const [selectedStatus, setSelectedStatus] = useState('');
     const [selectedRiskLevel, setSelectedRiskLevel] = useState('');
+    
+    // Admin Escalation State
+    const [isEscalating, setIsEscalating] = useState(false);
+    const [escalationMethod, setEscalationMethod] = useState('email');
+    const [escalationContact, setEscalationContact] = useState('');
+    const [escalationMessage, setEscalationMessage] = useState('');
+    const [escalationProof, setEscalationProof] = useState(null);
+    const [submittingEscalation, setSubmittingEscalation] = useState(false);
+    
+    // Other actions
+    const [actionType, setActionType] = useState(null);
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
     useEffect(() => {
         const fetchReport = async () => {
@@ -81,8 +92,43 @@ export default function ReportDetail() {
     };
 
     const handleEscalateClick = () => {
-        setActionType('escalate');
-        setIsConfirmModalOpen(true);
+        setIsEscalating(!isEscalating);
+    };
+
+    const handleEscalateSubmit = async () => {
+        if (!escalationContact) {
+            addToast('error', `Please provide an ${escalationMethod === 'email' ? 'email address' : 'phone number'}.`);
+            return;
+        }
+        
+        setSubmittingEscalation(true);
+        try {
+            const { escalateReport } = await import('../../services/reportService');
+            const payload = {
+                message: escalationMessage,
+                contactMethod: escalationMethod,
+                contactValue: escalationContact,
+                ...(escalationProof && { proofImageBase64: escalationProof })
+            };
+            const res = await escalateReport(id, payload);
+
+            if (res.success) {
+                setReport(res.report);
+                setIsEscalating(false);
+                addToast('success', res.message || 'Report escalated successfully.', 8000);
+                
+                if (res.whatsappUrl) {
+                    window.open(res.whatsappUrl, '_blank');
+                }
+            } else {
+                addToast('error', res.message || 'Failed to escalate report');
+            }
+        } catch (err) {
+            addToast('error', 'An error occurred while escalating your report.');
+            console.error(err);
+        } finally {
+            setSubmittingEscalation(false);
+        }
     };
 
     const handleFlagSpamClick = () => {
@@ -252,6 +298,84 @@ export default function ReportDetail() {
                                         <p className="text-gray-500 italic">No evidence attached to this report.</p>
                                     )}
                                 </div>
+
+                                {/* Admin Escalation Form */}
+                                {isEscalating && (
+                                    <div className="bg-white rounded-xl shadow-sm border border-orange-200 p-6 form-animate">
+                                        <h3 className="text-lg font-bold text-gray-900 mb-2 flex items-center">
+                                            <AlertTriangle className="h-5 w-5 mr-2 text-orange-600" />
+                                            Admin: Escalate to Supervisor
+                                        </h3>
+                                        <p className="text-sm text-text-secondary mb-4">
+                                            Escalate this case to a super-admin or higher authority. Provide their contact email/phone and your rationale. The entire case file will be exported as a PDF and dispatched to them.
+                                        </p>
+                                        <div className="space-y-4">
+                                            {/* Contact Method Toggles */}
+                                            <div className="flex gap-4">
+                                                <label className="flex items-center cursor-pointer">
+                                                    <input 
+                                                        type="radio" 
+                                                        name="escalateMethod" 
+                                                        value="email" 
+                                                        checked={escalationMethod === 'email'} 
+                                                        onChange={() => setEscalationMethod('email')}
+                                                        className="mr-2 h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300"
+                                                    />
+                                                    <span className="text-sm font-medium text-gray-700">Send via Email</span>
+                                                </label>
+                                                <label className="flex items-center cursor-pointer">
+                                                    <input 
+                                                        type="radio" 
+                                                        name="escalateMethod" 
+                                                        value="whatsapp" 
+                                                        checked={escalationMethod === 'whatsapp'} 
+                                                        onChange={() => setEscalationMethod('whatsapp')}
+                                                        className="mr-2 h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300"
+                                                    />
+                                                    <span className="text-sm font-medium text-gray-700">Send via WhatsApp / Phone</span>
+                                                </label>
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">
+                                                    Supervisor {escalationMethod === 'email' ? 'Email Address' : 'Phone Number'} *
+                                                </label>
+                                                <input
+                                                    type={escalationMethod === 'email' ? 'email' : 'tel'}
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm mb-4"
+                                                    value={escalationContact}
+                                                    onChange={(e) => setEscalationContact(e.target.value)}
+                                                    placeholder={escalationMethod === 'email' ? 'e.g., superadmin@university.edu' : 'e.g., +1234567890'}
+                                                    required
+                                                />
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Admin Escalation (Included in PDF)</label>
+                                                <textarea
+                                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm"
+                                                    rows="3"
+                                                    value={escalationMessage}
+                                                    onChange={(e) => setEscalationMessage(e.target.value)}
+                                                    placeholder="Detail why this case is being pushed directly to higher authorities..."
+                                                ></textarea>
+                                            </div>
+
+                                            <div className="flex gap-3 justify-end mt-4">
+                                                <Button variant="outline" onClick={() => setIsEscalating(false)} disabled={submittingEscalation}>
+                                                    Cancel
+                                                </Button>
+                                                <Button
+                                                    onClick={handleEscalateSubmit}
+                                                    disabled={submittingEscalation}
+                                                    className="bg-orange-600 hover:bg-orange-700 text-white border-transparent"
+                                                >
+                                                    {submittingEscalation ? 'Dispatching PDF...' : 'Execute Escalation'}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
 
                             {/* Sidebar Info */}
