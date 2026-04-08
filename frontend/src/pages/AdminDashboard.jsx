@@ -125,7 +125,7 @@ export default function AdminDashboard() {
                     <div className="max-w-7xl mx-auto space-y-8">
                         {/* Page Title */}
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900">Case Reviewer Dashboard</h1>
+                            <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
                             <p className="text-text-secondary mt-2">Manage and review all incident reports</p>
                         </div>
 

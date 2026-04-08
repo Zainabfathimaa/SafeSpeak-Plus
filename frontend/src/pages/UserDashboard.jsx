@@ -1,7 +1,7 @@
 import React from 'react';
 import { Header } from '../components/Header';
 import { Sidebar } from '../components/Sidebar';
-import { WelcomeCard } from '../components/WelcomeCard';
+
 import { DashboardCard } from '../components/DashboardCard';
 import { DashboardStories } from '../components/DashboardStories';
 import { StorySubmissionModal } from '../components/Stories/StorySubmissionModal';
@@ -90,7 +90,7 @@ export default function UserDashboard() {
                 <Sidebar />
                 <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto relative">
                     <div className="max-w-7xl mx-auto space-y-6">
-                        <WelcomeCard user={user} />
+
 
                         {/* Stories Section */}
                         <DashboardStories />

@@ -28,13 +28,7 @@ export default function AdminSettings() {
         department: 'Administration'
     });
 
-    // Platform preferences state
-    const [platformPrefs, setPlatformPrefs] = useState({
-        autoAssignHighRisk: true,
-        emailOnEscalation: true,
-        weeklyReports: true,
-        maintenanceMode: false
-    });
+
 
     // Fetch current settings on mount
     useEffect(() => {
@@ -66,9 +60,7 @@ export default function AdminSettings() {
         setProfile(prev => ({ ...prev, [name]: value }));
     };
 
-    const handlePlatformToggle = (preference) => {
-        setPlatformPrefs(prev => ({ ...prev, [preference]: !prev[preference] }));
-    };
+
 
     const handleSaveProfile = async () => {
         setIsSaving(true);
@@ -84,18 +76,7 @@ export default function AdminSettings() {
         }
     };
 
-    const handleSavePlatformPrefs = async () => {
-        setIsSaving(true);
-        try {
-            // Simulate API call for platform preferences
-            await new Promise(resolve => setTimeout(resolve, 800));
-            addToast('success', 'Platform preferences saved across the system');
-        } catch (error) {
-            addToast('error', 'Failed to save preferences');
-        } finally {
-            setIsSaving(false);
-        }
-    };
+
 
     const handleSecurityChange = (e) => {
         const { name, value } = e.target;
@@ -130,7 +111,7 @@ export default function AdminSettings() {
 
     const tabs = [
         { id: 'profile', label: 'Admin Profile', icon: User, desc: 'Update details' },
-        { id: 'platform', label: 'Platform Features', icon: Server, desc: 'System behavior' },
+
         { id: 'security', label: 'Access Security', icon: Lock, desc: 'Admin credentials' }
     ];
 
@@ -251,67 +232,7 @@ export default function AdminSettings() {
                                                 </div>
                                             )}
 
-                                            {/* Platform Features Tab */}
-                                            {activeTab === 'platform' && (
-                                                <div className="animate-in fade-in duration-300">
-                                                    <div className="px-4 py-5 sm:p-6">
-                                                        <h3 className="text-lg font-medium leading-6 text-gray-900">Platform Features</h3>
-                                                        <div className="mt-2 max-w-xl text-sm text-gray-500 mb-6">
-                                                            <p>Configure global platform behavior and automation.</p>
-                                                        </div>
 
-                                                        <div className="rounded-md bg-primary/10 p-4 mb-6">
-                                                            <div className="flex">
-                                                                <div className="flex-shrink-0">
-                                                                    <Shield className="h-5 w-5 text-primary" aria-hidden="true" />
-                                                                </div>
-                                                                <div className="ml-3">
-                                                                    <h3 className="text-sm font-medium text-primary-dark">Global System Rules</h3>
-                                                                    <div className="mt-2 text-sm text-primary-dark">
-                                                                        <p>These settings alter the fundamental behavior of SafeSpeak+. Changes here apply universally to all users and reports immediately.</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div className="space-y-4 max-w-2xl px-2">
-                                                            {Object.entries(platformPrefs).map(([key, value]) => {
-                                                                const titles = {
-                                                                    autoAssignHighRisk: { title: "Auto-escalate High Risk Cases", desc: "Automatically notify heads of department immediately when a High Risk report lands." },
-                                                                    emailOnEscalation: { title: "Admin Email Digests", desc: "Send daily digests of system activity to the core admin email inbox." },
-                                                                    weeklyReports: { title: "Automated Weekly Analytics", desc: "Generate and securely store weekly PDF analytic summaries natively." },
-                                                                    maintenanceMode: { title: "System Maintenance Mode", desc: "Lock out new submissions." }
-                                                                };
-                                                                return (
-                                                                    <label key={key} className={`relative block rounded-lg border px-6 py-4 cursor-pointer sm:flex sm:justify-between focus:outline-none ${value ? 'border-primary ring-1 ring-primary bg-primary/5' : 'border-gray-300 bg-white hover:bg-gray-50'}`}>
-                                                                        <div className="flex items-center">
-                                                                            <input
-                                                                                type="checkbox"
-                                                                                checked={value}
-                                                                                onChange={() => handlePlatformToggle(key)}
-                                                                                className="h-4 w-4 border-gray-300 text-primary focus:ring-primary rounded"
-                                                                            />
-                                                                            <div className="ml-3">
-                                                                                <span className="block text-sm font-medium text-gray-900">{titles[key].title}</span>
-                                                                                <span className="block text-sm text-gray-500 mt-1">{titles[key].desc}</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </label>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    </div>
-                                                    <div className="bg-gray-50 px-4 py-3 text-right sm:px-6 rounded-b-lg border-t border-gray-200">
-                                                        <button
-                                                            onClick={handleSavePlatformPrefs}
-                                                            disabled={isSaving}
-                                                            className="inline-flex justify-center rounded-md border border-transparent bg-primary py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-dark disabled:opacity-70 transition-colors"
-                                                        >
-                                                            {isSaving ? 'Applying...' : 'Apply Platform Settings'}
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            )}
 
                                             {/* Security Tab */}
                                             {activeTab === 'security' && (
