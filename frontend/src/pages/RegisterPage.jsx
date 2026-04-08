@@ -91,14 +91,18 @@ export default function RegisterPage() {
                         We've securely generated your Anonymous Access Code and sent it to <span className="font-semibold">{formData.email}</span>
                     </p>
 
-                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-6 text-left">
-                        <p className="text-sm font-semibold text-gray-800 mb-3">📧 What to do next:</p>
-                        <ol className="text-sm text-gray-700 space-y-2 list-decimal list-inside">
-                            <li>Check your college email inbox</li>
-                            <li><strong>Check your SPAM or JUNK folders</strong> if you don't see it within 2 minutes</li>
-                            <li>Find the email titled "Registration Successful"</li>
-                            <li>Locate your unique Anonymous Access Code</li>
-                            <li>Go to the Login page and use it to securely access the platform.</li>
+                    <div className="bg-blue-50 p-5 rounded-lg border-2 border-primary/20 mb-6 text-left shadow-inner">
+                        <p className="text-sm font-bold text-gray-900 mb-3 flex items-center">
+                            <AlertCircle className="w-4 h-4 mr-2 text-primary" />
+                            Next Steps for Secure Access:
+                        </p>
+                        <ol className="text-sm text-gray-700 space-y-3 list-decimal list-inside">
+                            <li>Open your college email inbox</li>
+                            <li className="bg-amber-100/50 p-2 rounded border border-amber-200 text-amber-900 font-medium animate-pulse-slow">
+                                <strong>Check your SPAM or JUNK folders</strong> if the email doesn't appear in 2-3 minutes
+                            </li>
+                            <li>Look for: "SafeSpeak+: Registration Successful"</li>
+                            <li>Your unique <strong>Anonymous Access Code</strong> is inside</li>
                         </ol>
                     </div>
 

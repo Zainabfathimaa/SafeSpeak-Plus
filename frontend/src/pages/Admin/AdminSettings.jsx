@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Save, Shield, BellRing, User, Lock, Server, LogOut } from 'lucide-react';
+import { logout } from '../../services/authService';
 import userService from '../../services/userService';
 import { useToast } from '../../hooks/useToast';
 import { AdminHeader } from '../../components/Admin/AdminHeader';
@@ -310,10 +311,9 @@ export default function AdminSettings() {
             <ConfirmationModal
                 isOpen={isLogoutModalOpen}
                 onClose={() => setIsLogoutModalOpen(false)}
-                onConfirm={async () => {
-                    const { logout } = await import('../../services/authService');
+                onConfirm={() => {
                     logout();
-                    window.location.href = '/login';
+                    navigate('/login');
                 }}
                 title="Confirm Logout"
                 message="Are you sure you want to log out?"
