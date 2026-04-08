@@ -221,6 +221,10 @@ connectDB();
  * Final URL becomes: /api/auth/register
  */
 
+// ESCALATION DOWNLOAD (Primary Root-Level Path)
+import { getEscalationPdf } from './controllers/reportController.js';
+app.get('/api/escalation/download/:id', getEscalationPdf);
+
 // Authentication routes
 app.use('/api/auth', authRoutes);
 
@@ -245,9 +249,8 @@ app.use('/api/notifications', notificationRoutes);
 // Analytics routes
 app.use('/api/analytics', analyticsRoutes);
 
-// ESCALATION DOWNLOAD (Unique Root-Level Path to avoid shadowing)
-import { getEscalationPdf } from './controllers/reportController.js';
-app.get('/api/escalation/download/:id', getEscalationPdf);
+// Analytics routes
+app.use('/api/analytics', analyticsRoutes);
 
 // ===================================
 // STEP 7: Health Check Route
