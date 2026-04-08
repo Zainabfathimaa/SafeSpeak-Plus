@@ -18,6 +18,7 @@ export default function ReportDetail() {
     const [updating, setUpdating] = useState(false);
     const [error, setError] = useState('');
     const { addToast } = useToast();
+    const [selectedStatus, setSelectedStatus] = useState('');
     const [selectedRiskLevel, setSelectedRiskLevel] = useState('');
     
     // Admin Escalation State
