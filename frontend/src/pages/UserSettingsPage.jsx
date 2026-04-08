@@ -14,22 +14,7 @@ export const UserSettingsPage = () => {
   const [activeTab, setActiveTab] = useState('profile');
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  // Appearance state (Functional)
-  const [appearance, setAppearance] = useState(() => {
-    // Load from local storage or default
-    const savedTheme = localStorage.getItem('safeSpeak_theme');
-    return {
-      theme: savedTheme || 'light'
-    };
-  });
 
-  // Apply Theme Changes
-  useEffect(() => {
-    document.documentElement.className = appearance.theme;
-
-    // Save to local storage instantly for immediate persistence without Backend API
-    localStorage.setItem('safeSpeak_theme', appearance.theme);
-  }, [appearance]);
 
   // Security tab state
   const [securityData, setSecurityData] = useState({
@@ -94,9 +79,7 @@ export const UserSettingsPage = () => {
         setPrivacy({
           idRevealConsent: prefsResponse.preferences.idRevealConsent || false
         });
-        if (prefsResponse.preferences.appearance) {
-          setAppearance(prefsResponse.preferences.appearance);
-        }
+
       }
     } catch (error) {
       addToast('error', 'Failed to load settings');
@@ -232,19 +215,7 @@ export const UserSettingsPage = () => {
     }
   };
 
-  const handleSaveAppearance = async () => {
-    setIsSaving(true);
-    try {
-      const response = await userService.updateAppearancePreferences(appearance);
-      if (response.success) {
-        addToast('success', 'Appearance preferences saved globally');
-      }
-    } catch (error) {
-      addToast('error', error.message || 'Failed to save appearance settings');
-    } finally {
-      setIsSaving(false);
-    }
-  };
+
 
   if (isLoading) {
     return (
@@ -267,7 +238,7 @@ export const UserSettingsPage = () => {
 
   const tabs = [
     { id: 'profile', label: 'Personal Profile', icon: User, desc: 'Update your personal details' },
-    { id: 'appearance', label: 'Appearance', icon: Palette, desc: 'Themes & styling' },
+
     { id: 'privacy', label: 'Privacy & Identity', icon: Shield, desc: 'Control your anonymity' },
     { id: 'security', label: 'Account Security', icon: Lock, desc: 'Passwords & authentication' }
   ];
@@ -388,51 +359,7 @@ export const UserSettingsPage = () => {
                     </div>
                   )}
 
-                  {/* Appearance Tab */}
-                  {activeTab === 'appearance' && (
-                    <div className="animate-in fade-in duration-300">
-                      <div className="px-4 py-5 sm:p-6">
-                        <h3 className="text-lg font-medium leading-6 text-gray-900">Appearance</h3>
-                        <div className="mt-2 max-w-xl text-sm text-gray-500">
-                          <p>Customize your platform interface and experience.</p>
-                        </div>
-                        <div className="mt-6 max-w-xl">
-                          <label className="block text-sm font-medium text-gray-700 mb-3">System Theme</label>
-                          <div className="grid grid-cols-2 gap-4">
-                            <button
-                              onClick={() => setAppearance(prev => ({ ...prev, theme: 'light' }))}
-                              className={`flex items-center justify-between px-4 py-3 border rounded-md transition-colors ${appearance.theme === 'light' ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-gray-200 bg-white hover:border-gray-300'}`}
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className="w-4 h-4 rounded-full bg-white border border-gray-300 shadow-sm" />
-                                <span className="font-medium text-gray-900 text-sm">Light Mode</span>
-                              </div>
-                              {appearance.theme === 'light' && <CheckCircle2 className="text-primary w-4 h-4" />}
-                            </button>
-                            <button
-                              onClick={() => setAppearance(prev => ({ ...prev, theme: 'dark' }))}
-                              className={`flex items-center justify-between px-4 py-3 border rounded-md transition-colors ${appearance.theme === 'dark' ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-gray-200 bg-white hover:border-gray-300'}`}
-                            >
-                              <div className="flex items-center gap-3">
-                                <div className="w-4 h-4 rounded-full bg-gray-800 border border-gray-600 shadow-sm" />
-                                <span className="font-medium text-gray-900 text-sm">Dark Mode</span>
-                              </div>
-                              {appearance.theme === 'dark' && <CheckCircle2 className="text-primary w-4 h-4" />}
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="bg-gray-50 px-4 py-3 text-right sm:px-6 rounded-b-lg border-t border-gray-200">
-                        <button
-                          onClick={handleSaveAppearance}
-                          disabled={isSaving}
-                          className="inline-flex justify-center rounded-md border border-transparent bg-primary py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-70 transition-colors"
-                        >
-                          {isSaving ? 'Saving...' : 'Save Preferences'}
-                        </button>
-                      </div>
-                    </div>
-                  )}
+
 
                   {/* Notifications Tab */}
                   {activeTab === 'notifications' && (

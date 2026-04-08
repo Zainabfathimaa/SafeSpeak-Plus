@@ -85,18 +85,7 @@ export default function LoginPage() {
         <div className="min-h-[80vh] flex items-center justify-center px-4 py-12 bg-transparent relative z-10">
             <div className="max-w-md w-full glass-card overflow-hidden">
 
-                {/* Header */}
-                <div className="text-center pt-8 pb-6 px-8 bg-gradient-to-b from-primary/5 to-transparent">
-                    <div className="flex justify-center mb-4">
-                        <div className="p-3 bg-white rounded-full shadow-sm">
-                            <Shield className="h-8 w-8 text-primary" />
-                        </div>
-                    </div>
-                    <h1 className="text-2xl font-bold text-text-primary">SafeSpeak+ Portal</h1>
-                    <p className="text-text-secondary mt-2 text-sm">
-                        Select your login method
-                    </p>
-                </div>
+
 
                 {/* Toggle */}
                 <div className="px-8 mb-6">
@@ -206,12 +195,7 @@ export default function LoginPage() {
                         </Button>
                     </form>
 
-                    <div className="mt-8 pt-6 border-t border-gray-100 text-center text-sm text-text-secondary">
-                        Don't have an account?{' '}
-                        <Link to="/register" className="text-primary hover:underline font-bold">
-                            Register Now
-                        </Link>
-                    </div>
+
                 </div>
             </div>
         </div>

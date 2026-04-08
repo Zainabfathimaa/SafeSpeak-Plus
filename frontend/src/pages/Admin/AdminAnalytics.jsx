@@ -66,17 +66,13 @@ export default function AdminAnalytics() {
 
     return (
         <div className="flex h-screen overflow-hidden flex-col bg-gray-50/50 text-text-primary">
-            <AdminHeader roleName="Analytics Dashboard" />
+            <AdminHeader />
             <div className="flex flex-1 overflow-hidden">
                 <AdminSidebar role="admin" />
 
                 <main className="flex-1 p-6 lg:p-8 overflow-y-auto">
                     <div className="max-w-7xl mx-auto space-y-8">
-                        {/* Header */}
-                        <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                            <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Analytics Dashboard</h1>
-                            <p className="text-gray-500 mt-3 text-lg font-medium">Platform usage statistics and report metrics</p>
-                        </div>
+
 
                         {loading ? (
                             <div className="flex flex-col items-center justify-center py-20">
