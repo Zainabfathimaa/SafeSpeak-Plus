@@ -120,8 +120,46 @@ export default function ReportDetail() {
                 addToast('success', res.message || 'Report escalated successfully.', 8000);
                 
                 if (res.whatsappUrl) {
-                    // Using location.href is more reliable as window.open is often blocked after async calls
-                    window.location.href = res.whatsappUrl;
+                    // Try Direct Share API first (Mobile/Modern Browsers) - "NO LINK" method
+                    const canDirectShare = navigator.share && navigator.canShare;
+                    
+                    if (canDirectShare && res.report?._id) {
+                        try {
+                            addToast('info', 'Preparing PDF for direct sharing...', 4000);
+                            
+                            // 1. Fetch the PDF as a blob from the unique root-level path
+                            const backendUrl = import.meta.env.VITE_API_URL || 'https://safespeak-plus.onrender.com';
+                            const pdfResponse = await fetch(`${backendUrl}/api/escalation/download/${res.report._id}`);
+                            
+                            if (!pdfResponse.ok) throw new Error('Failed to fetch PDF');
+                            
+                            const pdfBlob = await pdfResponse.blob();
+                            
+                            // 2. Create a File object
+                            const pdfFile = new File([pdfBlob], `SafeSpeak_Escalation_${res.report.reportId}.pdf`, { 
+                                type: 'application/pdf' 
+                            });
+
+                            // 3. Check if we can share this specific file
+                            if (navigator.canShare({ files: [pdfFile] })) {
+                                await navigator.share({
+                                    files: [pdfFile],
+                                    title: `SafeSpeak+ Escalation: ${res.report.reportId}`,
+                                    text: `Urgent Escalation for Incident ${res.report.reportId}. Please review the attached PDF.`
+                                });
+                                addToast('success', 'PDF shared successfully via WhatsApp!', 5000);
+                            } else {
+                                throw new Error('Share API does not support file sharing here.');
+                            }
+                        } catch (shareErr) {
+                            console.warn('Direct Share failed, falling back to Link method:', shareErr);
+                            // Fallback to the reliable Link method if Share API fails
+                            window.location.href = res.whatsappUrl;
+                        }
+                    } else {
+                        // Fallback for Desktop/Unsupported browsers
+                        window.location.href = res.whatsappUrl;
+                    }
                 }
             } else {
                 addToast('error', res.message || 'Failed to escalate report');
