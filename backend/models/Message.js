@@ -35,6 +35,12 @@ const messageSchema = new mongoose.Schema({
     readBy: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
+    }],
+
+    // Whether the message has been delivered to the recipient(s)
+    deliveredTo: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     }]
 }, {
     timestamps: true

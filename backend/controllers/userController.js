@@ -19,10 +19,21 @@ export const getAllUsers = async (req, res) => {
             .select('-password -verificationToken -verificationTokenExpiry')
             .sort({ createdAt: -1 });
 
+        const processedUsers = users.map(user => {
+            const userObj = user.toObject();
+            if (userObj.role === 'user' && !userObj.idRevealConsent) {
+                userObj.email = `Hidden (${userObj.anonymousCode || 'Anonymous'})`;
+                userObj.fullName = 'Anonymous User';
+                userObj.phone = 'Hidden';
+                userObj.department = 'Hidden';
+            }
+            return userObj;
+        });
+
         res.status(200).json({
             success: true,
-            count: users.length,
-            users
+            count: processedUsers.length,
+            users: processedUsers
         });
 
     } catch (error) {
@@ -30,6 +41,44 @@ export const getAllUsers = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Failed to fetch users',
+            error: error.message
+        });
+    }
+};
+
+// ===================================
+// GET USER BY ID (Admin only)
+// ===================================
+export const getUserById = async (req, res) => {
+    try {
+        // Check admin role
+        if (req.user.role !== 'admin') {
+            return res.status(403).json({
+                success: false,
+                message: 'Only admins can view user details'
+            });
+        }
+
+        const user = await User.findById(req.params.id)
+            .select('-password -verificationToken -verificationTokenExpiry');
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            user
+        });
+
+    } catch (error) {
+        console.error('Failed to get user by ID:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch user details',
             error: error.message
         });
     }
@@ -398,8 +447,7 @@ export const getUserActivity = async (req, res) => {
 };
 
 export default {
-    getAllUsers,
-    getCurrentUser,
+    getAllUsers,    getUserById,    getCurrentUser,
     updateUserProfile,
     getUserPreferences,
     updateNotificationPreferences,

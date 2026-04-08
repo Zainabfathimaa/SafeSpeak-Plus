@@ -63,10 +63,10 @@ const userService = {
     }
   },
 
-  // Admin: Get all users
-  getAllUsers: async () => {
+  // Admin: Get user by ID
+  getUserById: async (userId) => {
     try {
-      const response = await axios.get(`${API_BASE_URL}/user/all`);
+      const response = await axios.get(`${API_BASE_URL}/user/${userId}`);
       return response.data;
     } catch (error) {
       throw error.response?.data || error;

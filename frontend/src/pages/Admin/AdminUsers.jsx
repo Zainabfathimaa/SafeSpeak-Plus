@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AdminHeader } from '../../components/Admin/AdminHeader';
 import { AdminSidebar } from '../../components/Admin/AdminSidebar';
 import userService from '../../services/userService';
-import { Search, Shield, User, CheckCircle2, XCircle, MailWarning } from 'lucide-react';
+import { Search, Shield, User, CheckCircle2, XCircle, MailWarning, Eye } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 
 export default function AdminUsers() {
+    const navigate = useNavigate();
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [roleFilter, setRoleFilter] = useState('all');
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -34,9 +35,7 @@ export default function AdminUsers() {
             (user.email?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
             (user.anonymousCode?.toLowerCase() || '').includes(searchTerm.toLowerCase());
 
-        const matchesRole = roleFilter === 'all' || user.role === roleFilter;
-
-        return matchesSearch && matchesRole;
+        return matchesSearch;
     });
 
     const getRoleBadgeColor = (role) => {
@@ -76,23 +75,6 @@ export default function AdminUsers() {
                                     className="pl-10 w-full"
                                 />
                             </div>
-
-                            <div className="flex items-center space-x-2 w-full sm:w-auto">
-                                <span className="text-sm font-medium text-gray-700 whitespace-nowrap">Filter Role:</span>
-                                <select
-                                    value={roleFilter}
-                                    onChange={(e) => setRoleFilter(e.target.value)}
-                                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm pl-3 pr-10 py-2 border bg-white"
-                                >
-                                    <option value="all">All Roles</option>
-                                    <option value="user">User</option>
-                                    <option value="admin">Admin</option>
-                                    <option value="counsellor">Counsellor</option>
-                                    <option value="executive">Executive</option>
-                                    <option value="compliance-officer">Compliance Officer</option>
-                                    <option value="department-head">Department Head</option>
-                                </select>
-                            </div>
                         </div>
 
                         {/* Users Table */}
@@ -112,6 +94,7 @@ export default function AdminUsers() {
                                                 <th className="px-6 py-4 text-left text-sm font-semibold text-text-primary">Email Status</th>
                                                 <th className="px-6 py-4 text-left text-sm font-semibold text-text-primary">Joined Date</th>
                                                 <th className="px-6 py-4 text-left text-sm font-semibold text-text-primary">Reports</th>
+                                                <th className="px-6 py-4 text-left text-sm font-semibold text-text-primary">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-200">
@@ -163,11 +146,22 @@ export default function AdminUsers() {
                                                             {/* We don't have report count per user directly in the user model right now, so placeholder */}
                                                             <span className="text-gray-400 text-xs italic">Analytics</span>
                                                         </td>
+                                                        <td className="px-6 py-4">
+                                                            <Button
+                                                                size="sm"
+                                                                variant="outline"
+                                                                onClick={() => navigate(`/admin/users/${user._id}/history`)}
+                                                                className="flex items-center space-x-1"
+                                                            >
+                                                                <Eye className="h-4 w-4" />
+                                                                <span>View History</span>
+                                                            </Button>
+                                                        </td>
                                                     </tr>
                                                 ))
                                             ) : (
                                                 <tr>
-                                                    <td colSpan="5" className="px-6 py-12 text-center text-gray-500">
+                                                    <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
                                                         <User className="h-12 w-12 mx-auto mb-3 text-gray-300" />
                                                         <p className="text-lg font-medium text-gray-900">No users found</p>
                                                         <p className="text-sm">Try adjusting your filters or search terms.</p>

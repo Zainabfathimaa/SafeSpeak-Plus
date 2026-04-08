@@ -4,6 +4,7 @@ import { AdminSidebar } from '../../components/Admin/AdminSidebar';
 import { ConversationList } from '../../components/Messages/ConversationList';
 import { ChatWindow } from '../../components/Messages/ChatWindow';
 import { getConversations, getMessages, sendMessage as sendMessageApi } from '../../services/messageService';
+import { getCurrentUser } from '../../services/authService';
 import { MessageSquare } from 'lucide-react';
 
 const POLL_INTERVAL = 5000; // 5 seconds
@@ -14,6 +15,7 @@ export default function AdminMessages() {
     const [activeConversation, setActiveConversation] = useState(null);
     const [showMobileChat, setShowMobileChat] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [currentUser, setCurrentUser] = useState(null);
     const pollRef = useRef(null);
     const msgPollRef = useRef(null);
 
@@ -45,7 +47,18 @@ export default function AdminMessages() {
 
     // Initial load
     useEffect(() => {
-        fetchConversations();
+        const loadInitialData = async () => {
+            try {
+                const userRes = await getCurrentUser();
+                if (userRes.success) {
+                    setCurrentUser(userRes.user);
+                }
+            } catch (err) {
+                console.error('Failed to get current user:', err);
+            }
+            await fetchConversations();
+        };
+        loadInitialData();
     }, []);
 
     // Poll conversations
@@ -56,17 +69,31 @@ export default function AdminMessages() {
 
     // Fetch messages
     const fetchMessages = useCallback(async () => {
-        if (!activeConversationId) return;
+        if (!activeConversationId || !currentUser) return;
         try {
             const res = await getMessages(activeConversationId);
             if (res.success) {
-                const msgs = res.messages.map(m => ({
-                    id: m._id,
-                    sender: m.senderRole === 'admin' ? 'You' : (m.sender?.fullName || 'Student'),
-                    senderRole: m.senderRole,
-                    text: m.text,
-                    time: new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                }));
+                const msgs = res.messages.map(m => {
+                    let status = 'sent';
+                    if (m.sender._id === currentUser.id) {
+                        // Message sent by current user
+                        const hasRead = m.readBy && m.readBy.some(id => id !== currentUser.id);
+                        const hasDelivered = m.deliveredTo && m.deliveredTo.some(id => id !== currentUser.id);
+                        if (hasRead) {
+                            status = 'read';
+                        } else if (hasDelivered) {
+                            status = 'delivered';
+                        }
+                    }
+                    return {
+                        id: m._id,
+                        sender: m.senderRole === 'admin' ? 'You' : (m.sender?.fullName || 'Student'),
+                        senderRole: m.senderRole,
+                        text: m.text,
+                        time: new Date(m.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                        status
+                    };
+                });
                 setActiveConversation(prev => {
                     const conv = conversations.find(c => c.id === activeConversationId);
                     return { ...(conv || prev || {}), messages: msgs };
@@ -75,7 +102,7 @@ export default function AdminMessages() {
         } catch (err) {
             console.error('Failed to load messages:', err);
         }
-    }, [activeConversationId, conversations]);
+    }, [activeConversationId, conversations, currentUser]);
 
     useEffect(() => {
         fetchMessages();
@@ -103,7 +130,8 @@ export default function AdminMessages() {
                     sender: 'You',
                     senderRole: 'admin',
                     text: res.message.text,
-                    time: new Date(res.message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    time: new Date(res.message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    status: 'sent'
                 };
                 setActiveConversation(prev => ({
                     ...prev,

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { AdminHeader } from '../../components/Admin/AdminHeader';
 import { AdminSidebar } from '../../components/Admin/AdminSidebar';
 import { getReportById, updateReportStatus } from '../../services/reportService';
-import { ArrowLeft, Calendar, MapPin, Clock, AlertTriangle, FileText, User, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, Calendar, MapPin, Clock, AlertTriangle, FileText, User, CheckCircle, XCircle, X } from 'lucide-react';
 import { RiskBadge } from '../../components/Admin/RiskBadge';
 import { StatusBadge } from '../../components/Admin/StatusBadge';
 import { Button } from '../../components/ui/Button';
@@ -18,8 +18,8 @@ export default function ReportDetail() {
     const [updating, setUpdating] = useState(false);
     const [error, setError] = useState('');
     const { addToast } = useToast();
-    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-    const [actionType, setActionType] = useState(null);
+    const [selectedStatus, setSelectedStatus] = useState('');
+    const [selectedRiskLevel, setSelectedRiskLevel] = useState('');
 
     useEffect(() => {
         const fetchReport = async () => {
@@ -54,6 +54,22 @@ export default function ReportDetail() {
         } catch (err) {
             console.error('Failed to update status:', err);
             addToast('error', 'Failed to update status');
+        } finally {
+            setUpdating(false);
+        }
+    };
+
+    const handleRiskLevelChange = async (newRiskLevel) => {
+        setUpdating(true);
+        try {
+            const response = await updateReportStatus(id, { riskLevel: newRiskLevel });
+            if (response.success) {
+                setReport(response.report);
+                addToast('success', `Risk level updated to ${newRiskLevel}`);
+            }
+        } catch (err) {
+            console.error('Failed to update risk level:', err);
+            addToast('error', 'Failed to update risk level');
         } finally {
             setUpdating(false);
         }
@@ -219,10 +235,8 @@ export default function ReportDetail() {
                                     {report.evidenceFiles && report.evidenceFiles.length > 0 ? (
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                             {report.evidenceFiles.map((file, index) => (
-                                                <a 
-                                                    href={file.fileUrl} 
-                                                    target="_blank" 
-                                                    rel="noopener noreferrer" 
+                                                <div 
+                                                    onClick={() => setSelectedEvidence(file)}
                                                     key={index} 
                                                     className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
                                                 >
@@ -231,7 +245,7 @@ export default function ReportDetail() {
                                                         <p className="text-sm font-medium text-gray-900 truncate">{file.fileName}</p>
                                                         <p className="text-xs text-gray-500">{file.fileType}</p>
                                                     </div>
-                                                </a>
+                                                </div>
                                             ))}
                                         </div>
                                     ) : (
@@ -242,48 +256,129 @@ export default function ReportDetail() {
 
                             {/* Sidebar Info */}
                             <div className="space-y-6">
-                                {/* Reporter Info (Hidden/Anonymous) */}
+                                {/* Reporter Info */}
                                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                                     <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Reporter Information</h3>
-                                    <div className="flex items-center p-3 bg-blue-50 rounded-lg border border-blue-100 mb-4">
-                                        <AlertTriangle className="h-5 w-5 text-blue-600 mr-3" />
-                                        <div>
-                                            <p className="text-sm font-bold text-blue-900">Anonymous Reporter</p>
-                                            <p className="text-xs text-blue-700">Identity protected by system</p>
+                                    {report.submittedBy?.userId ? (
+                                        <div className="flex items-center p-3 bg-green-50 rounded-lg border border-green-100 mb-4">
+                                            <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
+                                            <div>
+                                                <p className="text-sm font-bold text-green-900">{report.submittedBy.userId.fullName}</p>
+                                                <p className="text-xs text-green-700">{report.submittedBy.userId.email}</p>
+                                            </div>
                                         </div>
-                                    </div>
+                                    ) : (
+                                        <div className="flex items-center p-3 bg-blue-50 rounded-lg border border-blue-100 mb-4">
+                                            <AlertTriangle className="h-5 w-5 text-blue-600 mr-3" />
+                                            <div>
+                                                <p className="text-sm font-bold text-blue-900">Anonymous Reporter</p>
+                                                <p className="text-xs text-blue-700">Identity protected by system</p>
+                                            </div>
+                                        </div>
+                                    )}
                                     <p className="text-xs text-gray-500">
-                                        The reporter has chosen to remain anonymous. You cannot see their personal details unless they explicitly revealed them in the description.
+                                        {report.submittedBy?.userId 
+                                            ? "The reporter has chosen to reveal their identity to administrators."
+                                            : "The reporter has chosen to remain anonymous. You cannot see their personal details unless they explicitly revealed them in the description."
+                                        }
                                     </p>
                                 </div>
 
                                 {/* Quick Actions */}
                                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Quick Actions</h3>
-                                    <div className="space-y-3">
-                                        <Button
-                                            className="w-full justify-start"
-                                            variant="outline"
-                                            onClick={handleMessageReporter}
+                                    <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Report Management</h3>
+                                    
+                                    {/* Status Update */}
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Update Status</label>
+                                        <select
+                                            value={selectedStatus}
+                                            onChange={(e) => setSelectedStatus(e.target.value)}
+                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-3 py-2 border bg-white"
+                                            disabled={updating}
                                         >
-                                            Message Reporter
-                                        </Button>
-                                        <Button
-                                            className="w-full justify-start"
-                                            variant="outline"
-                                            onClick={handleEscalateClick}
-                                            disabled={updating || report.status === 'Escalated'}
+                                            <option value="">Select new status...</option>
+                                            <option value="Open">Open</option>
+                                            <option value="In-Review">In Review</option>
+                                            <option value="In-Progress">In Progress</option>
+                                            <option value="Resolved">Resolved</option>
+                                            <option value="Closed">Closed</option>
+                                            <option value="Needs Info">Needs Info</option>
+                                            <option value="Escalated">Escalated</option>
+                                            <option value="Archived/Spam">Archived/Spam</option>
+                                        </select>
+                                        {selectedStatus && (
+                                            <Button
+                                                onClick={() => {
+                                                    handleStatusChange(selectedStatus);
+                                                    setSelectedStatus('');
+                                                }}
+                                                disabled={updating}
+                                                size="sm"
+                                                className="mt-2 w-full"
+                                            >
+                                                {updating ? 'Updating...' : 'Update Status'}
+                                            </Button>
+                                        )}
+                                    </div>
+
+                                    {/* Risk Level Update */}
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium text-gray-700 mb-2">Update Risk Level</label>
+                                        <select
+                                            value={selectedRiskLevel}
+                                            onChange={(e) => setSelectedRiskLevel(e.target.value)}
+                                            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm px-3 py-2 border bg-white"
+                                            disabled={updating}
                                         >
-                                            {report.status === 'Escalated' ? 'Already Escalated' : 'Escalate to Supervisor'}
-                                        </Button>
-                                        <Button
-                                            className="w-full justify-start text-red-600 border-red-200 hover:bg-red-50"
-                                            variant="outline"
-                                            onClick={handleFlagSpamClick}
-                                            disabled={updating || report.status === 'Archived/Spam'}
-                                        >
-                                            Flag as Spam / Archive
-                                        </Button>
+                                            <option value="">Select risk level...</option>
+                                            <option value="Low">Low</option>
+                                            <option value="Medium">Medium</option>
+                                            <option value="High">High</option>
+                                            <option value="Critical">Critical</option>
+                                        </select>
+                                        {selectedRiskLevel && (
+                                            <Button
+                                                onClick={() => {
+                                                    handleRiskLevelChange(selectedRiskLevel);
+                                                    setSelectedRiskLevel('');
+                                                }}
+                                                disabled={updating}
+                                                size="sm"
+                                                className="mt-2 w-full"
+                                            >
+                                                {updating ? 'Updating...' : 'Update Risk Level'}
+                                            </Button>
+                                        )}
+                                    </div>
+
+                                    <div className="border-t border-gray-200 pt-4">
+                                        <h4 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-3">Quick Actions</h4>
+                                        <div className="space-y-3">
+                                            <Button
+                                                className="w-full justify-start"
+                                                variant="outline"
+                                                onClick={handleMessageReporter}
+                                            >
+                                                Message Reporter
+                                            </Button>
+                                            <Button
+                                                className="w-full justify-start"
+                                                variant="outline"
+                                                onClick={handleEscalateClick}
+                                                disabled={updating || report.status === 'Escalated'}
+                                            >
+                                                {report.status === 'Escalated' ? 'Already Escalated' : 'Escalate to Supervisor'}
+                                            </Button>
+                                            <Button
+                                                className="w-full justify-start text-red-600 border-red-200 hover:bg-red-50"
+                                                variant="outline"
+                                                onClick={handleFlagSpamClick}
+                                                disabled={updating || report.status === 'Archived/Spam'}
+                                            >
+                                                Flag as Spam / Archive
+                                            </Button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -306,6 +401,35 @@ export default function ReportDetail() {
                 confirmText={actionType === 'escalate' ? "Escalate" : "Flag as Spam"}
                 variant={actionType === 'escalate' ? "warning" : "danger"}
             />
+
+            {/* Evidence Modal */}
+            {selectedEvidence && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedEvidence(null)}>
+                    <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden" onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-gray-50/50">
+                            <h3 className="font-semibold text-gray-900 truncate pr-4">{selectedEvidence.fileName}</h3>
+                            <button onClick={() => setSelectedEvidence(null)} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <div className="p-6 flex-1 overflow-auto flex items-center justify-center bg-gray-100/50">
+                            {selectedEvidence.fileType.startsWith('image/') ? (
+                                <img src={selectedEvidence.fileUrl} alt={selectedEvidence.fileName} className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-sm" />
+                            ) : selectedEvidence.fileType === 'application/pdf' ? (
+                                <iframe src={selectedEvidence.fileUrl} className="w-full h-[70vh] border-0 rounded-lg shadow-sm" title={selectedEvidence.fileName} />
+                            ) : (
+                                <div className="text-center p-8">
+                                    <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                                    <p className="text-gray-900 font-medium mb-4">Preview not available for this file type.</p>
+                                    <a href={selectedEvidence.fileUrl} download={selectedEvidence.fileName} className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                                        Download File
+                                    </a>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
