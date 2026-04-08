@@ -24,6 +24,8 @@ import AdminUserHistory from './pages/Admin/AdminUserHistory';
 import NotFoundPage from './pages/NotFoundPage';
 import UserReportDetail from './pages/UserReportDetail';
 import ReportDetail from './pages/Admin/ReportDetail';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfUse from './pages/TermsOfUse';
 
 function Layout() {
   const location = useLocation();
@@ -67,6 +69,8 @@ function Layout() {
           <Route path="/messages" element={<Messages />} />
           <Route path="/stories" element={<StoriesPage />} />
           <Route path="/settings" element={<UserSettingsPage />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/terms-of-use" element={<TermsOfUse />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
