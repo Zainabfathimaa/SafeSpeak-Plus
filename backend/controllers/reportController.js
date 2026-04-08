@@ -749,6 +749,7 @@ SafeSpeak+ System Security
 // @access  Public (or protected if token provided, but WA links need it public theoretically. For security, we can make it public if ID is known)
 export const getEscalationPdf = async (req, res) => {
     try {
+        console.log(`[DEBUG] Escalation PDF requested for ID: ${req.params.id}`);
         const mongoose = (await import('mongoose')).default;
         const id = req.params.id;
         let query;
@@ -758,10 +759,18 @@ export const getEscalationPdf = async (req, res) => {
             query = { reportId: id };
         }
         const report = await Report.findOne(query);
-        if (!report || !report.escalationDetails || !report.escalationDetails.pdfContent) {
-            return res.status(404).send('Escalation PDF not found in database.');
+        
+        if (!report) {
+            console.log(`[DEBUG] Report not found for query:`, query);
+            return res.status(404).send('Report not found in database.');
         }
 
+        if (!report.escalationDetails || !report.escalationDetails.pdfContent) {
+            console.log(`[DEBUG] Escalation details or PDF content missing for report:`, report.reportId);
+            return res.status(404).send('Escalation PDF content not found in document.');
+        }
+
+        console.log(`[DEBUG] Serving PDF buffer for report: ${report.reportId}, size: ${report.escalationDetails.pdfContent.length} bytes`);
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `inline; filename="SafeSpeak_Escalation_${report.reportId}.pdf"`);
         
