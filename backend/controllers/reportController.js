@@ -41,7 +41,8 @@ export const createReport = async (req, res) => {
             involvedParties,
             department,
             course,
-            files
+            files,
+            userConsentedIdReveal
         } = req.body;
 
         // Generate Report ID
@@ -90,6 +91,7 @@ export const createReport = async (req, res) => {
             submittedBy,
             status: 'Open',
             riskLevel: 'Pending', // User requested 'Pending' as default until manually reviewed
+            userConsentedIdReveal: userConsentedIdReveal === true, // Explicitly set from request
             flags: initialFlags,
             authenticityScore: Math.max(0, initialAuthScore),
             verificationStatus
@@ -192,8 +194,10 @@ export const getAllReports = async (req, res) => {
             const reportObj = report.toObject();
             
             // Check if identity should be revealed
-            // It should be revealed ONLY if the user has consented for THIS report
-            const isRevealed = reportObj.userConsentedIdReveal === true;
+            // It should be revealed if the user has consented for THIS report
+            // OR if the user has a global profile setting to reveal identity
+            const isRevealed = reportObj.userConsentedIdReveal === true || 
+                               (reportObj.submittedBy?.userId?.idRevealConsent === true);
             reportObj.isIdentityRevealed = isRevealed;
 
             if (reportObj.submittedBy?.userId && !isRevealed) {
@@ -287,8 +291,9 @@ export const getReportById = async (req, res) => {
 
         // Check if identity should be revealed
         // A report's identity is revealed if the user specifically consented for this report 
-        // OR if the user has a global consent (though we should prioritize the report setting for safety)
-        const isRevealed = reportObj.userConsentedIdReveal === true;
+        // OR if the user has a global consent setting in their profile
+        const isRevealed = reportObj.userConsentedIdReveal === true || 
+                           (reportObj.submittedBy?.userId?.idRevealConsent === true);
         reportObj.isIdentityRevealed = isRevealed;
 
         // Hide user identity if not consented
