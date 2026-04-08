@@ -84,6 +84,13 @@ import reportAuthenticityRoutes from './routes/reportAuthenticityRoutes.js';
 // - app.listen(port)
 const app = express();
 
+/**
+ * TRUST PROXY
+ * Required for express-rate-limit to work correctly on Render/Vercel
+ * since they use a proxy (load balancer) in front of the application.
+ */
+app.set('trust proxy', 1);
+
 // ===================================
 // STEP 4: Setup Middleware (Processing Chain)
 // ===================================
