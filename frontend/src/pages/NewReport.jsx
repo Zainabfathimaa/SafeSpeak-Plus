@@ -24,7 +24,8 @@ export default function NewReport() {
         department: '',
         course: '',
         involvedParties: '',
-        files: []
+        files: [],
+        userConsentedIdReveal: false
     });
 
     const steps = ['Type & Location', 'Details', 'Evidence', 'Review'];
@@ -71,7 +72,8 @@ export default function NewReport() {
                 department: formData.department || 'General',
                 course: formData.course || null,
                 involvedParties: formData.involvedParties,
-                files: formData.files
+                files: formData.files,
+                userConsentedIdReveal: formData.userConsentedIdReveal
             };
 
             const response = await createReport(payload);
@@ -121,7 +123,7 @@ export default function NewReport() {
                             {currentStep === 1 && <Step1Type formData={formData} updateFormData={updateFormData} />}
                             {currentStep === 2 && <Step2Details formData={formData} updateFormData={updateFormData} />}
                             {currentStep === 3 && <Step3Evidence formData={formData} updateFormData={updateFormData} />}
-                            {currentStep === 4 && <Step4Review formData={formData} />}
+                            {currentStep === 4 && <Step4Review formData={formData} updateFormData={updateFormData} />}
                         </div>
 
                         {/* Navigation Buttons */}

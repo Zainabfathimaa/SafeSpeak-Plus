@@ -6,7 +6,8 @@ import {
     getReportById,
     updateReportStatus,
     appealReport,
-    escalateReport
+    escalateReport,
+    getEscalationPdf
 } from '../controllers/reportController.js';
 import { authenticate, authorize } from '../middleware/auth.js';
 import rateLimit from 'express-rate-limit';
@@ -50,5 +51,8 @@ router.post('/:id/appeal', authenticate, appealReport);
 
 // Escalate a report to super admin (User only)
 router.post('/:id/escalate', authenticate, escalateReport);
+
+// Get Escalation PDF (Accessible via ID for supervisors)
+router.get('/:id/escalation-pdf', getEscalationPdf);
 
 export default router;
