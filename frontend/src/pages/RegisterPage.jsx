@@ -13,7 +13,8 @@ export default function RegisterPage() {
     const [formData, setFormData] = useState({
         email: '',
         password: '',
-        fullName: '' // Only for admin
+        fullName: '', // Only for admin
+        adminSecret: '' // SECURITY: Secret key for admin reg
     });
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -49,7 +50,12 @@ export default function RegisterPage() {
                     setLoading(false);
                     return;
                 }
-                response = await registerAdmin(sanitizedEmail, formData.password, formData.fullName);
+                if (!formData.adminSecret) {
+                    toastService.error('Admin Security Key is required for new Staff accounts.');
+                    setLoading(false);
+                    return;
+                }
+                response = await registerAdmin(sanitizedEmail, formData.password, formData.fullName, formData.adminSecret);
             }
 
             if (response.success) {
@@ -252,6 +258,16 @@ export default function RegisterPage() {
                                     placeholder="name@cmr.edu.in"
                                     required
                                     value={formData.email}
+                                    onChange={handleChange}
+                                    disabled={loading}
+                                />
+                                <Input
+                                    label="Admin Security Key"
+                                    type="password"
+                                    name="adminSecret"
+                                    placeholder="Enter authorization secret"
+                                    required
+                                    value={formData.adminSecret}
                                     onChange={handleChange}
                                     disabled={loading}
                                 />

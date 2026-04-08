@@ -167,13 +167,14 @@ export const registerUser = async (email, password) => {
   });
 };
 
-export const registerAdmin = async (email, password, fullName) => {
+export const registerAdmin = async (email, password, fullName, adminSecret) => {
   return makeRequest('/auth/admin-register', {
     method: 'POST',
     body: JSON.stringify({
       email,
       password,
-      fullName
+      fullName,
+      adminSecret
     })
   });
 };

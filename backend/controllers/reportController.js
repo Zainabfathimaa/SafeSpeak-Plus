@@ -488,7 +488,12 @@ export const escalateReport = async (req, res) => {
             // PART 1: COMPLAINT AGAINST ADMIN
             doc.fontSize(16).fillColor('red').text('PART 1: COMPLAINT AGAINST ADMINISTRATION', { underline: true });
             doc.moveDown();
-            doc.fontSize(12).fillColor('black').text(`Escalated by User ID: ${req.user.userId}`);
+            
+            // Show real identity since it's disclosed
+            const userEmail = req.user.email || 'N/A';
+            const userName = req.user.fullName || 'Anonymous Registered User';
+            
+            doc.fontSize(12).fillColor('black').text(`Escalated by: ${userName} (${userEmail})`);
             doc.moveDown();
             doc.fontSize(12).text('Grievance / Reason for Escalation:');
             doc.text(message || 'No additional message provided by user.', { italic: true });

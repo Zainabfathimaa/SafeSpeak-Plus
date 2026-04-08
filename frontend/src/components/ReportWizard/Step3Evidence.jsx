@@ -7,8 +7,16 @@ export function Step3Evidence({ formData, updateFormData }) {
         const files = Array.from(e.target.files);
         if (!files.length) return;
 
-        if (formData.files.length + files.length > 5) {
-            toastService.error("You can only upload up to 5 files.");
+        // Restriction 1: Maximum 10 files
+        if (formData.files.length + files.length > 10) {
+            toastService.error("You can only upload up to 10 images.");
+            return;
+        }
+
+        // Restriction 2: Images only, no PDFs
+        const nonImageFiles = files.filter(file => !file.type.startsWith('image/'));
+        if (nonImageFiles.length > 0) {
+            toastService.error("Only image files (JPG, PNG, SVG) are allowed. PDFs are not supported for evidence.");
             return;
         }
 
@@ -71,20 +79,20 @@ export function Step3Evidence({ formData, updateFormData }) {
                     multiple
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     onChange={handleFileUpload}
-                    accept="image/*,application/pdf"
+                    accept="image/*"
                 />
                 <div className="flex flex-col items-center justify-center space-y-2">
                     <div className="p-3 bg-blue-50 rounded-full text-blue-500">
                         <Upload className="w-8 h-8" />
                     </div>
                     <p className="text-lg font-medium text-text-primary">Click to upload or drag and drop</p>
-                    <p className="text-sm text-text-secondary">SVG, PNG, JPG or PDF. Max 5 files.</p>
+                    <p className="text-sm text-text-secondary">SVG, PNG, JPG (Images Only). Max 10 files.</p>
                 </div>
             </div>
 
             {formData.files.length > 0 && (
                 <div className="space-y-2 mt-4">
-                    <p className="text-sm font-medium text-text-secondary mb-2">Attached Files ({formData.files.length}/5)</p>
+                    <p className="text-sm font-medium text-text-secondary mb-2">Attached Images ({formData.files.length}/10)</p>
                     {formData.files.map((file, idx) => (
                         <div key={idx} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg shadow-sm">
                             <div className="flex items-center space-x-3 overflow-hidden">

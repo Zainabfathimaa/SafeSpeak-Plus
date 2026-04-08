@@ -166,7 +166,7 @@ export default function LoginPage() {
                                 </div>
 
                                 <Input
-                                    label="College Email Address"
+                                    label="Email Address"
                                     type="email"
                                     name="email"
                                     placeholder="name@cmr.edu.in"
