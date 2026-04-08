@@ -52,3 +52,9 @@ export const escalateReport = async (id, escalateData) => {
         body: JSON.stringify(escalateData)
     });
 };
+
+export const getReportsByUserId = async (userId) => {
+    return await makeRequest(`/reports/user/${userId}`, {
+        method: 'GET'
+    });
+};

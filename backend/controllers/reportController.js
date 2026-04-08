@@ -247,6 +247,47 @@ export const getUserReports = async (req, res) => {
     }
 };
 
+// @desc    Get reports for a specific user (Admin/Supervisor only)
+// @route   GET /api/reports/user/:userId
+// @access  Private (Admin/Supervisor)
+export const getReportsByUserId = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const reports = await Report.find({ 'submittedBy.userId': userId })
+            .populate('submittedBy.userId', 'fullName email idRevealConsent anonymousCode')
+            .sort({ createdAt: -1 });
+
+        // Process reports for identity reveal logic (same as getAllReports)
+        const processedReports = reports.map(report => {
+            const reportObj = report.toObject();
+            
+            // Check if identity should be revealed
+            const isRevealed = reportObj.userConsentedIdReveal === true || 
+                               (reportObj.submittedBy?.userId?.idRevealConsent === true);
+            reportObj.isIdentityRevealed = isRevealed;
+
+            if (reportObj.submittedBy?.userId && !isRevealed) {
+                reportObj.submittedBy.userId.email = 'Hidden';
+                reportObj.submittedBy.userId.fullName = 'Anonymous User';
+            }
+            return reportObj;
+        });
+
+        res.status(200).json({
+            success: true,
+            count: processedReports.length,
+            reports: processedReports
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch user history',
+            error: error.message
+        });
+    }
+};
+
 // @desc    Get single report details
 // @route   GET /api/reports/:id
 // @access  Private
