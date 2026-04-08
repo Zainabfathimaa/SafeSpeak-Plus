@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AdminHeader } from '../../components/Admin/AdminHeader';
 import { AdminSidebar } from '../../components/Admin/AdminSidebar';
-import { ArrowLeft, Calendar, FileText, MessageSquare, Shield, User, Mail, Phone, MapPin, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, Calendar, Eye, FileText, MessageSquare, Shield, User, Mail, Phone, MapPin, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { RiskBadge } from '../../components/Admin/RiskBadge';
 import { StatusBadge } from '../../components/Admin/StatusBadge';
@@ -289,6 +289,15 @@ export default function AdminUserHistory() {
                                                 <div className="flex flex-col items-end space-y-2 ml-4">
                                                     <RiskBadge level={report.riskLevel} />
                                                     <StatusBadge status={report.status} />
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        onClick={() => navigate(`/admin/reports/${report._id}`)}
+                                                        className="mt-2 flex items-center space-x-2"
+                                                    >
+                                                        <Eye className="h-4 w-4" />
+                                                        <span>View Report</span>
+                                                    </Button>
                                                 </div>
                                             </div>
 
