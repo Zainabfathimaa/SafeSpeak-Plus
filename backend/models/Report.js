@@ -50,8 +50,8 @@ const reportSchema = new mongoose.Schema({
     },
     riskLevel: {
         type: String,
-        enum: ['Low', 'Medium', 'High', 'Critical'],
-        default: 'Medium'
+        enum: ['Pending', 'Low', 'Medium', 'High', 'Critical'],
+        default: 'Pending'
     },
     submittedBy: {
         userId: {

@@ -163,6 +163,46 @@ export const sendMessage = async (req, res) => {
             msgObj.sender.fullName = 'Anonymous User';
         }
 
+        // --- NOTIFICATION LOGIC ---
+        try {
+            const Notification = (await import('../models/Notification.js')).default;
+            const User = (await import('../models/User.js')).default;
+
+            if (role === 'admin') {
+                // Admin sent to user
+                if (report.submittedBy?.userId) {
+                    await Notification.create({
+                        recipientId: report.submittedBy.userId,
+                        type: 'message_received',
+                        title: 'New Message from Admin 💬',
+                        message: `An administrator has sent a message regarding report ${report.reportId}.`,
+                        relatedId: report._id,
+                        relatedType: 'Report',
+                        priority: 'medium',
+                        shouldSendEmail: true
+                    });
+                }
+            } else {
+                // User sent to admins
+                const admins = await User.find({ role: 'admin' });
+                for (const admin of admins) {
+                    await Notification.create({
+                        recipientId: admin._id,
+                        type: 'message_received',
+                        title: 'New Message from User 💬',
+                        message: `A message has been received on report ${report.reportId}.`,
+                        relatedId: report._id,
+                        relatedType: 'Report',
+                        priority: 'low',
+                        shouldSendEmail: true
+                    });
+                }
+            }
+        } catch (notifErr) {
+            console.error('Failed to send message notification:', notifErr);
+        }
+        // --------------------------
+
         res.status(201).json({ success: true, message: msgObj });
     } catch (error) {
         console.error('Send message error:', error);
