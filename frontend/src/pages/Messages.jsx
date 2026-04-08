@@ -85,8 +85,8 @@ export default function Messages() {
                     let status = 'sent';
                     if (m.sender._id === currentUser.id) {
                         // Message sent by current user
-                        const hasRead = m.readBy && m.readBy.length > 0;
-                        const hasDelivered = m.deliveredTo && m.deliveredTo.length > 0;
+                        const hasRead = m.readBy && m.readBy.some(id => id !== currentUser.id);
+                        const hasDelivered = m.deliveredTo && m.deliveredTo.some(id => id !== currentUser.id);
                         if (hasRead) {
                             status = 'read';
                         } else if (hasDelivered) {

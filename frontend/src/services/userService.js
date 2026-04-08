@@ -63,16 +63,6 @@ const userService = {
     }
   },
 
-  // Admin: Get all users
-  getAllUsers: async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/user/all`);
-      return response.data;
-    } catch (error) {
-      throw error.response?.data || error;
-    }
-  },
-
   // Delete current user account
   deleteAccount: async () => {
     try {
