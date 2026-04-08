@@ -10,7 +10,8 @@ import {
   updateIdRevealConsent,
   getIdRevealConsentStatus,
   deleteAccount,
-  getUserActivity
+  getUserActivity,
+  completeOnboarding
 } from '../controllers/userController.js';
 import { authenticate } from '../middleware/auth.js';
 
@@ -37,6 +38,9 @@ router.delete('/account', authenticate, deleteAccount);
 
 // Get User Activity (GET /api/user/activity)
 router.get('/activity', authenticate, getUserActivity);
+
+// Complete Onboarding (PUT /api/user/onboarding/complete)
+router.put('/onboarding/complete', authenticate, completeOnboarding);
 
 // ===================================
 // NOTIFICATION & PREFERENCES

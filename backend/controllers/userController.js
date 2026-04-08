@@ -446,6 +446,38 @@ export const getUserActivity = async (req, res) => {
     }
 };
 
+// ===================================
+// MARK ONBOARDING AS COMPLETED
+// ===================================
+export const completeOnboarding = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found'
+            });
+        }
+
+        user.hasCompletedOnboarding = true;
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Onboarding marked as completed'
+        });
+
+    } catch (error) {
+        console.error('Error completing onboarding:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error updating onboarding status',
+            error: error.message
+        });
+    }
+};
+
+
 export default {
     getAllUsers,    getUserById,    getCurrentUser,
     updateUserProfile,
@@ -455,6 +487,7 @@ export default {
     updateIdRevealConsent,
     getIdRevealConsentStatus,
     deleteAccount,
-    getUserActivity
+    getUserActivity,
+    completeOnboarding
 };
 

@@ -383,9 +383,9 @@ export default function ReportDetail() {
                             {/* Sidebar Info */}
                             <div className="space-y-6">
                                 {/* Reporter Info */}
-                                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                                     <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider mb-4">Reporter Information</h3>
-                                    {report.submittedBy?.userId ? (
+                                    {report.isIdentityRevealed && report.submittedBy?.userId ? (
                                         <div className="flex items-center p-3 bg-green-50 rounded-lg border border-green-100 mb-4">
                                             <CheckCircle className="h-5 w-5 text-green-600 mr-3" />
                                             <div>
@@ -403,7 +403,7 @@ export default function ReportDetail() {
                                         </div>
                                     )}
                                     <p className="text-xs text-gray-500">
-                                        {report.submittedBy?.userId 
+                                        {report.isIdentityRevealed 
                                             ? "The reporter has chosen to reveal their identity to administrators."
                                             : "The reporter has chosen to remain anonymous. You cannot see their personal details unless they explicitly revealed them in the description."
                                         }

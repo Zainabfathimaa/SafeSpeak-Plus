@@ -10,9 +10,10 @@ import { PlusCircle, FileText, MessageSquare, ArrowUpRight, BookOpen } from 'luc
 
 import { getUser } from '../services/authService';
 import storyService from '../services/storyService';
+import userService from '../services/userService';
+import OnboardingGuide from '../components/Onboarding/OnboardingGuide';
 
 export default function UserDashboard() {
-    const user = getUser();
     const [stats, setStats] = React.useState({
         active: 0,
         total: 0
@@ -22,8 +23,24 @@ export default function UserDashboard() {
     const [userStories, setUserStories] = React.useState([]);
     const [storiesLoading, setStoriesLoading] = React.useState(true);
     const [editingStory, setEditingStory] = React.useState(null);
+    const [currentUser, setCurrentUser] = React.useState(null);
+    const [showOnboarding, setShowOnboarding] = React.useState(false);
 
     React.useEffect(() => {
+        const fetchUserProfile = async () => {
+            try {
+                const response = await userService.getCurrentUser();
+                if (response.success) {
+                    setCurrentUser(response.user);
+                    if (!response.user.hasCompletedOnboarding) {
+                        setShowOnboarding(true);
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to fetch user profile:', error);
+            }
+        };
+
         const fetchStats = async () => {
             try {
                 const { getUserReports } = await import('../services/reportService');
@@ -40,8 +57,19 @@ export default function UserDashboard() {
             }
         };
 
+        fetchUserProfile();
         fetchStats();
     }, []);
+
+    const handleOnboardingComplete = async () => {
+        try {
+            await userService.completeOnboarding();
+            setShowOnboarding(false);
+        } catch (error) {
+            console.error('Failed to complete onboarding:', error);
+            setShowOnboarding(false); // Hide anyway to not block user
+        }
+    };
 
     const handleStorySubmitted = () => {
         setIsStoryModalOpen(false);
@@ -187,6 +215,9 @@ export default function UserDashboard() {
                     onSuccess={handleStorySubmitted}
                     editData={editingStory}
                 />
+
+                {/* Onboarding Guide */}
+                {showOnboarding && <OnboardingGuide onComplete={handleOnboardingComplete} />}
 
             </div>
         </div>
