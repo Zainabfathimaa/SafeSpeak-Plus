@@ -245,6 +245,10 @@ app.use('/api/notifications', notificationRoutes);
 // Analytics routes
 app.use('/api/analytics', analyticsRoutes);
 
+// ESCALATION DOWNLOAD (Unique Root-Level Path to avoid shadowing)
+import { getEscalationPdf } from './controllers/reportController.js';
+app.get('/api/escalation/download/:id', getEscalationPdf);
+
 // ===================================
 // STEP 7: Health Check Route
 // ===================================

@@ -717,8 +717,9 @@ SafeSpeak+ System Security
 
         } else if (contactMethod === 'whatsapp') {
             // Generate WhatsApp Link
-            const backendUrl = process.env.BACKEND_URL || 'https://safespeakplus.onrender.com'; // Use actual live URL fallback
-            const pdfDownloadUrl = `${backendUrl}/api/reports/${report._id}/escalation-pdf`;
+            const backendUrl = process.env.BACKEND_URL || 'https://safespeakplus.onrender.com'; 
+            // Using the new unique root-level path to avoid route shadowing conflicts
+            const pdfDownloadUrl = `${backendUrl}/api/escalation/download/${report._id}`;
             
             const waMessage = `🚨 *URGENT ESCALATION: SafeSpeak+ Incident*\n\n*Report ID:* ${report.reportId}\n*User Message:* ${message || 'N/A'}\n\n🔓 *Action Required:* Please review the secure PDF report details here:\n${pdfDownloadUrl}\n\n_Note: This link leads to a professionally generated incident report summary._`;
             
