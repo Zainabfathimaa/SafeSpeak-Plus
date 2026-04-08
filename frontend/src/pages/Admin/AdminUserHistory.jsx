@@ -7,7 +7,7 @@ import { Button } from '../../components/ui/Button';
 import { RiskBadge } from '../../components/Admin/RiskBadge';
 import { StatusBadge } from '../../components/Admin/StatusBadge';
 import userService from '../../services/userService';
-import { getAllReports } from '../../services/reportService';
+import { getReportsByUserId } from '../../services/reportService';
 
 export default function AdminUserHistory() {
     const { userId } = useParams();
@@ -31,13 +31,10 @@ export default function AdminUserHistory() {
                     return;
                 }
 
-                // Fetch user's reports
-                const reportsResponse = await getAllReports();
+                // Fetch user's reports specifically via the new server-side filtering endpoint
+                const reportsResponse = await getReportsByUserId(userId);
                 if (reportsResponse.success) {
-                    const userReportsData = reportsResponse.reports.filter(report =>
-                        report.submittedBy?.userId === userId
-                    );
-                    setUserReports(userReportsData);
+                    setUserReports(reportsResponse.reports);
                 }
 
             } catch (err) {

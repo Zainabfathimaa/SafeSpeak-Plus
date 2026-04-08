@@ -7,7 +7,8 @@ import {
     updateReportStatus,
     appealReport,
     escalateReport,
-    getEscalationPdf
+    getEscalationPdf,
+    getReportsByUserId
 } from '../controllers/reportController.js';
 import { authenticate, authorize } from '../middleware/auth.js';
 import rateLimit from 'express-rate-limit';
@@ -41,6 +42,9 @@ router.get('/:id/escalation-pdf', getEscalationPdf);
 
 // Get All Reports (Admin only)
 router.get('/', authenticate, authorize('admin'), getAllReports);
+
+// Get Reports for a specific user (Admin only)
+router.get('/user/:userId', authenticate, authorize('admin'), getReportsByUserId);
 
 // Get Single Report (User sees own, Staff sees all)
 router.get('/:id', authenticate, getReportById);
