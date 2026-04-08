@@ -38,11 +38,10 @@ function Layout() {
     '/messages',
     '/stories',
     '/settings',
-    '/admin',
-    '/login'
+    '/admin'
   ];
 
-  const shouldHideGlobalLayout = location.pathname === '/' || hideGlobalLayoutPrefixes.some(prefix => location.pathname.startsWith(prefix));
+  const shouldHideGlobalLayout = location.pathname === '/register' || hideGlobalLayoutPrefixes.some(prefix => location.pathname.startsWith(prefix));
 
   return (
     <div className="flex flex-col min-h-screen bg-background font-sans text-text-primary">
