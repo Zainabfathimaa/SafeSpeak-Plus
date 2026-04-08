@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Save, AlertCircle, Trash2, Shield, BellRing, User, Lock, Palette, CheckCircle2, LogOut } from 'lucide-react';
 import userService from '../services/userService';
 import { logout } from '../services/authService';
@@ -86,6 +87,7 @@ const departmentData = {
 };
 
 export const UserSettingsPage = () => {
+  const navigate = useNavigate();
   const { addToast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
