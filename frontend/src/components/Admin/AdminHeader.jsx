@@ -21,14 +21,6 @@ export function AdminHeader() {
                 <h1 className="text-lg font-semibold text-white/90 hidden md:block">Admin Dashboard</h1>
                 <div className="flex items-center space-x-4">
                     <NotificationBell />
-                    <Button
-                        variant="ghost"
-                        onClick={handleLogout}
-                        className="flex items-center space-x-1 text-white hover:bg-primary-dark hover:text-white"
-                    >
-                        <LogOut className="h-4 w-4" />
-                        <span>Logout</span>
-                    </Button>
                 </div>
             </div>
         </nav>
