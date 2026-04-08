@@ -15,7 +15,7 @@ export default function LandingPage() {
                         <div className="w-full lg:w-1/2 text-left z-10">
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
                                 <Lock className="w-4 h-4" />
-                                <span>Enterprise-Grade Security</span>
+                                <span>Secure &middot; Private &middot; Accountable</span>
                             </div>
 
                             <h1 className="text-5xl md:text-6xl font-bold text-gray-900 leading-tight mb-6">
@@ -24,7 +24,7 @@ export default function LandingPage() {
                             </h1>
 
                             <p className="text-xl text-gray-600 mb-8 leading-relaxed max-w-lg">
-                                SafeSpeak+ is an anonymous incident reporting platform that protects whistleblowers while ensuring accountability. Report concerns without fear of retaliation.
+                                SafeSpeak+ is a secure, anonymous incident reporting system built for institutional use. Submit concerns confidentially, track their progress, and receive updates — with your identity protected at every step.
                             </p>
 
                             <div className="flex flex-col sm:flex-row gap-4">
@@ -41,7 +41,7 @@ export default function LandingPage() {
                                 </Link>
                             </div>
 
-                            <div className="mt-8 flex items-center gap-6 text-sm text-gray-500">
+                            <div className="mt-8 flex flex-wrap items-center gap-6 text-sm text-gray-500">
                                 <div className="flex items-center gap-2">
                                     <Shield className="w-4 h-4" />
                                     <span>Identity Protected</span>
@@ -49,6 +49,10 @@ export default function LandingPage() {
                                 <div className="flex items-center gap-2">
                                     <EyeOff className="w-4 h-4" />
                                     <span>End-to-End Encrypted</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <CheckCircle className="w-4 h-4" />
+                                    <span>Authorised Institutional Use</span>
                                 </div>
                             </div>
                         </div>
@@ -84,7 +88,7 @@ export default function LandingPage() {
                                 <div className="flex items-center justify-between pt-8 border-t border-gray-50">
                                     <div>
                                         <p className="text-xs text-gray-500 mb-1.5">Report ID</p>
-                                        <p className="font-mono font-medium text-gray-900">SR-2024-0042</p>
+                                        <p className="font-mono font-medium text-gray-900">SR-2026-0001</p>
                                     </div>
                                     <div>
                                         <p className="text-xs text-gray-500 mb-1.5">Risk Level</p>
@@ -105,9 +109,9 @@ export default function LandingPage() {
             <section id="features" className="py-16 bg-gray-50">
                 <div className="container mx-auto px-4">
                     <div className="text-center max-w-3xl mx-auto mb-12">
-                        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Enterprise-Grade Features</h2>
+                        <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Platform Capabilities</h2>
                         <p className="text-lg text-gray-600">
-                            Built for organizations that take compliance and employee safety seriously.
+                            Built for institutions that are committed to transparency, safety, and accountability.
                         </p>
                     </div>
 
