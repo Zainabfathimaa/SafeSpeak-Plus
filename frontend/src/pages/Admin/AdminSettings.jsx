@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Save, Shield, BellRing, User, Lock, Server, LogOut } from 'lucide-react';
 import { logout } from '../../services/authService';
 import userService from '../../services/userService';
@@ -9,6 +10,7 @@ import { Input } from '../../components/ui/Input';
 import ConfirmationModal from '../../components/ui/ConfirmationModal';
 
 export default function AdminSettings() {
+    const navigate = useNavigate();
     const { addToast } = useToast();
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);

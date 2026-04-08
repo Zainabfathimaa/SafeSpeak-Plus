@@ -1,5 +1,7 @@
 import User from '../models/User.js';
 import ActivityLog from '../models/ActivityLog.js';
+import Story from '../models/Story.js';
+import Report from '../models/Report.js';
 
 // ===================================
 // GET ALL USERS (Admin only)
@@ -378,19 +380,32 @@ export const deleteAccount = async (req, res) => {
 
         // Precaution: Do not allow deletion of admin accounts via this route
         if (user.role === 'admin') {
-            return res.status(403).json({
-                success: false,
-                message: 'Admin accounts cannot be deleted via the user dashboard.'
-            });
+            // Check if this is the only admin
+            const adminCount = await User.countDocuments({ role: 'admin' });
+            if (adminCount <= 1) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'System requires at least one administrator account.'
+                });
+            }
         }
 
-        // Alternatively, instead of hard delete, we can soft delete or deactivate
-        // But for this requirement, we'll permanently delete the user (Note conflicts with orphaned reports)
+        // Perform cascading delete
+        // 1. Delete all stories submitted by this user
+        await Story.deleteMany({ submittedBy: userId });
+
+        // 2. Delete all reports submitted by this user
+        await Report.deleteMany({ 'submittedBy.userId': userId });
+
+        // 3. Delete activity logs
+        await ActivityLog.deleteMany({ userId });
+
+        // 4. Finally delete the user
         await User.findByIdAndDelete(userId);
 
         res.status(200).json({
             success: true,
-            message: 'Your account has been permanently deleted.'
+            message: 'Your account and all associated data have been permanently deleted.'
         });
 
     } catch (error) {

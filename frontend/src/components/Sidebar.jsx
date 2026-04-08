@@ -3,6 +3,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, FileText, MessageSquare, ArrowUpRight, BookOpen, Settings, LogOut } from 'lucide-react';
 import { useState } from 'react';
 import { ChevronLeft } from 'lucide-react';
+import { logout } from '../services/authService';
+import ConfirmationModal from './ui/ConfirmationModal';
 
 export function Sidebar() {
     const location = useLocation();
@@ -19,6 +21,7 @@ export function Sidebar() {
     ];
 
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
     return (
         <>
@@ -62,8 +65,31 @@ export function Sidebar() {
                             Settings
                         </span>
                     </Link>
+
+                    <button
+                        onClick={() => setIsLogoutModalOpen(true)}
+                        className="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 font-semibold group text-red-500 hover:bg-red-50/50 w-full"
+                    >
+                        <LogOut className="h-5 w-5 flex-shrink-0" />
+                        <span className={`whitespace-nowrap transition-all duration-300 overflow-hidden ${isCollapsed ? 'max-w-0 opacity-0' : 'max-w-[200px] opacity-100'}`}>
+                            Sign Out
+                        </span>
+                    </button>
                 </div>
             </aside>
+
+            <ConfirmationModal
+                isOpen={isLogoutModalOpen}
+                onClose={() => setIsLogoutModalOpen(false)}
+                onConfirm={() => {
+                    logout();
+                    navigate('/login');
+                }}
+                title="Sign Out"
+                message="Are you sure you want to sign out?"
+                confirmText="Sign Out"
+                variant="danger"
+            />
         </>
     );
 }
