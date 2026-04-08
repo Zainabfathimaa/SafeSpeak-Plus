@@ -20,6 +20,9 @@ export default function ReportDetail() {
     const { addToast } = useToast();
     const [selectedStatus, setSelectedStatus] = useState('');
     const [selectedRiskLevel, setSelectedRiskLevel] = useState('');
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const [actionType, setActionType] = useState(null);
+    const [selectedEvidence, setSelectedEvidence] = useState(null);
 
     useEffect(() => {
         const fetchReport = async () => {

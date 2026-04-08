@@ -73,6 +73,16 @@ const userService = {
     }
   },
 
+  // Admin: Get user by ID
+  getUserById: async (userId) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/user/${userId}`);
+      return response.data;
+    } catch (error) {
+      throw error.response?.data || error;
+    }
+  },
+
   // Delete current user account
   deleteAccount: async () => {
     try {
