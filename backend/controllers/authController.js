@@ -72,7 +72,16 @@ export const register = async (req, res) => {
 /* Register Admin */
 export const registerAdmin = async (req, res) => {
   try {
-    const { email, password, fullName } = req.body;
+    const { email, password, fullName, adminSecret } = req.body;
+
+    // SECURITY CHECK: Verify admin registration secret if configured
+    const requiredSecret = process.env.ADMIN_REGISTRATION_SECRET;
+    if (requiredSecret && adminSecret !== requiredSecret) {
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Invalid Admin Security Key. Authorized personnel only.' 
+      });
+    }
 
     if (!email || !password) {
       return res.status(400).json({ success: false, message: 'Missing fields' });
