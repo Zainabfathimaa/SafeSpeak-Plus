@@ -497,30 +497,28 @@ Best Regards,
 SafeSpeak+ System Security
                 `;
 
-                const attachments = [
-                    {
-                        filename: `SafeSpeak_Escalation_${report.reportId}.pdf`,
-                        content: pdfBuffer,
-                        contentType: 'application/pdf'
-                    }
-                ];
-
                 try {
-                    const { transporter } = await import('../utils/emailService.js');
-                    await transporter.sendMail({
-                        from: `"Safe Speak Platform" <${process.env.SMTP_EMAIL}>`,
-                        to: contactValue,
-                        subject,
-                        text: emailMessage,
-                        attachments
-                    });
+                    const emailResult = await sendEmail(contactValue, subject, emailMessage);
+                    if (!emailResult.success) {
+                        console.error('Failed to send escalated email:', emailResult.message);
+                        return res.status(500).json({
+                            success: false,
+                            message: 'Failed to send escalation email. Please try again later.',
+                            error: emailResult.message
+                        });
+                    }
                 } catch (err) {
-                    console.error('Failed to send escalated email with PDF:', err);
+                    console.error('Failed to send escalated email:', err);
+                    return res.status(500).json({
+                        success: false,
+                        message: 'Failed to send escalation email. Please try again later.',
+                        error: err.message || err
+                    });
                 }
 
                 res.status(200).json({
                     success: true,
-                    message: `Report successfully escalated. A PDF has been dispatched via email to ${contactValue}.`,
+                    message: `Report successfully escalated. A notification email has been dispatched to ${contactValue}.`,
                     report
                 });
 
