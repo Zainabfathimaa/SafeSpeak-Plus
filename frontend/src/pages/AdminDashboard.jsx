@@ -78,6 +78,9 @@ export default function AdminDashboard() {
         if (filters.status !== 'all') {
             filtered = filtered.filter(r => r.status.toLowerCase().replace(' ', '-') === filters.status);
         }
+        if (filters.department !== 'all') {
+            filtered = filtered.filter(r => r.department.toLowerCase() === filters.department);
+        }
 
         setFilteredReports(filtered);
     };
