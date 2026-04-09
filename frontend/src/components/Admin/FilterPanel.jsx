@@ -6,7 +6,6 @@ export function FilterPanel({ onFilterChange, onReset }) {
     const [filters, setFilters] = useState({
         riskLevel: 'all',
         status: 'all',
-        department: 'all',
         dateRange: 'all'
     });
 
@@ -20,7 +19,6 @@ export function FilterPanel({ onFilterChange, onReset }) {
         setFilters({
             riskLevel: 'all',
             status: 'all',
-            department: 'all',
             dateRange: 'all'
         });
         onReset();
@@ -42,7 +40,7 @@ export function FilterPanel({ onFilterChange, onReset }) {
                 </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {/* Risk Level Filter */}
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Risk Level</label>
@@ -73,23 +71,6 @@ export function FilterPanel({ onFilterChange, onReset }) {
                         <option value="resolved">Resolved</option>
                         <option value="closed">Closed</option>
                         <option value="escalated">Escalated</option>
-                    </select>
-                </div>
-
-                {/* Department Filter */}
-                <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Department</label>
-                    <select
-                        value={filters.department}
-                        onChange={(e) => handleFilterChange('department', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                    >
-                        <option value="all">All Departments</option>
-                        <option value="hr">HR</option>
-                        <option value="finance">Finance</option>
-                        <option value="operations">Operations</option>
-                        <option value="it">IT</option>
-                        <option value="marketing">Marketing</option>
                     </select>
                 </div>
 

@@ -18,7 +18,6 @@ export const getAllReports = async (filters = {}) => {
     const queryParams = new URLSearchParams();
     if (filters.status) queryParams.append('status', filters.status);
     if (filters.riskLevel) queryParams.append('riskLevel', filters.riskLevel);
-    if (filters.department) queryParams.append('department', filters.department);
 
     const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
     return await makeRequest(`/reports${queryString}`, {
