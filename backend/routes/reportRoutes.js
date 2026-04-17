@@ -31,7 +31,8 @@ const router = express.Router();
 // All routes are protected (require login)
 
 // Create Report (Any logged in user/anonymous)
-router.post('/', authenticate, reportLimiter, createReport);
+// reportLimiter temporarily disabled as per request
+router.post('/', authenticate, createReport);
 
 // Get User's Own Reports
 router.get('/my-reports', authenticate, getUserReports);
