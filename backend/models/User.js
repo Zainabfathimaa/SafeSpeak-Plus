@@ -68,8 +68,6 @@ const userSchema = new mongoose.Schema({
   // ANONYMOUS CODE FIELD
   anonymousCode: {
     type: String,
-    unique: true,                                           // Each code is unique
-    sparse: true,                                           // Allow multiple null values
     uppercase: true,                                        // Convert to uppercase
     default: null
     // Format will be: ABC-123-DEF (generated in controller)
@@ -407,6 +405,13 @@ userSchema.methods.generateAnonymousCode = function () {
  * await User.findByIdAndUpdate(id, { name: '' })  // Update user
  * await User.deleteOne({ email })                 // Delete user
  */
+
+// Index for anonymousCode: unique, but ignores nulls
+userSchema.index(
+  { anonymousCode: 1 }, 
+  { unique: true, partialFilterExpression: { anonymousCode: { $type: "string" } } }
+);
+
 const User = mongoose.model('User', userSchema);
 
 export default User;
